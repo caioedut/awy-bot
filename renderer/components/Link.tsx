@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import MuiLink, { LinkProps as MuiLinkProps } from '@material-ui/core/Link';
+import MuiLink, { LinkProps as MuiLinkProps } from '@mui/material/Link';
 
 type NextComposedProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & NextLinkProps;
 
@@ -25,14 +25,7 @@ interface LinkPropsBase {
 type LinkProps = LinkPropsBase & NextComposedProps & Omit<MuiLinkProps, 'ref'>;
 
 function Link(props: LinkProps) {
-  const {
-    href,
-    activeClassName = 'active',
-    className: classNameProps,
-    innerRef,
-    naked,
-    ...other
-  } = props;
+  const { href, activeClassName = 'active', className: classNameProps, innerRef, naked, ...other } = props;
 
   const router = useRouter();
   const pathname = typeof href === 'string' ? href : (href as any).pathname;
@@ -44,9 +37,7 @@ function Link(props: LinkProps) {
     return <NextComposed className={className} ref={innerRef} href={href} {...other} />;
   }
 
-  return (
-    <MuiLink component={NextComposed} className={className} ref={innerRef} href={href} {...other} />
-  );
+  return <MuiLink component={NextComposed} className={className} ref={innerRef} href={href} {...other} />;
 }
 
 export default React.forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => <Link {...props} innerRef={ref} />);
