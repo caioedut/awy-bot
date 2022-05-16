@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import TextField, { TextFieldProps } from '@mui/material/TextField';
 
-type Props = {};
+function Hotkey(props: TextFieldProps) {
+  const { onChange, defaultValue, ...rest } = props;
 
-function Hotkey({ onChange, ...rest }: TextFieldProps) {
-  const [hotkey, setHotkey] = useState('');
+  const [hotkey, setHotkey] = useState(defaultValue);
 
   const modifiers = {
     altKey: 'ALT',

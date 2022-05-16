@@ -1,15 +1,16 @@
 import React from 'react';
 
-import Box from '@mui/material/Box';
+import Box, { BoxProps } from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 
 type Props = {
   paper?: boolean;
   container?: boolean;
-  children: JSX.Element;
 };
 
-function Content({ children, paper, container, ...rest }: Props) {
+function Content(props: BoxProps & Props) {
+  const { children, paper, container, ...rest } = props;
+
   return (
     <Box //
       component={paper ? Paper : 'div'}
