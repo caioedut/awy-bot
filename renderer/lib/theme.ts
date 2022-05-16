@@ -3,6 +3,7 @@ import { red } from '@mui/material/colors';
 
 export const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
       main: '#556cd6',
     },
@@ -14,6 +15,38 @@ export const theme = createTheme({
     },
     background: {
       default: '#fff',
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          fontSize: 12,
+          backgroundColor: '#333333',
+          padding: 16,
+        },
+        '*::placeholder': {
+          fontSize: '.8em',
+        },
+        '*': {
+          scrollbarWidth: 'thin',
+        },
+        '*::-webkit-scrollbar': {
+          height: 8,
+          width: 8,
+        },
+        '*::-webkit-scrollbar-track': {
+          borderRadius: 'inherit',
+          backgroundColor: 'rgba(0, 0, 0, .1)',
+        },
+        '*::-webkit-scrollbar-thumb': {
+          borderRadius: 'inherit',
+          backgroundColor: 'darkgrey',
+        },
+        a: {
+          display: 'inline-block',
+        },
+      },
     },
   },
 });

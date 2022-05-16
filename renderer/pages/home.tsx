@@ -1,16 +1,30 @@
 import React from 'react';
 import Head from 'next/head';
+import Content from '../components/Content';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Hotkey from '../components/Hotkey';
 
 function Home() {
+  const handleChange = (e) => {
+    fetch('/api/mouse');
+  };
+
   return (
     <React.Fragment>
       <Head>
-        <title>Home - Nextron (with-typescript-material-ui)</title>
+        <title>Awy Bot</title>
       </Head>
-      <div>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam commodi id iste minima nam natus rem voluptate. Aliquid dolor,
-        dolorem ex exercitationem ipsum iusto magni quaerat qui sit totam vero.
-      </div>
+
+      <Typography variant="h6">Mouse</Typography>
+      <Content paper>
+        <Grid container>
+          <Grid item>Middle Button</Grid>
+          <Grid item>
+            <Hotkey onChange={handleChange} />
+          </Grid>
+        </Grid>
+      </Content>
     </React.Fragment>
   );
 }
