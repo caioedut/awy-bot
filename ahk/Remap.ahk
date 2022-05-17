@@ -26,6 +26,10 @@ Return
 OnPress:
 {
   Remap := Keymap%A_ThisHotkey%
-  Send, %Remap%
+  Sequence := StrSplit(Remap, ":;")
+
+  For index, value in Sequence
+    Send, %value%
+
   Return
 }

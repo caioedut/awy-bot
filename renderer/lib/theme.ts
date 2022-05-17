@@ -23,6 +23,7 @@ export const theme = createTheme({
         size: 'small',
         color: 'secondary',
         variant: 'outlined',
+        fullWidth: true,
       },
     },
     MuiTextField: {
@@ -30,6 +31,7 @@ export const theme = createTheme({
         size: 'small',
         color: 'secondary',
         variant: 'outlined',
+        fullWidth: true,
       },
     },
     MuiCssBaseline: {
