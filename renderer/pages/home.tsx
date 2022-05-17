@@ -56,7 +56,6 @@ function Home() {
 
   useEffect(() => {
     store.set('bindings', bindings);
-    console.log(bindings);
     ipcRenderer.sendSync('remap', JSON.stringify(bindings));
   }, [bindings]);
 
@@ -82,8 +81,6 @@ function Home() {
   };
 
   const handleChangeBinding = async (index) => {
-    console.log('changed', Date.now());
-
     const key = formRef.current[`${index}.key`].value;
     const sequence = getSequence(index);
 
@@ -129,19 +126,40 @@ function Home() {
               (item, index) =>
                 item.group === 'mouse' && (
                   <React.Fragment key={item.key}>
-                    <Grid item xs={4}>
+                    <Grid item xs={2}>
                       <Typography variant="body2">
                         <b>{item.name}</b>
                       </Typography>
                     </Grid>
-                    <Grid item xs={8}>
+                    <Grid item>Remap:</Grid>
+                    <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.0`}
                         defaultValue={item.sequence?.[0]}
-                        placeholder="New key"
+                        label="First key"
                         onChange={() => handleChangeMouse(index)}
+                        fullWidth
                       />
                     </Grid>
+                    <Grid item xs={3}>
+                      <Hotkey
+                        name={`${index}.sequence.1`}
+                        defaultValue={item.sequence?.[1]}
+                        label="Second key"
+                        onChange={() => handleChangeMouse(index)}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={3}>
+                      <Hotkey
+                        name={`${index}.sequence.2`}
+                        defaultValue={item.sequence?.[2]}
+                        label="Third key"
+                        onChange={() => handleChangeMouse(index)}
+                        fullWidth
+                      />
+                    </Grid>
+                    <Grid item xs={12} />
                   </React.Fragment>
                 ),
             )}
@@ -149,24 +167,26 @@ function Home() {
         </Box>
 
         <Box mt={2}>
-          <Section title="Keyboard" grid={false}>
+          <Section title="Keyboard">
+            <Grid item xs={12} />
             {bindings.map(
               (item, index) =>
                 item.group !== 'mouse' && (
-                  <Grid container key={index} spacing={2} alignItems="center" mb={2}>
-                    <Grid item xs={3}>
+                  <>
+                    <Grid item xs={2}>
                       <Hotkey
                         name={`${index}.key`}
                         defaultValue={item.key}
-                        placeholder="Trigger key"
+                        label="Trigger key"
                         onChange={() => handleChangeBinding(index)}
                       />
                     </Grid>
+                    <Grid item>Remap:</Grid>
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.0`}
                         defaultValue={item.sequence?.[0]}
-                        placeholder="First key"
+                        label="First key"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
                       />
@@ -175,7 +195,7 @@ function Home() {
                       <Hotkey
                         name={`${index}.sequence.1`}
                         defaultValue={item.sequence?.[1]}
-                        placeholder="Second key"
+                        label="Second key"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
                       />
@@ -184,12 +204,13 @@ function Home() {
                       <Hotkey
                         name={`${index}.sequence.2`}
                         defaultValue={item.sequence?.[2]}
-                        placeholder="Third key"
+                        label="Third key"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
                       />
                     </Grid>
-                  </Grid>
+                    <Grid item xs={12} />
+                  </>
                 ),
             )}
           </Section>

@@ -18,6 +18,11 @@ export const theme = createTheme({
     },
   },
   components: {
+    MuiInputLabel: {
+      defaultProps: {
+        shrink: true,
+      },
+    },
     MuiSelect: {
       defaultProps: {
         size: 'small',

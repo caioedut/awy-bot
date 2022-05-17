@@ -8,7 +8,7 @@ export default function remap(e, arg) {
   const params = body
     .filter(({ key, sequence }) => key && sequence?.length)
     .map(({ key, sequence }) => {
-      const value = sequence.map((item) => getHotkey(item));
+      const value = sequence.filter(Boolean).map((item) => getHotkey(item));
       return `"${getHotkey(key, false)}=${value.join(':;')}"`;
     });
 

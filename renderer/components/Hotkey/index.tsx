@@ -1,18 +1,18 @@
-import React, { useReducer, useRef, useState } from 'react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import TextField, { TextFieldProps } from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 function Hotkey(props: TextFieldProps) {
   const { onChange, defaultValue, ...rest } = props;
 
   const keysRef = useRef([]);
+  const inputRef = useRef(null);
 
-  const [hotkey, setHotkey] = useState(defaultValue);
+  const [hotkey, setHotkey] = useState(defaultValue ?? '');
   const [editing, toggleEditing] = useReducer((state) => !state, false);
 
   const modifiers = {
@@ -21,6 +21,10 @@ function Hotkey(props: TextFieldProps) {
     metaKey: 'META',
     shiftKey: 'SHIFT',
   };
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, [editing]);
 
   const handleKeyUp = (e) => {
     e.preventDefault();
@@ -87,6 +91,7 @@ function Hotkey(props: TextFieldProps) {
   return (
     <TextField
       {...rest}
+      inputRef={inputRef}
       disabled={!editing}
       autoFocus={editing}
       value={`${hotkey || ''}`.toUpperCase()}
@@ -97,16 +102,9 @@ function Hotkey(props: TextFieldProps) {
         readOnly: true,
         endAdornment: (
           <InputAdornment position="end">
-            {!editing && (
-              <Tooltip title="Edit">
-                <IconButton color="primary" onClick={toggleEditing}>
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
-            <Tooltip title="Delete">
-              <IconButton edge="end">
-                <DeleteIcon fontSize="small" />
+            <Tooltip title={editing ? 'Cancel' : 'Edit'}>
+              <IconButton color={editing ? 'inherit' : 'primary'} edge="end" onClick={toggleEditing}>
+                {editing ? <CancelIcon fontSize="small" /> : <EditIcon fontSize="small" />}
               </IconButton>
             </Tooltip>
           </InputAdornment>
