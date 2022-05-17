@@ -6,10 +6,10 @@ export default function remap(e, arg) {
   const file = 'ahk/Remap.ahk';
 
   const params = body
-    .filter(({ key, sequence }) => key && sequence?.length)
-    .map(({ key, sequence }) => {
+    .filter(({ key, sequence, loop }) => key && sequence?.length)
+    .map(({ key, sequence, loop }) => {
       const value = sequence.filter(Boolean).map((item) => getHotkey(item));
-      return `"${getHotkey(key, false)}=${value.join(':;')}"`;
+      return `"${getHotkey(key, false)}|${Number(loop || 0)}|${value.join(':;')}"`;
     });
 
   const cmd = `start "${exe}" "${file}" ${params.join(' ')}`;

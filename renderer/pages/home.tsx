@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import electron from 'electron';
 import Head from 'next/head';
-import Content from '../components/Content';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Hotkey from '../components/Hotkey';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Section from '../components/Section';
@@ -13,29 +14,6 @@ import Store from 'electron-store';
 
 const ipcRenderer = electron.ipcRenderer || false;
 const store = new Store();
-
-const windows = [
-  {
-    name: 'Tibia',
-    ahk_exe: 'client.exe',
-    ahk_class: 'Qt5QWindowOwnDCIcon',
-  },
-  {
-    name: 'PokeXGames',
-    ahk_exe: 'pxgme.exe',
-    ahk_class: 'SDL_app',
-  },
-  {
-    name: 'Grand Line Adventures',
-    ahk_exe: 'glaclient.exe',
-    ahk_class: 'SDL_app',
-  },
-  {
-    name: 'Lost Ark',
-    ahk_exe: 'LOSTARK.exe',
-    ahk_class: 'EFLaunchUnrealUWindowsClient',
-  },
-];
 
 const defaults = [
   { group: 'mouse', key: 'MButton', sequence: [], name: 'Mouse Middle' },
@@ -48,11 +26,27 @@ function Home() {
 
   const [app, setApp] = useState('');
 
-  const [bindings, setBindings] = useState<Array>(store.get('bindings', defaults));
+  const [windows, setWindows] = useState([]);
+  const [bindings, setBindings] = useState(store.get('bindings', defaults) || []);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
     bindings.push({ key: '', sequence: [] });
   }
+
+  useEffect(() => {
+    const response = ipcRenderer.sendSync('windows');
+    const data = JSON.parse(response);
+
+    setWindows(
+      data.map((item) => {
+        const split = item.split('|');
+        const ahk_id = split.shift();
+        const title = split.filter(Boolean).join('|');
+
+        return { ahk_id, title };
+      }),
+    );
+  }, []);
 
   useEffect(() => {
     store.set('bindings', bindings);
@@ -65,6 +59,14 @@ function Home() {
       formRef.current[`${index}.sequence.1`]?.value,
       formRef.current[`${index}.sequence.2`]?.value,
     ].filter(Boolean));
+  };
+
+  const getData = (index) => {
+    return {
+      key: formRef.current[`${index}.key`]?.value,
+      sequence: getSequence(index),
+      loop: Boolean(formRef.current[`${index}.loop`]?.checked),
+    };
   };
 
   const handleClickWindow = (e) => {
@@ -81,13 +83,12 @@ function Home() {
   };
 
   const handleChangeBinding = async (index) => {
-    const key = formRef.current[`${index}.key`].value;
-    const sequence = getSequence(index);
+    const data = getData(index);
 
     const newBindings = [...bindings];
-    newBindings[index] = { key, sequence };
+    newBindings[index] = data;
 
-    if (!key && !sequence.length) {
+    if (!data.key && !data.sequence.length) {
       newBindings.splice(index, 1);
     }
 
@@ -111,8 +112,9 @@ function Home() {
             <Grid item xs={8}>
               <Select value={app} onChange={handleChangeWindow}>
                 {windows.map((win, index) => (
-                  <MenuItem key={index} value={`ahk_exe ${win.ahk_exe} ahk_class ${win.ahk_class}`}>
-                    {win.name}
+                  // <MenuItem key={index} value={`ahk_exe ${win.ahk_exe} ahk_class ${win.ahk_class}`}>
+                  <MenuItem key={index} value={win.ahk_id}>
+                    {win.title}
                   </MenuItem>
                 ))}
               </Select>
@@ -136,7 +138,7 @@ function Home() {
                       <Hotkey
                         name={`${index}.sequence.0`}
                         defaultValue={item.sequence?.[0]}
-                        label="First key"
+                        label="Key 1"
                         onChange={() => handleChangeMouse(index)}
                         fullWidth
                       />
@@ -145,7 +147,7 @@ function Home() {
                       <Hotkey
                         name={`${index}.sequence.1`}
                         defaultValue={item.sequence?.[1]}
-                        label="Second key"
+                        label="Key 2"
                         onChange={() => handleChangeMouse(index)}
                         fullWidth
                       />
@@ -154,7 +156,7 @@ function Home() {
                       <Hotkey
                         name={`${index}.sequence.2`}
                         defaultValue={item.sequence?.[2]}
-                        label="Third key"
+                        label="Key 3"
                         onChange={() => handleChangeMouse(index)}
                         fullWidth
                       />
@@ -172,7 +174,7 @@ function Home() {
             {bindings.map(
               (item, index) =>
                 item.group !== 'mouse' && (
-                  <>
+                  <React.Fragment key={index}>
                     <Grid item xs={2}>
                       <Hotkey
                         name={`${index}.key`}
@@ -181,12 +183,23 @@ function Home() {
                         onChange={() => handleChangeBinding(index)}
                       />
                     </Grid>
-                    <Grid item>Remap:</Grid>
+                    <Grid item xs={1}>
+                      <FormControlLabel
+                        label="Loop"
+                        control={
+                          <Checkbox //
+                            name={`${index}.loop`}
+                            defaultChecked={item.loop}
+                            onChange={() => handleChangeBinding(index)}
+                          />
+                        }
+                      />
+                    </Grid>
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.0`}
                         defaultValue={item.sequence?.[0]}
-                        label="First key"
+                        label="Key 1"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
                       />
@@ -195,7 +208,7 @@ function Home() {
                       <Hotkey
                         name={`${index}.sequence.1`}
                         defaultValue={item.sequence?.[1]}
-                        label="Second key"
+                        label="Key 2"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
                       />
@@ -204,13 +217,13 @@ function Home() {
                       <Hotkey
                         name={`${index}.sequence.2`}
                         defaultValue={item.sequence?.[2]}
-                        label="Third key"
+                        label="Key 3"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
                       />
                     </Grid>
                     <Grid item xs={12} />
-                  </>
+                  </React.Fragment>
                 ),
             )}
           </Section>

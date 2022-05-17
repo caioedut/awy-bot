@@ -23,6 +23,12 @@ export const theme = createTheme({
         shrink: true,
       },
     },
+    MuiCheckbox: {
+      defaultProps: {
+        size: 'small',
+        color: 'secondary',
+      },
+    },
     MuiSelect: {
       defaultProps: {
         size: 'small',

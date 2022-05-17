@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { execSync } from 'child_process';
+import { app, globalShortcut, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
 import { createWindow } from './helpers';
@@ -14,19 +15,26 @@ if (isProd) {
 (async () => {
   await app.whenReady();
 
-  const mainWindow = createWindow('main', {
+  const window = createWindow('main', {
     frame: false,
     width: 800,
     height: 600,
   });
 
+  const tasks = execSync('tasklist').toString();
+  console.log(tasks);
+
+  // window.webContents.on('before-input-event', (e, input) => {
+  //   if (input.code == 'F4' && input.alt) e.preventDefault();
+  // });
+
   if (isProd) {
-    await mainWindow.loadURL('app://./home.html');
+    await window.loadURL('app://./home.html');
   } else {
-    mainWindow.maximize();
+    window.maximize();
     const port = process.argv[2];
-    await mainWindow.loadURL(`http://localhost:${port}/home`);
-    mainWindow.webContents.openDevTools();
+    await window.loadURL(`http://localhost:${port}/home`);
+    window.webContents.openDevTools();
   }
 })();
 
@@ -35,3 +43,4 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.on('remap', require('./events/remap').default);
+ipcMain.on('windows', require('./events/windows').default);
