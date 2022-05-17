@@ -1,5 +1,6 @@
-import { app } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import serve from 'electron-serve';
+
 import { createWindow } from './helpers';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
@@ -14,13 +15,15 @@ if (isProd) {
   await app.whenReady();
 
   const mainWindow = createWindow('main', {
-    width: 1000,
+    frame: false,
+    width: 800,
     height: 600,
   });
 
   if (isProd) {
     await mainWindow.loadURL('app://./home.html');
   } else {
+    mainWindow.maximize();
     const port = process.argv[2];
     await mainWindow.loadURL(`http://localhost:${port}/home`);
     mainWindow.webContents.openDevTools();
@@ -30,3 +33,5 @@ if (isProd) {
 app.on('window-all-closed', () => {
   app.quit();
 });
+
+ipcMain.on('remap', require('./events/remap').default);

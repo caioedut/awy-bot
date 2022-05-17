@@ -1,18 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react';
+import electron from 'electron';
 import Head from 'next/head';
 import Content from '../components/Content';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import MenuItem from '@mui/material/MenuItem';
 import Hotkey from '../components/Hotkey';
 import { remap } from '../services/API';
-import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Section from '../components/Section';
+import Store from 'electron-store';
 
-const Store = require('electron-store');
-
+const ipcRenderer = electron.ipcRenderer || false;
 const store = new Store();
+
+const windows = [
+  {
+    name: 'Tibia',
+    ahk_exe: 'client.exe',
+    ahk_class: 'Qt5QWindowOwnDCIcon',
+  },
+  {
+    name: 'PokeXGames',
+    ahk_exe: 'pxgme.exe',
+    ahk_class: 'SDL_app',
+  },
+  {
+    name: 'Grand Line Adventures',
+    ahk_exe: 'glaclient.exe',
+    ahk_class: 'SDL_app',
+  },
+  {
+    name: 'Lost Ark',
+    ahk_exe: 'LOSTARK.exe',
+    ahk_class: 'EFLaunchUnrealUWindowsClient',
+  },
+];
 
 const defaults = [
   { group: 'mouse', key: 'MButton', remap: '', name: 'Mouse Middle' },
@@ -25,10 +49,7 @@ function Home() {
 
   const [app, setApp] = useState('');
 
-  store.set('bindings', defaults);
-  const [bindings, setBindings] = useState(store.get('bindings', defaults));
-
-  console.log(bindings);
+  const [bindings, setBindings] = useState<Array>(store.get('bindings', defaults));
 
   if (!bindings.find((item) => !item?.key && !item?.remap)) {
     bindings.push({ key: '', remap: '' });
@@ -36,8 +57,12 @@ function Home() {
 
   useEffect(() => {
     store.set('bindings', bindings);
-    remap(bindings);
+    const response = ipcRenderer.sendSync('remap', JSON.stringify(bindings));
   }, [bindings]);
+
+  const handleClickWindow = (e) => {
+    console.log('click window');
+  };
 
   const handleChangeWindow = (e: SelectChangeEvent) => {
     setApp(e.target.value as string);
@@ -51,6 +76,8 @@ function Home() {
   };
 
   const handleChangeBinding = async (index) => {
+    console.log('changed', Date.now());
+
     const key = formRef.current[`${index}.key`].value;
     const remap = formRef.current[`${index}.remap`].value;
 
@@ -79,7 +106,13 @@ function Home() {
               </Typography>
             </Grid>
             <Grid item xs={8}>
-              <Select value={app} onChange={handleChangeWindow} fullWidth></Select>
+              <Select value={app} onChange={handleChangeWindow} fullWidth>
+                {windows.map((win, index) => (
+                  <MenuItem key={index} value={`ahk_exe ${win.ahk_exe} ahk_class ${win.ahk_class}`}>
+                    {win.name}
+                  </MenuItem>
+                ))}
+              </Select>
             </Grid>
           </Section>
         </Box>

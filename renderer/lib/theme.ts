@@ -18,6 +18,20 @@ export const theme = createTheme({
     },
   },
   components: {
+    MuiSelect: {
+      defaultProps: {
+        size: 'small',
+        color: 'secondary',
+        variant: 'outlined',
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        size: 'small',
+        color: 'secondary',
+        variant: 'outlined',
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         body: {
