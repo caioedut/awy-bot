@@ -2,8 +2,10 @@
 
 #Persistent
 
-WindowId := A_Args[1]
+global WindowId := A_Args[1]
 SetTimer, IsActive, 500
+
+global toggleStatus := []
 
 For index, value in A_Args
 {
@@ -21,11 +23,12 @@ For index, value in A_Args
     Keymap%Key% := Remap
 
     If (Loop) {
-      Hotkey, %Key%, OnToggle, On
+      fn := Func("OnToggle").bind(Key, Remap)
+      Hotkey, %Key%, %fn%, On
     } Else {
-      Hotkey, %Key%, OnPress, On
+      fn := Func("OnPress").bind(Key, Remap)
+      Hotkey, %Key%, %fn%, On
     }
-
   }
 }
 
@@ -37,42 +40,25 @@ IsActive() {
   }
 }
 
-Return
+OnToggle(Key, Remap) {
+  toggleStatus[Key] := !toggleStatus[Key]
 
-OnPress:
-{
-  Remap := Keymap%A_ThisHotkey%
-  Sequence := StrSplit(Remap, ":;")
-
-  For index, value in Sequence
-    Send, %value%
-
-  Return
-}
-
-OnToggle:
-{
-  Remap := Keymap%A_ThisHotkey%
-  Toggle%A_ThisHotkey% := !Toggle%A_ThisHotkey%
-
-  If (Toggle%A_ThisHotkey%) {
+  If (toggleStatus[Key]) {
     Notify(Remap " On")
-    SetTimer, OnLoop, 200
+    fn := Func("OnPress").bind(Key, Remap, 1)
+    SetTimer, %fn%, 200
   } Else {
     Notify(Remap " Off")
-    SetTimer, OnLoop, Off
   }
-
-  Return
 }
 
-OnLoop:
-{
-  Remap := Keymap%A_ThisHotkey%
+OnPress(Key, Remap, Loop := 0) {
   Sequence := StrSplit(Remap, ":;")
 
   For index, value in Sequence
     Send, %value%
 
-  Return
+  If (Loop && !toggleStatus[Key]) {
+    SetTimer,, Off
+  }
 }
