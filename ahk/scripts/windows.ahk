@@ -1,6 +1,4 @@
-#NoEnv
-#NoTrayIcon
-#SingleInstance Force
+#Include %A_ScriptDir%\main.ahk
 
 ListDir := A_ScriptDir "\..\windows.txt"
 

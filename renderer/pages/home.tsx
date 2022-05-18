@@ -128,7 +128,7 @@ function Home() {
               </Typography>
             </Grid>
             <Grid item xs={9}>
-              <Select value={window} onChange={handleChangeWindow}>
+              <Select value={window ?? ''} onChange={handleChangeWindow}>
                 {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
                   <MenuItem key={index} value={win.ahk_id}>
                     {win.title}
@@ -156,7 +156,7 @@ function Home() {
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.0`}
-                        defaultValue={item.sequence?.[0]}
+                        value={item.sequence?.[0] ?? ''}
                         label="Key 1"
                         onChange={() => handleChangeMouse(index)}
                         fullWidth
@@ -165,7 +165,7 @@ function Home() {
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.1`}
-                        defaultValue={item.sequence?.[1]}
+                        value={item.sequence?.[1] ?? ''}
                         label="Key 2"
                         onChange={() => handleChangeMouse(index)}
                         fullWidth
@@ -174,7 +174,7 @@ function Home() {
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.2`}
-                        defaultValue={item.sequence?.[2]}
+                        value={item.sequence?.[2] ?? ''}
                         label="Key 3"
                         onChange={() => handleChangeMouse(index)}
                         fullWidth
@@ -197,7 +197,7 @@ function Home() {
                     <Grid item xs={2}>
                       <Hotkey
                         name={`${index}.key`}
-                        defaultValue={item.key}
+                        value={item.key ?? ''}
                         label="Trigger key"
                         onChange={() => handleChangeBinding(index)}
                       />
@@ -208,7 +208,7 @@ function Home() {
                         control={
                           <Checkbox //
                             name={`${index}.loop`}
-                            defaultChecked={item.loop}
+                            checked={item.loop ?? false}
                             onChange={() => handleChangeBinding(index)}
                           />
                         }
@@ -217,7 +217,7 @@ function Home() {
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.0`}
-                        defaultValue={item.sequence?.[0]}
+                        value={item.sequence?.[0] ?? ''}
                         label="Key 1"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
@@ -226,7 +226,7 @@ function Home() {
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.1`}
-                        defaultValue={item.sequence?.[1]}
+                        value={item.sequence?.[1] ?? ''}
                         label="Key 2"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth
@@ -235,7 +235,7 @@ function Home() {
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.2`}
-                        defaultValue={item.sequence?.[2]}
+                        value={item.sequence?.[2] ?? ''}
                         label="Key 3"
                         onChange={() => handleChangeBinding(index)}
                         fullWidth

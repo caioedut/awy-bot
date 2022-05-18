@@ -1,23 +1,9 @@
-#NoEnv
-#NoTrayIcon
+#Include %A_ScriptDir%\main.ahk
+
 #Persistent
-#SingleInstance Force
-#KeyHistory 0
-
-SetBatchLines -1
-ListLines Off
-SendMode, Input
-
-Notify(Message) {
-  SplashTextOff
-  Width := StrLen(Message) * 8
-  SplashTextOn, %Width%, , %Message%
-  Sleep, 500
-  SplashTextOff
-}
 
 WindowId := A_Args[1]
-SetTimer, CheckActiveWindow, 500
+SetTimer, IsActive, 500
 
 For index, value in A_Args
 {
@@ -45,7 +31,7 @@ For index, value in A_Args
 
 Return
 
-CheckActiveWindow:
+IsActive:
 {
   If WinActive("ahk_id" WindowId) {
     Suspend, Off

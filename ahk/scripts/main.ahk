@@ -1,30 +1,16 @@
 #NoEnv
-#Persistent
-;#SingleInstance Ignore
+;#NoTrayIcon
 #SingleInstance Force
-
-; Disable history/logs
 #KeyHistory 0
+
 SetBatchLines -1
 ListLines Off
-
 SendMode, Input
 
-DebugArray(Arr) {
-  Str := ""
-
-  for index, element in Arr
-    Str = %Str%[%index%] %element%`n
-
-  MsgBox, % Str
-}
-
-ParamsStr = %1%
-Params := StrSplit(ParamsStr, ";")
-
-DebugArray(Params)
-
-*MButton::
-{
-  MsgBox, %Params%
+Notify(Message) {
+  SplashTextOff
+  Width := StrLen(Message) * 8
+  SplashTextOn, %Width%, , %Message%
+  Sleep, 500
+  SplashTextOff
 }
