@@ -1,5 +1,6 @@
 #NoEnv
 #NoTrayIcon
+#SingleInstance Force
 
 ListDir := A_ScriptDir "\..\windows.txt"
 

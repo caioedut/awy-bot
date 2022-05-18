@@ -1,13 +1,20 @@
 appId: com.caioedut.awybot
 productName: Awy Bot
 copyright: Copyright © CaioEduT
-extraResources: "./ahk/**"
+
 directories:
   output: build
   buildResources: resources
+
+extraResources: "./ahk/**"
+
 files:
   - from: .
     filter:
       - package.json
       - app
+
 publish: null
+
+win:
+  icon: "resources/icon.ico"
