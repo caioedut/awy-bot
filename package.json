@@ -1,7 +1,9 @@
 {
   "private": true,
   "name": "awy-bot",
+  "description": "Remap key bindings and automate tasks",
   "version": "0.0.1",
+  "author": "CaioEduT <caioedut@gmail.com>",
   "main": "app/background.js",
   "scripts": {
     "dev": "nextron",
