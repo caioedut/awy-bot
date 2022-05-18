@@ -1,4 +1,4 @@
-import { red } from '@mui/material/colors';
+import { red, teal } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
 export const theme = createTheme({
@@ -8,10 +8,10 @@ export const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#DDCBFF',
+      main: '#f8bbd0',
     },
     secondary: {
-      main: '#19857b',
+      main: teal['500'],
     },
     error: {
       main: red.A400,
@@ -29,13 +29,13 @@ export const theme = createTheme({
     MuiCheckbox: {
       defaultProps: {
         size: 'small',
-        color: 'secondary',
+        color: 'primary',
       },
     },
     MuiSelect: {
       defaultProps: {
         size: 'small',
-        color: 'secondary',
+        color: 'primary',
         variant: 'outlined',
         fullWidth: true,
         displayEmpty: true,
@@ -44,7 +44,7 @@ export const theme = createTheme({
     MuiTextField: {
       defaultProps: {
         size: 'small',
-        color: 'secondary',
+        color: 'primary',
         variant: 'outlined',
         fullWidth: true,
       },

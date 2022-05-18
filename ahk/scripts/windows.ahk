@@ -11,16 +11,24 @@ Loop %windows%
 
 	WinGetClass class, ahk_id %id%
 	WinGetTitle title, ahk_id %id%
-	WinGet, exe, ProcessName, ahk_id %id%
 
-  If (title = "")
+  If (title == "") {
     Continue
+  }
+
+  WinGet, exe, ProcessName, ahk_id %id%
+  StringLower, exeLower, exe
+
+  If (exeLower == "explorer.exe") {
+    Continue
+  }
 
   If (class = "ApplicationFrameWindow") {
     WinGetText, text, ahk_id %id%
 
-    If (text = "")
+    If (text == "") {
       Continue
+    }
   }
 
   WinGet, style, style, ahk_id %id%

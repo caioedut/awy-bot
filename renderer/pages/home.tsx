@@ -3,14 +3,18 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import electron from 'electron';
 import Head from 'next/head';
 
+import DeleteIcon from '@mui/icons-material/Delete';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import Hotkey from '../components/Hotkey';
@@ -107,12 +111,18 @@ function Home() {
     setConfig(value || config);
   };
 
-  const handleChangeMouse = async (index) => {
+  const handleChangeMouse = (index) => {
     bindings[index].sequence = getSequence(index);
     setBindings([...bindings]);
   };
 
-  const handleChangeBinding = async (index) => {
+  const handleDelete = (index) => {
+    const newBindings = [...bindings];
+    newBindings.splice(index, 1);
+    setBindings(newBindings);
+  };
+
+  const handleChangeBinding = (index) => {
     const data = getData(index);
 
     const newBindings = [...bindings];
@@ -139,7 +149,7 @@ function Home() {
                 <b>Window</b>
               </Typography>
             </Grid>
-            <Grid item xs={9}>
+            <Grid item xs>
               <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
                 {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
                   <MenuItem key={index} value={win.ahk_id}>
@@ -148,6 +158,14 @@ function Home() {
                 ))}
               </Select>
             </Grid>
+            <Grid item>
+              <Tooltip title="Refresh">
+                <IconButton>
+                  <RefreshIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Box width="100%" />
             <Grid item xs={3}>
               <Typography variant="body2">
                 <b>Settings</b>
@@ -157,7 +175,9 @@ function Home() {
               <ToggleButtonGroup exclusive value={config} size="small" color="primary" onChange={handleChangeConfig}>
                 {settings.map((item) => (
                   <ToggleButton key={item} value={item}>
-                    <Box px={1}>{item}</Box>
+                    <Box mx={1} my={-0.2} fontSize={14}>
+                      {item}
+                    </Box>
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
@@ -220,7 +240,12 @@ function Home() {
               (item, index) =>
                 item.group !== 'mouse' && (
                   <React.Fragment key={index}>
-                    <Grid item xs={2}>
+                    <Grid item xs={2} sx={{ position: 'relative' }}>
+                      <Tooltip title="Delete">
+                        <IconButton sx={{ position: 'absolute', top: 18, left: -16 }} onClick={() => handleDelete(index)}>
+                          <DeleteIcon color="primary" fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                       <Hotkey
                         name={`${index}.key`}
                         value={item.key ?? ''}
@@ -241,9 +266,9 @@ function Home() {
                             onChange={() => handleChangeBinding(index)}
                             sx={{
                               mx: 1,
-                              accentColor: theme.palette.secondary.main,
                               height: 16,
                               width: 16,
+                              accentColor: theme.palette.primary.main,
                             }}
                           ></Box>
                         }

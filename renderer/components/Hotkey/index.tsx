@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 
-import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -29,6 +28,7 @@ function Hotkey(props: HotkeyProps) {
   };
 
   useEffect(() => {
+    console.log('asdasd');
     setHotkey(value);
   }, [value]);
 
@@ -112,11 +112,13 @@ function Hotkey(props: HotkeyProps) {
         readOnly: true,
         endAdornment: (
           <InputAdornment position="end">
-            <Tooltip title={editing ? 'Cancel' : 'Edit'}>
-              <IconButton color={editing ? 'inherit' : 'primary'} edge="end" onClick={toggleEditing}>
-                {editing ? <CancelIcon fontSize="small" /> : <EditIcon fontSize="small" />}
-              </IconButton>
-            </Tooltip>
+            {!editing && (
+              <Tooltip title="Edit">
+                <IconButton color="primary" edge="end" onClick={toggleEditing}>
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </InputAdornment>
         ),
       }}
