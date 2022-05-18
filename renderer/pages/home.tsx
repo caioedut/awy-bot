@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import electron from 'electron';
-import Store from 'electron-store';
 import Head from 'next/head';
 
 import { useTheme } from '@mui/material';
@@ -10,13 +9,15 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 
 import Hotkey from '../components/Hotkey';
 import Section from '../components/Section';
+import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;
-const store = new Store();
 
 const defaults = [
   { group: 'mouse', key: 'MButton', sequence: [], name: 'Mouse Middle' },
@@ -41,12 +42,17 @@ function Home() {
   const formRef = useRef(null);
   const theme = useTheme();
 
+  // Load/save configs
+  const [settings] = useState([1, 2, 3, 4, 5, 7, 8, 9, 10]);
+  const [config, setConfig] = useState(settings[0]);
+  const store = useMemo(() => Storage.with(config), [config]);
+
   // Collections
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
 
   // Models
   const [window, setWindow] = useState('');
-  const [bindings, setBindings] = useState(store.get('bindings', defaults) as Binding[]);
+  const [bindings, setBindings] = useState<Binding[]>([]);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
     bindings.push({ key: '', sequence: [] });
@@ -68,11 +74,12 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    store.set('window', window);
+    setBindings(store.get('bindings', defaults) as Binding[]);
+  }, [store]);
+
+  useEffect(() => {
     store.set('bindings', bindings);
-
     const data = window && bindings ? { window, bindings } : {};
-
     ipcRenderer.sendSync('remap', JSON.stringify(data));
   }, [window, bindings]);
 
@@ -94,6 +101,10 @@ function Home() {
 
   const handleChangeWindow = (e: SelectChangeEvent) => {
     setWindow(e.target.value as string);
+  };
+
+  const handleChangeConfig = (e: React.MouseEvent<HTMLElement>, value: number) => {
+    setConfig(value || config);
   };
 
   const handleChangeMouse = async (index) => {
@@ -136,6 +147,20 @@ function Home() {
                   </MenuItem>
                 ))}
               </Select>
+            </Grid>
+            <Grid item xs={3}>
+              <Typography variant="body2">
+                <b>Settings</b>
+              </Typography>
+            </Grid>
+            <Grid item xs={9}>
+              <ToggleButtonGroup exclusive value={config} size="small" color="primary" onChange={handleChangeConfig}>
+                {settings.map((item) => (
+                  <ToggleButton key={item} value={item}>
+                    <Box px={1}>{item}</Box>
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
             </Grid>
           </Section>
         </Box>

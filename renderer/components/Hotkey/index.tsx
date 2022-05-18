@@ -29,6 +29,10 @@ function Hotkey(props: HotkeyProps) {
   };
 
   useEffect(() => {
+    setHotkey(value);
+  }, [value]);
+
+  useEffect(() => {
     inputRef.current.focus();
   }, [editing]);
 
