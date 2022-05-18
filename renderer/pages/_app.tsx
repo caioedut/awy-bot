@@ -8,7 +8,7 @@ import { ThemeProvider } from '@mui/material/styles';
 
 import { theme } from '../config/theme';
 
-export default function (props: AppProps) {
+export default function (props: AppProps & { Component: any }) {
   const { Component, pageProps } = props;
 
   React.useEffect(() => {
