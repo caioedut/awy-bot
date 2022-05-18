@@ -4,8 +4,8 @@ import electron from 'electron';
 import Store from 'electron-store';
 import Head from 'next/head';
 
+import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
-import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
@@ -39,6 +39,7 @@ type Binding = {
 
 function Home() {
   const formRef = useRef(null);
+  const theme = useTheme();
 
   // Collections
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
@@ -206,11 +207,20 @@ function Home() {
                       <FormControlLabel
                         label="Loop"
                         control={
-                          <Checkbox //
+                          <Box
+                            component="input"
+                            type="checkbox"
                             name={`${index}.loop`}
                             checked={item.loop ?? false}
+                            disabled={!item.key}
                             onChange={() => handleChangeBinding(index)}
-                          />
+                            sx={{
+                              mx: 1,
+                              accentColor: theme.palette.secondary.main,
+                              height: 16,
+                              width: 16,
+                            }}
+                          ></Box>
                         }
                       />
                     </Grid>
