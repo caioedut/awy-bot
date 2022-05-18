@@ -19,8 +19,8 @@ if (isProd) {
     height: 600,
     center: true,
     darkTheme: true,
-    resizable: false,
-    maximizable: false,
+    resizable: !isProd,
+    maximizable: !isProd,
   });
 
   window.setMenuBarVisibility(false);
@@ -32,10 +32,10 @@ if (isProd) {
   if (isProd) {
     await window.loadURL('app://./home.html');
   } else {
-    // window.maximize();
+    window.maximize();
     const port = process.argv[2];
     await window.loadURL(`http://localhost:${port}/home`);
-    // window.webContents.openDevTools();
+    window.webContents.openDevTools();
   }
 })();
 

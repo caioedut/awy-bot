@@ -1,18 +1,21 @@
 import { execSync } from 'child_process';
 
 export default function remap(e, arg) {
-  const body = JSON.parse(arg || {});
+  const body = JSON.parse(arg || '{}');
   const exe = 'ahk/lib/AutoHotkeyU64.exe';
   const file = 'ahk/Remap.ahk';
 
-  const params = body
-    .filter(({ key, sequence, loop }) => key && sequence?.length)
+  const window = body.window || '';
+  const bindings = body.bindings || [];
+
+  const params = bindings
+    .filter(({ key, sequence }) => key && sequence?.length)
     .map(({ key, sequence, loop }) => {
       const value = sequence.filter(Boolean).map((item) => getHotkey(item));
       return `"${getHotkey(key, false)}|${Number(loop || 0)}|${value.join(':;')}"`;
     });
 
-  const cmd = `start "${exe}" "${file}" ${params.join(' ')}`;
+  const cmd = `start "${exe}" "${file}" "${window}" ${params.join(' ')}`;
 
   execSync(cmd, { stdio: 'inherit' });
 

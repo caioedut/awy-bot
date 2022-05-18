@@ -27,10 +27,12 @@ const defaults = [
 function Home() {
   const formRef = useRef(null);
 
-  const [app, setApp] = useState('');
+  // Collections
+  const [visibleWindows, setVisibleWindows] = useState([]);
 
-  const [windows, setWindows] = useState([]);
-  const [bindings, setBindings] = useState(store.get('bindings', defaults) || []);
+  // Models
+  const [window, setWindow] = useState(store.get('window', ''));
+  const [bindings, setBindings] = useState(store.get('bindings', defaults));
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
     bindings.push({ key: '', sequence: [] });
@@ -40,7 +42,7 @@ function Home() {
     const response = ipcRenderer.sendSync('windows');
     const data = JSON.parse(response);
 
-    setWindows(
+    setVisibleWindows(
       data.map((item) => {
         const split = item.split('|');
         const ahk_id = split.shift();
@@ -52,9 +54,13 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    store.set('window', window);
     store.set('bindings', bindings);
-    ipcRenderer.sendSync('remap', JSON.stringify(bindings));
-  }, [bindings]);
+
+    const data = window && bindings ? { window, bindings } : {};
+
+    ipcRenderer.sendSync('remap', JSON.stringify(data));
+  }, [window, bindings]);
 
   const getSequence = (index) => {
     return (bindings[index].sequence = [
@@ -77,7 +83,7 @@ function Home() {
   };
 
   const handleChangeWindow = (e: SelectChangeEvent) => {
-    setApp(e.target.value as string);
+    setWindow(e.target.value as string);
   };
 
   const handleChangeMouse = async (index) => {
@@ -113,8 +119,8 @@ function Home() {
               </Typography>
             </Grid>
             <Grid item xs={8}>
-              <Select value={app} onChange={handleChangeWindow}>
-                {windows.map((win, index) => (
+              <Select value={window} onChange={handleChangeWindow}>
+                {visibleWindows.map((win, index) => (
                   // <MenuItem key={index} value={`ahk_exe ${win.ahk_exe} ahk_class ${win.ahk_class}`}>
                   <MenuItem key={index} value={win.ahk_id}>
                     {win.title}

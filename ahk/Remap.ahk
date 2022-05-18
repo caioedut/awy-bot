@@ -16,9 +16,15 @@ Notify(Message) {
   SplashTextOff
 }
 
-; Remap
+WindowId := A_Args[1]
+SetTimer, CheckActiveWindow, 500
+
 For index, value in A_Args
 {
+  If (index == 1) {
+    Continue
+  }
+
   Array := StrSplit(value, "|")
 
   Key := "$" + Array[1]
@@ -38,6 +44,17 @@ For index, value in A_Args
 }
 
 Return
+
+CheckActiveWindow:
+{
+  If WinActive("ahk_id" WindowId) {
+    Suspend, Off
+  } Else {
+    Suspend, On
+  }
+
+  Return
+}
 
 OnPress:
 {
