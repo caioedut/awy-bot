@@ -1,9 +1,12 @@
 import { execSync } from 'child_process';
+import path from 'path';
+
+import { AHK_EXE, AHK_SCRIPTS_PATH } from '../constants';
+import { getHotkey } from '../utils';
 
 export default function remap(e, arg) {
   const body = JSON.parse(arg || '{}');
-  const exe = 'ahk/lib/AutoHotkeyU64.exe';
-  const file = 'ahk/Remap.ahk';
+  const script = path.join(AHK_SCRIPTS_PATH, 'remap.ahk');
 
   const window = body.window || '';
   const bindings = body.bindings || [];
@@ -15,40 +18,9 @@ export default function remap(e, arg) {
       return `"${getHotkey(key, false)}|${Number(loop || 0)}|${value.join(':;')}"`;
     });
 
-  const cmd = `start "${exe}" "${file}" "${window}" ${params.join(' ')}`;
+  const cmd = `start "${AHK_EXE}" "${script}" "${window}" ${params.join(' ')}`;
 
   execSync(cmd, { stdio: 'inherit' });
 
   e.returnValue = 'ok';
 }
-
-const getHotkey = (str, brackets = true) => {
-  const parsed = str
-    .replace(/\s/g, '')
-    .replace(/\+/gi, '')
-    .replace(/ALT/gi, '!')
-    .replace(/CTRL/gi, '^')
-    .replace(/SHIFT/gi, '+')
-    .replace(/META/gi, '#')
-    .toLowerCase();
-
-  let hotkey = parsed;
-  let checked = false;
-
-  if (brackets) {
-    hotkey = '';
-
-    for (let char of parsed) {
-      if (!checked && !/[!^+#]/g.test(char)) {
-        checked = true;
-        hotkey += '{';
-      }
-
-      hotkey += char;
-    }
-
-    hotkey += '}';
-  }
-
-  return hotkey;
-};

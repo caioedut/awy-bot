@@ -1,7 +1,7 @@
 #NoEnv
 #NoTrayIcon
 
-ListDir := A_ScriptDir "\windows.txt"
+ListDir := A_ScriptDir "\..\windows.txt"
 
 FileDelete, %ListDir%
 

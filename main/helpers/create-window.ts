@@ -1,4 +1,4 @@
-import { screen, ipcMain, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
+import { BrowserWindow, BrowserWindowConstructorOptions, screen } from 'electron';
 import Store from 'electron-store';
 
 export default (windowName: string, options: BrowserWindowConstructorOptions): BrowserWindow => {
@@ -67,13 +67,14 @@ export default (windowName: string, options: BrowserWindowConstructorOptions): B
     ...options,
     ...state,
     webPreferences: {
+      webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
       ...options.webPreferences,
     },
   };
-  win = new BrowserWindow(browserOptions);
 
+  win = new BrowserWindow(browserOptions);
   win.on('close', saveState);
 
   return win;

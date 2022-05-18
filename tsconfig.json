@@ -23,6 +23,7 @@
     "node_modules",
     "renderer/next.config.js",
     "app",
+    "build",
     "dist"
   ]
 }

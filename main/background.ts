@@ -1,5 +1,7 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
+import fs from 'fs';
+import path from 'path';
 
 import { createWindow } from './helpers';
 
@@ -15,8 +17,9 @@ if (isProd) {
   await app.whenReady();
 
   const window = createWindow('main', {
-    width: 800,
-    height: 600,
+    title: 'Awy Bot',
+    width: 768,
+    height: 960,
     center: true,
     darkTheme: true,
     resizable: !isProd,
@@ -43,5 +46,11 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
-ipcMain.on('remap', require('./events/remap').default);
-ipcMain.on('windows', require('./events/windows').default);
+// Listen events
+const dir = path.join(__dirname, 'events');
+fs.readdirSync(dir).forEach((file) => {
+  const handler = path.join(dir, file);
+  const event = path.basename(file, '.ts');
+
+  ipcMain.on(event, require(handler).default);
+});

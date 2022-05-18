@@ -1,8 +1,9 @@
 appId: com.caioedut.awybot
 productName: Awy Bot
 copyright: Copyright © CaioEduT
+extraResources: "./ahk/**"
 directories:
-  output: dist
+  output: build
   buildResources: resources
 files:
   - from: .
