@@ -17,8 +17,10 @@ if (isProd) {
   const window = createWindow('main', {
     title: 'Awy Bot',
     width: 768,
-    height: 960,
-    center: true,
+    height: 768,
+    minWidth: 768,
+    minHeight: 768,
+    // center: true,
     darkTheme: true,
     resizable: !isProd,
     maximizable: !isProd,

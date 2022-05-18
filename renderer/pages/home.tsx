@@ -122,12 +122,12 @@ function Home() {
       <form ref={formRef}>
         <Box mt={2}>
           <Section title="Application">
-            <Grid item>
+            <Grid item xs={3}>
               <Typography variant="body2">
                 <b>Window</b>
               </Typography>
             </Grid>
-            <Grid item xs={8}>
+            <Grid item xs={9}>
               <Select value={window} onChange={handleChangeWindow}>
                 {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
                   <MenuItem key={index} value={win.ahk_id}>
@@ -150,7 +150,9 @@ function Home() {
                         <b>{item.name}</b>
                       </Typography>
                     </Grid>
-                    <Grid item>Remap:</Grid>
+                    <Grid item xs={1}>
+                      Remap:
+                    </Grid>
                     <Grid item xs={3}>
                       <Hotkey
                         name={`${index}.sequence.0`}
