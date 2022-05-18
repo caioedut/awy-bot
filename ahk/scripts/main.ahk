@@ -1,5 +1,5 @@
 #NoEnv
-;#NoTrayIcon
+#NoTrayIcon
 #SingleInstance Force
 #KeyHistory 0
 
