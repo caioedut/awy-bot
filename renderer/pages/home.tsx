@@ -120,8 +120,7 @@ function Home() {
             </Grid>
             <Grid item xs={8}>
               <Select value={window} onChange={handleChangeWindow}>
-                {visibleWindows.map((win, index) => (
-                  // <MenuItem key={index} value={`ahk_exe ${win.ahk_exe} ahk_class ${win.ahk_class}`}>
+                {[{ title: '[Select]', agk_id: '' }, ...visibleWindows].map((win, index) => (
                   <MenuItem key={index} value={win.ahk_id}>
                     {win.title}
                   </MenuItem>

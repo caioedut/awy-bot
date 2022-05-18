@@ -12,6 +12,7 @@ Loop %windows%
 
 	WinGetClass class, ahk_id %id%
 	WinGetTitle title, ahk_id %id%
+	WinGet, exe, ProcessName, ahk_id %id%
 
   If (title = "")
     Continue
@@ -29,7 +30,7 @@ Loop %windows%
       continue
   }
 
-  Response .= Id . "|" Title . "`n"
+  Response .= id "|[" exe "]: " title "`n"
 }
 
 FileAppend, %Response%, %ListDir%

@@ -38,6 +38,7 @@ export const theme = createTheme({
         color: 'secondary',
         variant: 'outlined',
         fullWidth: true,
+        displayEmpty: true,
       },
     },
     MuiTextField: {
