@@ -1,18 +1,23 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
-import TextField, { TextFieldProps } from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import EditIcon from '@mui/icons-material/Edit';
-import CancelIcon from '@mui/icons-material/Cancel';
 
-function Hotkey(props: TextFieldProps) {
+import CancelIcon from '@mui/icons-material/Cancel';
+import EditIcon from '@mui/icons-material/Edit';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField, { TextFieldProps } from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+
+type HotkeyProps = TextFieldProps & {
+  defaultValue?: string;
+};
+
+function Hotkey(props: HotkeyProps) {
   const { onChange, defaultValue, ...rest } = props;
 
   const keysRef = useRef([]);
   const inputRef = useRef(null);
 
-  const [hotkey, setHotkey] = useState(defaultValue ?? '');
+  const [hotkey, setHotkey] = useState<string>(defaultValue ?? '');
   const [editing, toggleEditing] = useReducer((state) => !state, false);
 
   const modifiers = {

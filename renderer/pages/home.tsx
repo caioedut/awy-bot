@@ -24,6 +24,17 @@ const defaults = [
   { group: 'mouse', key: 'XButton2', sequence: [], name: 'Mouse X2' },
 ];
 
+type Window = {
+  title: string;
+  ahk_id: string;
+};
+
+type Binding = {
+  key: string;
+  sequence: string[];
+  loop?: boolean;
+};
+
 function Home() {
   const formRef = useRef(null);
 
@@ -31,8 +42,8 @@ function Home() {
   const [visibleWindows, setVisibleWindows] = useState([]);
 
   // Models
-  const [window, setWindow] = useState(store.get('window', ''));
-  const [bindings, setBindings] = useState(store.get('bindings', defaults));
+  const [window, setWindow] = useState<Window>(store.get('window', ''));
+  const [bindings, setBindings] = useState<Binding[]>(store.get('bindings', defaults));
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
     bindings.push({ key: '', sequence: [] });
@@ -76,10 +87,6 @@ function Home() {
       sequence: getSequence(index),
       loop: Boolean(formRef.current[`${index}.loop`]?.checked),
     };
-  };
-
-  const handleClickWindow = (e) => {
-    console.log('click window');
   };
 
   const handleChangeWindow = (e: SelectChangeEvent) => {
