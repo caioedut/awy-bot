@@ -8,16 +8,17 @@ import TextField, { TextFieldProps } from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 
 type HotkeyProps = TextFieldProps & {
+  value: string;
   defaultValue?: string;
 };
 
 function Hotkey(props: HotkeyProps) {
-  const { onChange, defaultValue, ...rest } = props;
+  const { onChange, value, defaultValue, ...rest } = props;
 
   const keysRef = useRef([]);
   const inputRef = useRef(null);
 
-  const [hotkey, setHotkey] = useState<string>(defaultValue ?? '');
+  const [hotkey, setHotkey] = useState<string>(value ?? defaultValue ?? '');
   const [editing, toggleEditing] = useReducer((state) => !state, false);
 
   const modifiers = {
