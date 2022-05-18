@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import Hotkey from '../components/Hotkey';
 import Section from '../components/Section';
 
-const ipcRenderer = electron.ipcRenderer || false;
+const ipcRenderer = electron.ipcRenderer;
 const store = new Store();
 
 const defaults = [
@@ -32,6 +32,8 @@ type Window = {
 type Binding = {
   key: string;
   sequence: string[];
+  name?: string;
+  group?: string;
   loop?: boolean;
 };
 
@@ -39,11 +41,11 @@ function Home() {
   const formRef = useRef(null);
 
   // Collections
-  const [visibleWindows, setVisibleWindows] = useState([]);
+  const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
 
   // Models
-  const [window, setWindow] = useState<Window>(store.get('window', ''));
-  const [bindings, setBindings] = useState<Binding[]>(store.get('bindings', defaults));
+  const [window, setWindow] = useState(store.get('window', '') as string);
+  const [bindings, setBindings] = useState(store.get('bindings', defaults) as Binding[]);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
     bindings.push({ key: '', sequence: [] });
@@ -127,7 +129,7 @@ function Home() {
             </Grid>
             <Grid item xs={8}>
               <Select value={window} onChange={handleChangeWindow}>
-                {[{ title: '[Select]', agk_id: '' }, ...visibleWindows].map((win, index) => (
+                {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
                   <MenuItem key={index} value={win.ahk_id}>
                     {win.title}
                   </MenuItem>
