@@ -33,3 +33,5 @@ Loop %windows%
 }
 
 FileAppend, %Response%, %ListDir%
+
+ExitApp

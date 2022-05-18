@@ -35,8 +35,10 @@ For index, value in A_Args
 IsActive() {
   If WinActive("ahk_id" WindowId) {
     Suspend, Off
+    Return 1
   } Else {
     Suspend, On
+    Return 0
   }
 }
 
@@ -53,12 +55,20 @@ OnToggle(Key, Remap) {
 }
 
 OnPress(Key, Remap, Loop := 0) {
+  If (!IsActive()) {
+    Return
+  }
+
   Sequence := StrSplit(Remap, ":;")
 
   For index, value in Sequence
-    Send, %value%
+    If (IsActive()) {
+      Send, %value%
+    }
 
   If (Loop && !toggleStatus[Key]) {
     SetTimer,, Off
   }
 }
+
+~$Pause::Pause
