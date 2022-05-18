@@ -1,9 +1,7 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
-import fs from 'fs';
-import path from 'path';
 
-import { createWindow } from './helpers';
+import createWindow from './helpers/create-window';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
@@ -47,10 +45,5 @@ app.on('window-all-closed', () => {
 });
 
 // Listen events
-const dir = path.join(__dirname, 'events');
-fs.readdirSync(dir).forEach((file) => {
-  const handler = path.join(dir, file);
-  const event = path.basename(file, '.ts');
-
-  ipcMain.on(event, require(handler).default);
-});
+ipcMain.on('remap', require('./events/remap').default);
+ipcMain.on('windows', require('./events/windows').default);

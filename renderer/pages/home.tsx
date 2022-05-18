@@ -44,7 +44,7 @@ function Home() {
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
 
   // Models
-  const [window, setWindow] = useState(store.get('window', '') as string);
+  const [window, setWindow] = useState('');
   const [bindings, setBindings] = useState(store.get('bindings', defaults) as Binding[]);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
