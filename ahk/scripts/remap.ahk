@@ -1,5 +1,5 @@
 #NoEnv
-#NoTrayIcon
+;#NoTrayIcon
 #Persistent
 #SingleInstance Force
 #KeyHistory 0
@@ -27,7 +27,7 @@ For index, value in A_Args
 
   Array := StrSplit(value, "|")
 
-  Key := "$" + Array[1]
+  Key := "$" Array[1]
   Loop := Array[2]
   Remap := Array[3]
 
