@@ -29,18 +29,15 @@ For index, value in A_Args
   }
 }
 
-Return
-
-IsActive:
-{
+IsActive() {
   If WinActive("ahk_id" WindowId) {
     Suspend, Off
   } Else {
     Suspend, On
   }
-
-  Return
 }
+
+Return
 
 OnPress:
 {
