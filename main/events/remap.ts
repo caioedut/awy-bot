@@ -19,8 +19,7 @@ export default function remap(e, arg) {
     });
 
   const cmd = `start "${AHK_EXE}" "${script}" "${window}" ${params.join(' ')}`;
-
-  execSync(cmd, { stdio: 'inherit' });
+  execSync(cmd);
 
   e.returnValue = 'ok';
 }
