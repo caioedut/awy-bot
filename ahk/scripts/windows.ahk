@@ -25,8 +25,8 @@ Loop %windows%
 
   WinGet, style, style, ahk_id %id%
 
-  If !(style & 0xC00000) {
-      continue
+  If (!style || !0xC00000) {
+    Continue
   }
 
   Response .= id "|[" exe "]: " title "`n"

@@ -128,7 +128,7 @@ function Home() {
               </Typography>
             </Grid>
             <Grid item xs={9}>
-              <Select value={window ?? ''} onChange={handleChangeWindow}>
+              <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
                 {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
                   <MenuItem key={index} value={win.ahk_id}>
                     {win.title}
