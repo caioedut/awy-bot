@@ -4,7 +4,8 @@ module.exports = {
   arrowParens: 'always',
   trailingComma: 'all',
   endOfLine: 'auto',
-  importOrder: ['^react(.*)$', '^@unform/(.*)$', '^@mui/(.*)$', '/config(.*)$', '(.*).css$', '^[./]'],
+  importOrder: ['^react(-native)?$', '<THIRD_PARTY_MODULES>', '^@unform/(.*)$', '^@mui/(.*)$', '/config(.*)$', '(.*).css$', '^[./]'],
   importOrderSeparation: true,
-  experimentalBabelParserPluginsList: ['classProperties', 'jsx', 'typescript'],
+  importOrderSortSpecifiers: true,
+  importOrderParserPlugins: ['classProperties', 'jsx', 'typescript'],
 };

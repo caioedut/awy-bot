@@ -1,7 +1,10 @@
 import React from 'react';
-import Document, { Html, Head, Main, NextScript } from 'next/document';
+
+import Document, { Head, Html, Main, NextScript } from 'next/document';
+
 import { ServerStyleSheets } from '@mui/styles';
-import { theme } from '../lib/theme';
+
+import { theme } from '../config/theme';
 
 export default class MyDocument extends Document {
   render() {

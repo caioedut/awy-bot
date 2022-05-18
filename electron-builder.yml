@@ -1,6 +1,6 @@
-appId: com.example.nextron
-productName: My Nextron App
-copyright: Copyright © 2018 Yoshihide Shiono
+appId: com.caioedut.awybot
+productName: Awy Bot
+copyright: Copyright © CaioEduT
 directories:
   output: dist
   buildResources: resources

@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
+
 import electron from 'electron';
+import Store from 'electron-store';
 import Head from 'next/head';
-import Grid from '@mui/material/Grid';
+
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Hotkey from '../components/Hotkey';
+import Grid from '@mui/material/Grid';
+import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
+
+import Hotkey from '../components/Hotkey';
 import Section from '../components/Section';
-import Store from 'electron-store';
 
 const ipcRenderer = electron.ipcRenderer || false;
 const store = new Store();

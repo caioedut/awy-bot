@@ -1,5 +1,5 @@
-import fs from 'fs';
 import { execSync } from 'child_process';
+import fs from 'fs';
 
 export default function windows(e) {
   const exe = 'ahk/lib/AutoHotkeyU64.exe';

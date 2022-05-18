@@ -1,5 +1,4 @@
-import { execSync } from 'child_process';
-import { app, globalShortcut, ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
 import { createWindow } from './helpers';
@@ -16,13 +15,15 @@ if (isProd) {
   await app.whenReady();
 
   const window = createWindow('main', {
-    frame: false,
     width: 800,
     height: 600,
+    center: true,
+    darkTheme: true,
+    resizable: false,
+    maximizable: false,
   });
 
-  const tasks = execSync('tasklist').toString();
-  console.log(tasks);
+  window.setMenuBarVisibility(false);
 
   // window.webContents.on('before-input-event', (e, input) => {
   //   if (input.code == 'F4' && input.alt) e.preventDefault();
@@ -31,10 +32,10 @@ if (isProd) {
   if (isProd) {
     await window.loadURL('app://./home.html');
   } else {
-    window.maximize();
+    // window.maximize();
     const port = process.argv[2];
     await window.loadURL(`http://localhost:${port}/home`);
-    window.webContents.openDevTools();
+    // window.webContents.openDevTools();
   }
 })();
 
