@@ -149,7 +149,7 @@ function Home() {
                 <b>Window</b>
               </Typography>
             </Grid>
-            <Grid item xs>
+            <Grid item xs={8}>
               <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
                 {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
                   <MenuItem key={index} value={win.ahk_id}>
@@ -175,7 +175,7 @@ function Home() {
               <ToggleButtonGroup exclusive value={config} size="small" color="primary" onChange={handleChangeConfig}>
                 {settings.map((item) => (
                   <ToggleButton key={item} value={item}>
-                    <Box my={-0.2} fontSize={14} width={37.2}>
+                    <Box my={-0.2} fontSize={14} width={37}>
                       {item}
                     </Box>
                   </ToggleButton>

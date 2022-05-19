@@ -15,7 +15,10 @@ For index, value in A_Args
 
   Array := StrSplit(value, "|")
 
-  Key := "$" Array[1]
+  Key := StrReplace(Array[1], "{", "")
+  Key := StrReplace(Key, "}", "")
+  Key := "$" Key
+
   Loop := Array[2]
   Remap := Array[3]
 
@@ -43,15 +46,21 @@ IsActive() {
 }
 
 OnToggle(Key, Remap) {
+  If (!IsActive()) {
+    Return
+  }
+
   toggleStatus[Key] := !toggleStatus[Key]
+  status := "Off"
 
   If (toggleStatus[Key]) {
-    Notify(Remap " On")
+    status := "On"
     fn := Func("OnPress").bind(Key, Remap, 1)
-    SetTimer, %fn%, 200
-  } Else {
-    Notify(Remap " Off")
+    SetTimer, %fn%, 100
   }
+
+  StringUpper, message, % StrReplace(Key, "$", "")
+  Notify("[" message "] Loop: " status)
 }
 
 OnPress(Key, Remap, Loop := 0) {
@@ -62,13 +71,28 @@ OnPress(Key, Remap, Loop := 0) {
   Sequence := StrSplit(Remap, ":;")
 
   For index, value in Sequence
-    If (IsActive()) {
-      Send, %value%
+  {
+    If (!IsActive()) {
+       Return
     }
+
+    Send, %value%
+  }
 
   If (Loop && !toggleStatus[Key]) {
     SetTimer,, Off
   }
 }
 
-~$Pause::Pause
+~$Pause::
+{
+  If (A_IsPaused) {
+    Notify("Resumed", 60)
+    Pause, Off, 1
+  } Else {
+    Notify("Paused")
+    Pause, On, 1
+  }
+
+  Return
+}

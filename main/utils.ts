@@ -1,4 +1,4 @@
-export const getHotkey = (str, brackets = true) => {
+export const getHotkey = (str) => {
   const parsed = str
     .replace(/\s/g, '')
     .replace(/\+/gi, '')
@@ -8,23 +8,19 @@ export const getHotkey = (str, brackets = true) => {
     .replace(/META/gi, '#')
     .toLowerCase();
 
-  let hotkey = parsed;
+  let hotkey = '';
   let checked = false;
 
-  if (brackets) {
-    hotkey = '';
-
-    for (let char of parsed) {
-      if (!checked && !/[!^+#]/g.test(char)) {
-        checked = true;
-        hotkey += '{';
-      }
-
-      hotkey += char;
+  for (let char of parsed) {
+    if (!checked && !/[!^+#]/g.test(char)) {
+      checked = true;
+      hotkey += '{';
     }
 
-    hotkey += '}';
+    hotkey += char;
   }
+
+  hotkey += '}';
 
   return hotkey;
 };

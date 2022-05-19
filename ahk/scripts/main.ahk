@@ -7,10 +7,14 @@ SetBatchLines -1
 ListLines Off
 SendMode, Input
 
-Notify(Message) {
+Notify(Message, Width = 0) {
   SplashTextOff
-  Width := StrLen(Message) * 8
+
+  If (!Width) {
+    Width := StrLen(Message) * 8
+  }
+
   SplashTextOn, %Width%, , %Message%
-  Sleep, 500
+  Sleep, 300
   SplashTextOff
 }
