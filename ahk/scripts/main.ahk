@@ -7,6 +7,10 @@ SetBatchLines -1
 ListLines Off
 SendMode, Input
 
+IsRunning() {
+  Return !A_IsSuspended && !A_IsPaused
+}
+
 Notify(Message, Width = 0) {
   SplashTextOff
 
@@ -17,4 +21,10 @@ Notify(Message, Width = 0) {
   SplashTextOn, %Width%, , %Message%
   Sleep, 300
   SplashTextOff
+}
+
+HotkeyClear(Key) {
+  Key := StrReplace(Key, "{", "")
+  Key := StrReplace(Key, "}", "")
+  Return Key
 }

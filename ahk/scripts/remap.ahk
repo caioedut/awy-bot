@@ -15,22 +15,19 @@ For index, value in A_Args
 
   Array := StrSplit(value, "|")
 
-  Key := StrReplace(Array[1], "{", "")
-  Key := StrReplace(Key, "}", "")
-  Key := "$" Key
-
+  Key := Array[1]
   Loop := Array[2]
   Remap := Array[3]
 
   If (Key && Remap) {
-    Keymap%Key% := Remap
+    Trigger := HotkeyClear("$" Key)
 
     If (Loop) {
       fn := Func("OnToggle").bind(Key, Remap)
-      Hotkey, %Key%, %fn%, On
+      Hotkey, %Trigger%, %fn%, On
     } Else {
       fn := Func("OnPress").bind(Key, Remap)
-      Hotkey, %Key%, %fn%, On
+      Hotkey, %Trigger%, %fn%, On
     }
   }
 }
@@ -38,15 +35,14 @@ For index, value in A_Args
 IsActive() {
   If WinActive("ahk_id" WindowId) {
     Suspend, Off
-    Return 1
   } Else {
     Suspend, On
-    Return 0
   }
 }
 
 OnToggle(Key, Remap) {
-  If (!IsActive()) {
+  If (!IsRunning()) {
+    Send, %Key%
     Return
   }
 
@@ -59,12 +55,13 @@ OnToggle(Key, Remap) {
     SetTimer, %fn%, 100
   }
 
-  StringUpper, message, % StrReplace(Key, "$", "")
-  Notify("[" message "] Loop: " status)
+  StringUpper, message, % Key
+  Notify("[" HotkeyClear(message) "] Loop: " status)
 }
 
 OnPress(Key, Remap, Loop := 0) {
-  If (!IsActive()) {
+  If (!IsRunning()) {
+    Send, %Key%
     Return
   }
 
@@ -72,8 +69,8 @@ OnPress(Key, Remap, Loop := 0) {
 
   For index, value in Sequence
   {
-    If (!IsActive()) {
-       Return
+    If (!IsRunning()) {
+      Return
     }
 
     Send, %value%
@@ -86,12 +83,12 @@ OnPress(Key, Remap, Loop := 0) {
 
 ~$Pause::
 {
-  If (A_IsPaused) {
-    Notify("Resumed", 60)
-    Pause, Off, 1
-  } Else {
+  If (IsRunning()) {
     Notify("Paused")
     Pause, On, 1
+  } Else {
+    Notify("Resumed", 60)
+    Pause, Off, 1
   }
 
   Return
