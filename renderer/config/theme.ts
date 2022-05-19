@@ -82,9 +82,10 @@ export const theme = createTheme({
           display: 'inline-block',
         },
         'input[type="checkbox"]': {
-          mx: 1,
           height: 16,
           width: 16,
+          marginLeft: 8,
+          marginRight: 8,
           accentColor: primary.main,
         },
       },

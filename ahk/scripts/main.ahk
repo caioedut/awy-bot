@@ -1,5 +1,5 @@
 #NoEnv
-#NoTrayIcon
+;#NoTrayIcon
 #SingleInstance Force
 #KeyHistory 0
 #MaxHotkeysPerInterval 1000
@@ -7,6 +7,23 @@
 SetBatchLines -1
 ListLines Off
 SendMode, Input
+
+; ATTENTION: First argument is WindowId (FOREVER AND EVER)
+global WindowId := A_Args[1]
+A_Args.RemoveAt(1)
+
+IsActive()
+If (WindowId) {
+  SetTimer, IsActive, 500
+}
+
+IsActive() {
+  If (WinActive("ahk_id" WindowId)) {
+    Suspend, Off
+  } Else {
+    Suspend, On
+  }
+}
 
 IsRunning() {
   Return !A_IsSuspended && !A_IsPaused

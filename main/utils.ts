@@ -1,3 +1,20 @@
+import { spawn, spawnSync } from 'child_process';
+import path from 'path';
+
+import { AHK_EXE, AHK_SCRIPTS_PATH } from './constants';
+
+const _runScript = (runner: Function, script: string, params: string[] = []) => {
+  return runner(AHK_EXE, [path.join(AHK_SCRIPTS_PATH, script), ...params]);
+};
+
+export const runScript = (script: string, params: string[] = [], window = '') => {
+  return _runScript(spawn, script, [window, ...params]);
+};
+
+export const runScriptSync = (script: string, params: string[] = [], window = '') => {
+  return _runScript(spawnSync, script, [window, ...params]);
+};
+
 export const getHotkey = (str) => {
   const parsed = str
     .replace(/\s/g, '')

@@ -1,13 +1,11 @@
-import { spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-import { AHK_EXE, AHK_PATH, AHK_SCRIPTS_PATH } from '../constants';
+import { AHK_PATH } from '../constants';
+import { runScriptSync } from '../utils';
 
 export default function windows(e) {
-  const script = path.join(AHK_SCRIPTS_PATH, 'windows.ahk');
-
-  spawnSync(AHK_EXE, [script]);
+  runScriptSync('windows.ahk');
 
   const filePath = path.join(AHK_PATH, 'windows.txt');
   const windows = fs.readFileSync(filePath).toString().split(/\r?\n/g).filter(Boolean);

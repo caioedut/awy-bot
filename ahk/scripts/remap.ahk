@@ -2,17 +2,10 @@
 
 #Persistent
 
-global WindowId := A_Args[1]
-SetTimer, IsActive, 500
-
 global toggleStatus := []
 
 For index, value in A_Args
 {
-  If (index == 1) {
-    Continue
-  }
-
   Array := StrSplit(value, "|")
 
   Key := Array[1]
@@ -29,14 +22,6 @@ For index, value in A_Args
       fn := Func("OnPress").bind(Key, Remap)
       Hotkey, %Trigger%, %fn%, On
     }
-  }
-}
-
-IsActive() {
-  If WinActive("ahk_id" WindowId) {
-    Suspend, Off
-  } Else {
-    Suspend, On
   }
 }
 
@@ -77,7 +62,7 @@ OnPress(Key, Remap, Loop := 0) {
   }
 
   If (Loop && !toggleStatus[Key]) {
-    SetTimer,, Off
+    SetTimer, , Off
   }
 }
 

@@ -26,22 +26,7 @@ import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;
 
-const defaults: Binding[] = [
-  // Mouse
-  { group: 'mouse', key: 'MButton', sequence: [], name: 'Mouse Middle' },
-  { group: 'mouse', key: 'XButton1', sequence: [], name: 'Mouse X1' },
-  { group: 'mouse', key: 'XButton2', sequence: [], name: 'Mouse X2' },
-  { group: 'mouse', key: 'WheelUp', sequence: [], name: 'Scroll Up' },
-  { group: 'mouse', key: 'WheelDown', sequence: [], name: 'Scroll Down' },
-  // Lock
-  // { group: 'lock', key: 'Win', sequence: [], name: 'Windows' },
-  // { group: 'lock', key: 'PrintScreen', sequence: [], name: 'Print Screen' },
-  // { group: 'lock', key: 'CapsLock', sequence: [], name: 'CapsLock' },
-  // { group: 'lock', key: 'ScrollLock', sequence: [], name: 'ScrollLock' },
-  // { group: 'lock', key: 'NumLock', sequence: [], name: 'NumLock' },
-];
-
-const locks = [
+const defaultLocks = [
   { key: 'Win', name: 'Windows' },
   { key: 'PrintScreen', name: 'Print Screen' },
   { key: 'NumLock', name: 'NumLock' },
@@ -49,9 +34,23 @@ const locks = [
   { key: 'ScrollLock', name: 'ScrollLock' },
 ];
 
+const defaultBindings: Binding[] = [
+  { group: 'mouse', key: 'MButton', sequence: [], name: 'Mouse Middle' },
+  { group: 'mouse', key: 'XButton1', sequence: [], name: 'Mouse X1' },
+  { group: 'mouse', key: 'XButton2', sequence: [], name: 'Mouse X2' },
+  { group: 'mouse', key: 'WheelUp', sequence: [], name: 'Scroll Up' },
+  { group: 'mouse', key: 'WheelDown', sequence: [], name: 'Scroll Down' },
+];
+
 type Window = {
   title: string;
   ahk_id: string;
+};
+
+type Lock = {
+  key: string;
+  name?: string;
+  lock?: boolean;
 };
 
 type Binding = {
@@ -75,6 +74,7 @@ function Home() {
 
   // Models
   const [window, setWindow] = useState('');
+  const [locks, setLocks] = useState<Lock[]>([]);
   const [bindings, setBindings] = useState<Binding[]>([]);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
@@ -84,9 +84,18 @@ function Home() {
   useMount(getWindows);
 
   useEffect(() => {
-    const merged = [...(store.get('bindings', []) as Binding[]), ...defaults] as Binding[];
-    setBindings(ArrayHelper.uniqueBy(merged, 'key'));
+    const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
+    const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
+
+    setLocks(ArrayHelper.uniqueBy(newLocks, 'key'));
+    setBindings(ArrayHelper.uniqueBy(newBindings, 'key'));
   }, [store]);
+
+  useEffect(() => {
+    store.set('locks', locks);
+    const data = window && locks ? { window, locks } : {};
+    ipcRenderer.sendSync('lock', JSON.stringify(data));
+  }, [window, locks]);
 
   useEffect(() => {
     store.set('bindings', bindings);
@@ -135,7 +144,14 @@ function Home() {
 
   const handleResetConfig = () => {
     store.clear();
-    setBindings(defaults);
+    setLocks(defaultLocks);
+    setBindings(defaultBindings);
+  };
+
+  const handleLock = (index, lock = true) => {
+    const newLocks = [...locks];
+    newLocks[index].lock = lock;
+    setLocks(newLocks);
   };
 
   const handleBinding = (index) => {
@@ -217,17 +233,15 @@ function Home() {
 
         <Box mt={2}>
           <Section title="Lock">
-            {locks.map((lock) => (
-              <Grid item key={lock.key}>
+            {locks.map((item, index) => (
+              <Grid item key={item.key}>
                 <FormControlLabel
-                  label={lock.name}
+                  label={item.name}
                   control={
-                    <input
+                    <input //
                       type="checkbox"
-                      // name={`${index}.loop`}
-                      // checked={item.loop ?? false}
-                      // disabled={!item.key}
-                      // onChange={() => handleBinding(index)}
+                      checked={item.lock ?? false}
+                      onChange={(e) => handleLock(index, e.target.checked)}
                     />
                   }
                 />
