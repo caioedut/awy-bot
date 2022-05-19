@@ -23,10 +23,12 @@ import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;
 
-const defaults = [
+const defaults: Binding[] = [
   { group: 'mouse', key: 'MButton', sequence: [], name: 'Mouse Middle' },
   { group: 'mouse', key: 'XButton1', sequence: [], name: 'Mouse X1' },
   { group: 'mouse', key: 'XButton2', sequence: [], name: 'Mouse X2' },
+  { group: 'mouse', key: 'WheelUp', sequence: [], name: 'Scroll Up' },
+  { group: 'mouse', key: 'WheelDown', sequence: [], name: 'Scroll Down' },
 ];
 
 type Window = {
@@ -78,7 +80,12 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    setBindings(store.get('bindings', defaults) as Binding[]);
+    const merged = [...defaults, ...(store.get('bindings', []) as Binding[])] as Binding[];
+    const newBindings = merged.filter((item, index, array) => {
+      return array.findIndex(({ key }) => key === item.key) === index;
+    });
+
+    setBindings(newBindings);
   }, [store]);
 
   useEffect(() => {
@@ -183,6 +190,10 @@ function Home() {
               </ToggleButtonGroup>
             </Grid>
           </Section>
+        </Box>
+
+        <Box mt={2}>
+          <Section title="Mouse"></Section>
         </Box>
 
         <Box mt={2}>

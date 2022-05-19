@@ -2,6 +2,7 @@
 #NoTrayIcon
 #SingleInstance Force
 #KeyHistory 0
+#MaxHotkeysPerInterval 1000
 
 SetBatchLines -1
 ListLines Off
