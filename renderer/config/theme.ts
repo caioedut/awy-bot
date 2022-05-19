@@ -1,18 +1,22 @@
 import { red, teal } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
+const primary = {
+  main: '#f8bbd0',
+};
+
+const secondary = {
+  main: teal['500'],
+};
+
 export const theme = createTheme({
   typography: {
     fontSize: 12,
   },
   palette: {
     mode: 'dark',
-    primary: {
-      main: '#f8bbd0',
-    },
-    secondary: {
-      main: teal['500'],
-    },
+    primary,
+    secondary,
     error: {
       main: red.A400,
     },
@@ -76,6 +80,12 @@ export const theme = createTheme({
         },
         a: {
           display: 'inline-block',
+        },
+        'input[type="checkbox"]': {
+          mx: 1,
+          height: 16,
+          width: 16,
+          accentColor: primary.main,
         },
       },
     },
