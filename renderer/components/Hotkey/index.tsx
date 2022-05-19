@@ -28,7 +28,6 @@ function Hotkey(props: HotkeyProps) {
   };
 
   useEffect(() => {
-    console.log('asdasd');
     setHotkey(value);
   }, [value]);
 

@@ -11,6 +11,8 @@ if (isProd) {
   app.setPath('userData', `${app.getPath('userData')} (development)`);
 }
 
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
+
 (async () => {
   await app.whenReady();
 

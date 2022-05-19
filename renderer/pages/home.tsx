@@ -175,7 +175,7 @@ function Home() {
               <ToggleButtonGroup exclusive value={config} size="small" color="primary" onChange={handleChangeConfig}>
                 {settings.map((item) => (
                   <ToggleButton key={item} value={item}>
-                    <Box mx={1} my={-0.2} fontSize={14}>
+                    <Box my={-0.2} fontSize={14} width={37.2}>
                       {item}
                     </Box>
                   </ToggleButton>
