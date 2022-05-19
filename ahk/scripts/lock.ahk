@@ -1,5 +1,4 @@
 #Include %A_ScriptDir%\main.ahk
-
 #Persistent
 
 For index, Key in A_Args
@@ -12,6 +11,19 @@ For index, Key in A_Args
 OnPress(Key) {
   If (!IsRunning()) {
     Send, %Key%
+  }
+
+  Return
+}
+
+~$Pause::
+{
+  If (IsRunning()) {
+    Notify("Paused")
+    Pause, On, 1
+  } Else {
+    Notify("Resumed", 60)
+    Pause, Off, 1
   }
 
   Return
