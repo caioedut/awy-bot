@@ -37,7 +37,7 @@ OnToggle(Key, Remap) {
   If (toggleStatus[Key]) {
     status := "On"
     fn := Func("OnPress").bind(Key, Remap, 1)
-    SetTimer, %fn%, 100
+    SetTimer, %fn%, 250
   }
 
   StringUpper, message, % Key
