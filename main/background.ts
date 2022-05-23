@@ -18,7 +18,7 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
   const window = createWindow('main', {
     title: 'Awy Bot',
-    width: 768,
+    width: 1280,
     height: 768,
     minWidth: 768,
     minHeight: 768,

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import electron from 'electron';
 import Head from 'next/head';
@@ -12,6 +12,7 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
@@ -35,11 +36,11 @@ const defaultLocks = [
 ];
 
 const defaultBindings: Binding[] = [
-  { group: 'mouse', key: 'MButton', sequence: [], name: 'Mouse Middle' },
-  { group: 'mouse', key: 'XButton1', sequence: [], name: 'Mouse X1' },
-  { group: 'mouse', key: 'XButton2', sequence: [], name: 'Mouse X2' },
-  { group: 'mouse', key: 'WheelUp', sequence: [], name: 'Scroll Up' },
-  { group: 'mouse', key: 'WheelDown', sequence: [], name: 'Scroll Down' },
+  { group: 'mouse', key: 'MButton', sequence: [], delay: [0, 0], name: 'Mouse Middle' },
+  { group: 'mouse', key: 'XButton1', sequence: [], delay: [0, 0], name: 'Mouse X1' },
+  { group: 'mouse', key: 'XButton2', sequence: [], delay: [0, 0], name: 'Mouse X2' },
+  { group: 'mouse', key: 'WheelUp', sequence: [], delay: [0, 0], name: 'Scroll Up' },
+  { group: 'mouse', key: 'WheelDown', sequence: [], delay: [0, 0], name: 'Scroll Down' },
 ];
 
 type Window = {
@@ -56,6 +57,7 @@ type Lock = {
 type Binding = {
   key: string;
   sequence: string[];
+  delay: number[];
   group: string;
   name?: string;
   loop?: boolean;
@@ -63,6 +65,7 @@ type Binding = {
 
 function Home() {
   const formRef = useRef(null);
+  const bindingTimeoutRef = useRef(null);
 
   // Load/save configs
   const [settings] = useState([1, 2, 3, 4, 5, 7, 8, 9, 10]);
@@ -78,7 +81,7 @@ function Home() {
   const [bindings, setBindings] = useState<Binding[]>([]);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
-    bindings.push({ group: 'keyboard', key: '', sequence: [] });
+    bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
   }
 
   useMount(getWindows);
@@ -87,8 +90,8 @@ function Home() {
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
 
-    setLocks(ArrayHelper.uniqueBy(newLocks, 'key'));
-    setBindings(ArrayHelper.uniqueBy(newBindings, 'key'));
+    setLocks(ArrayHelper.uniqueBy(newLocks, 'key', false));
+    setBindings(ArrayHelper.uniqueBy(newBindings, 'key', false));
   }, [store]);
 
   useEffect(() => {
@@ -99,8 +102,15 @@ function Home() {
 
   useEffect(() => {
     store.set('bindings', bindings);
-    const data = window && bindings ? { window, bindings } : {};
-    ipcRenderer.sendSync('remap', JSON.stringify(data));
+
+    if (bindingTimeoutRef.current) {
+      clearTimeout(bindingTimeoutRef.current);
+    }
+
+    bindingTimeoutRef.current = setTimeout(() => {
+      const data = window && bindings ? { window, bindings } : {};
+      ipcRenderer.sendSync('remap', JSON.stringify(data));
+    }, 1000);
   }, [window, bindings]);
 
   function getWindows() {
@@ -118,18 +128,32 @@ function Home() {
     );
   }
 
+  const getNumber = (value) => {
+    value = Number(value || 0);
+    return isNaN(value) ? 0 : value;
+  };
+
   const getSequence = (index) => {
-    return (bindings[index].sequence = [
+    return [
       formRef.current[`${index}.sequence.0`]?.value,
       formRef.current[`${index}.sequence.1`]?.value,
       formRef.current[`${index}.sequence.2`]?.value,
-    ].filter(Boolean));
+    ].filter(Boolean);
+  };
+
+  const getDelay = (index) => {
+    return [
+      // Force numeric values
+      getNumber(formRef.current[`${index}.delay.0`]?.value),
+      getNumber(formRef.current[`${index}.delay.1`]?.value),
+    ].map(Number);
   };
 
   const getData = (index) => {
     return {
       key: formRef.current[`${index}.key`]?.value,
       sequence: getSequence(index),
+      delay: getDelay(index),
       loop: Boolean(formRef.current[`${index}.loop`]?.checked),
     };
   };
@@ -152,6 +176,18 @@ function Home() {
     const newLocks = [...locks];
     newLocks[index].lock = lock;
     setLocks(newLocks);
+  };
+
+  const handleKeyDownDelay = (index, e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+    }
+
+    if (e.key === 'Escape') {
+      e.target.value = '0';
+      e.target.blur();
+      handleBinding(index);
+    }
   };
 
   const handleBinding = (index) => {
@@ -292,33 +328,29 @@ function Home() {
                         }
                       />
                     </Grid>
-                    <Grid item xs={3}>
-                      <Hotkey
-                        name={`${index}.sequence.0`}
-                        value={item.sequence?.[0] ?? ''}
-                        label="Key 1"
-                        onChange={() => handleBinding(index)}
-                        fullWidth
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <Hotkey
-                        name={`${index}.sequence.1`}
-                        value={item.sequence?.[1] ?? ''}
-                        label="Key 2"
-                        onChange={() => handleBinding(index)}
-                        fullWidth
-                      />
-                    </Grid>
-                    <Grid item xs={3}>
-                      <Hotkey
-                        name={`${index}.sequence.2`}
-                        value={item.sequence?.[2] ?? ''}
-                        label="Key 3"
-                        onChange={() => handleBinding(index)}
-                        fullWidth
-                      />
-                    </Grid>
+                    {[0, 1, 2].map((keyNumber) => (
+                      <React.Fragment key={keyNumber}>
+                        <Grid item xs={2}>
+                          <Hotkey
+                            name={`${index}.sequence.${keyNumber}`}
+                            value={item.sequence?.[keyNumber] ?? ''}
+                            label={`Key ${keyNumber + 1}`}
+                            onChange={() => handleBinding(index)}
+                          />
+                        </Grid>
+                        {keyNumber < 2 && (
+                          <Grid item xs={1}>
+                            <TextField //
+                              name={`${index}.delay.${keyNumber}`}
+                              value={item.delay?.[keyNumber] ?? ''}
+                              label="Delay"
+                              onChange={() => handleBinding(index)}
+                              onKeyDown={(e) => handleKeyDownDelay(index, e)}
+                            />
+                          </Grid>
+                        )}
+                      </React.Fragment>
+                    ))}
                     <Grid item xs={12} />
                   </React.Fragment>
                 );

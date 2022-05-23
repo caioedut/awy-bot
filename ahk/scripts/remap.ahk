@@ -10,22 +10,23 @@ For index, value in A_Args
 
   Key := Array[1]
   Loop := Array[2]
-  Remap := Array[3]
+  Sequence := Array[3]
+  Delays := Array[4]
 
-  If (Key && Remap) {
+  If (Key && Sequence) {
     Trigger := HotkeyClear("$" Key)
 
     If (Loop) {
-      fn := Func("OnToggle").bind(Key, Remap)
+      fn := Func("OnToggle").bind(Key, Sequence, Delays)
       Hotkey, %Trigger%, %fn%, On
     } Else {
-      fn := Func("OnPress").bind(Key, Remap)
+      fn := Func("OnPress").bind(Key, Sequence, Delays)
       Hotkey, %Trigger%, %fn%, On
     }
   }
 }
 
-OnToggle(Key, Remap) {
+OnToggle(Key, Sequence, Delays) {
   If (!IsRunning()) {
     Send, %Key%
     Return
@@ -36,7 +37,7 @@ OnToggle(Key, Remap) {
 
   If (toggleStatus[Key]) {
     status := "On"
-    fn := Func("OnPress").bind(Key, Remap, 1)
+    fn := Func("OnPress").bind(Key, Sequence, Delays, 1)
     SetTimer, %fn%, 250
   }
 
@@ -44,13 +45,14 @@ OnToggle(Key, Remap) {
   Notify("[" HotkeyClear(message) "] Loop: " status)
 }
 
-OnPress(Key, Remap, Loop := 0) {
+OnPress(Key, Sequence, Delays, Loop := 0) {
   If (!IsRunning()) {
     Send, %Key%
     Return
   }
 
-  Sequence := StrSplit(Remap, ":;")
+  Sequence := StrSplit(Sequence, ":;")
+  Delays := StrSplit(Delays, ":;")
 
   For index, value in Sequence
   {
@@ -59,6 +61,12 @@ OnPress(Key, Remap, Loop := 0) {
     }
 
     Send, %value%
+
+    delay := Delays[index]
+
+    If (Delay) {
+      Sleep, %delay%
+    }
   }
 
   If (Loop && !toggleStatus[Key]) {

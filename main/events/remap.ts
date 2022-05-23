@@ -8,9 +8,9 @@ export default function remap(e, arg) {
 
   const params = bindings
     .filter(({ key, sequence }) => key && sequence?.length)
-    .map(({ key, sequence, loop }) => {
+    .map(({ key, sequence, delay, loop }) => {
       const value = sequence.filter(Boolean).map((item) => getHotkey(item));
-      return `${getHotkey(key)}|${Number(loop || 0)}|${value.join(':;')}`;
+      return `${getHotkey(key)}|${Number(loop || 0)}|${value.join(':;')}|${delay.join(':;')}`;
     });
 
   runScript('remap.ahk', params, window);

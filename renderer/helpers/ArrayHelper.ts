@@ -45,9 +45,16 @@ export default class ArrayHelper {
     return groups;
   }
 
-  static uniqueBy(array, keyAttr) {
+  static uniqueBy(array, keyAttr, caseSensitive = true) {
     return array.filter((item, index) => {
-      return index === array.findIndex((a) => a[keyAttr] === item[keyAttr]);
+      return (
+        index ===
+        array.findIndex((a) => {
+          const aVal = caseSensitive ? a[keyAttr] : `${a[keyAttr]}`.toLowerCase();
+          const bVal = caseSensitive ? item[keyAttr] : `${item[keyAttr]}`.toLowerCase();
+          return aVal === bVal;
+        })
+      );
     });
   }
 
