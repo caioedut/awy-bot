@@ -20,7 +20,7 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
     title: 'Awy Bot',
     width: 1280,
     height: 768,
-    minWidth: 768,
+    minWidth: 1280,
     minHeight: 768,
     // center: true,
     darkTheme: true,
