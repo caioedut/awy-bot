@@ -54,6 +54,11 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
     Return
   }
 
+  If (Loop && !toggleStatus[Key]) {
+    SetTimer, , Off
+    Return
+  }
+
   Sequence := StrSplit(Sequence, ":;")
   Delays := StrSplit(Delays, ":;")
 
@@ -70,10 +75,6 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
     If (Delay) {
       Sleep, %delay%
     }
-  }
-
-  If (Loop && !toggleStatus[Key]) {
-    SetTimer, , Off
   }
 }
 
