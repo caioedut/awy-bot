@@ -13,7 +13,8 @@ export default function raw(e, arg) {
   if (raw) {
     raw = `
       #Include %A_ScriptDir%\\main.ahk
-      #IfWinActive ahk_id WindowId
+
+      #If WinActive("ahk_id" WindowId)
 
       ; Global Variables
       MiddlePosX := A_ScreenWidth // 2
