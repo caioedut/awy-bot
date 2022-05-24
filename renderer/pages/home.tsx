@@ -7,6 +7,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
@@ -79,6 +84,10 @@ function Home() {
   const [window, setWindow] = useState('');
   const [locks, setLocks] = useState<Lock[]>([]);
   const [bindings, setBindings] = useState<Binding[]>([]);
+  const [raw, setRaw] = useState('');
+
+  // Components
+  const [inputRaw, setInputRaw] = useState<string>(null);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
     bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
@@ -87,9 +96,11 @@ function Home() {
   useMount(getWindows);
 
   useEffect(() => {
+    const newRaw = store.get('raw', null) as string;
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
 
+    setRaw(newRaw);
     setLocks(ArrayHelper.uniqueBy(newLocks, 'key', false));
     setBindings(ArrayHelper.uniqueBy(newBindings, 'key', false));
   }, [store]);
@@ -99,6 +110,12 @@ function Home() {
     const data = window && locks ? { window, locks } : {};
     ipcRenderer.sendSync('lock', JSON.stringify(data));
   }, [window, locks]);
+
+  useEffect(() => {
+    store.set('raw', raw);
+    const data = window && raw ? { window, raw } : {};
+    ipcRenderer.sendSync('raw', JSON.stringify(data));
+  }, [window, raw]);
 
   useEffect(() => {
     store.set('bindings', bindings);
@@ -210,6 +227,15 @@ function Home() {
     setBindings(newBindings);
   };
 
+  const handleEditRaw = () => {
+    setInputRaw(raw ?? '');
+  };
+
+  const handleSaveRaw = () => {
+    setRaw(inputRaw);
+    setInputRaw(null);
+  };
+
   const groups = ArrayHelper.groupBy(bindings, 'group');
 
   return (
@@ -264,6 +290,11 @@ function Home() {
                 <PlaylistRemoveIcon color="primary" />
               </IconButton>
             </Tooltip>
+          </Grid>
+          <Grid item xs textAlign="right">
+            <Button variant="contained" onClick={handleEditRaw}>
+              Raw Script
+            </Button>
           </Grid>
         </Section>
 
@@ -359,6 +390,29 @@ function Home() {
             </Section>
           </Box>
         ))}
+
+        <Dialog open={inputRaw !== null}>
+          <DialogTitle>Raw Script</DialogTitle>
+          <DialogContent sx={{ width: 520 }}>
+            <code>asd</code>
+            <TextField
+              multiline
+              name="raw"
+              rows={30}
+              value={inputRaw ?? ''}
+              onChange={(e) => setInputRaw(e.target.value)}
+              InputProps={{
+                sx: { fontFamily: 'monospace', fontSize: 12 },
+              }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setInputRaw(null)}>Cancel</Button>
+            <Button variant="contained" onClick={handleSaveRaw}>
+              Save and Run
+            </Button>
+          </DialogActions>
+        </Dialog>
       </form>
     </React.Fragment>
   );

@@ -47,7 +47,6 @@ function Hotkey(props: HotkeyProps) {
       4: 'XButton2',
     };
 
-    // console.log(e);
     handleKeyDown({
       key: buttons[e.button],
       keyCode: null,
@@ -62,8 +61,6 @@ function Hotkey(props: HotkeyProps) {
     }
 
     let { key, keyCode } = e;
-
-    console.log(key);
 
     if (!keysRef.current.includes(keyCode)) {
       keysRef.current.push(keyCode);
