@@ -1,9 +1,5 @@
 #Include %A_ScriptDir%\main.ahk
 
-ListDir := A_ScriptDir "\..\windows.txt"
-
-FileDelete, %ListDir%
-
 WinGet windows, List
 Loop %windows%
 {
@@ -40,6 +36,6 @@ Loop %windows%
   Response .= id "|[" exe "]: " title "`n"
 }
 
-FileAppend, %Response%, %ListDir%
+FileAppend, %Response%, *
 
 ExitApp
