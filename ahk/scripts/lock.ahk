@@ -9,7 +9,7 @@ For index, Key in A_Args
 }
 
 OnPress(Key) {
-  If (!IsRunning()) {
+  If (!IsActive()) {
     Send, %Key%
   }
 
@@ -18,7 +18,7 @@ OnPress(Key) {
 
 ~$Pause::
 {
-  If (IsRunning()) {
+  If (IsActive()) {
     Notify("Paused")
     Pause, On, 1
   } Else {
