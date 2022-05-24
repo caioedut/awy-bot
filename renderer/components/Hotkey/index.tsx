@@ -8,11 +8,12 @@ import Tooltip from '@mui/material/Tooltip';
 
 type HotkeyProps = TextFieldProps & {
   value: string;
+  allowMouse?: boolean;
   defaultValue?: string;
 };
 
 function Hotkey(props: HotkeyProps) {
-  const { onChange, value, defaultValue, ...rest } = props;
+  const { onChange, value, allowMouse, defaultValue, ...rest } = props;
 
   const keysRef = useRef([]);
   const inputRef = useRef(null);
@@ -35,20 +36,34 @@ function Hotkey(props: HotkeyProps) {
     inputRef.current.focus();
   }, [editing]);
 
-  const handleKeyUp = (e) => {
-    e.preventDefault();
+  const handleMouse = (e) => {
+    if (!editing || !allowMouse) return;
 
-    keysRef.current = keysRef.current.filter((item) => item !== e.keyCode);
+    const buttons = {
+      0: 'LButton',
+      1: 'MButton',
+      2: 'RButton',
+      3: 'XButton1',
+      4: 'XButton2',
+    };
 
-    if (!keysRef.current.length) {
-      handleChange(e);
-    }
+    // console.log(e);
+    handleKeyDown({
+      key: buttons[e.button],
+      keyCode: null,
+    });
   };
 
   const handleKeyDown = (e) => {
-    e.preventDefault();
+    if (!editing) return;
+
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
 
     let { key, keyCode } = e;
+
+    console.log(key);
 
     if (!keysRef.current.includes(keyCode)) {
       keysRef.current.push(keyCode);
@@ -73,7 +88,21 @@ function Hotkey(props: HotkeyProps) {
     setHotkey(newHotkey);
   };
 
+  const handleKeyUp = (e) => {
+    if (!editing) return;
+
+    e.preventDefault();
+
+    keysRef.current = keysRef.current.filter((item) => item !== e.keyCode);
+
+    if (!keysRef.current.length) {
+      handleChange(e);
+    }
+  };
+
   const handleChange = (e) => {
+    if (!editing) return;
+
     keysRef.current = [];
 
     const split = hotkey.split(' + ').filter(Boolean);
@@ -104,6 +133,7 @@ function Hotkey(props: HotkeyProps) {
       disabled={!editing}
       autoFocus={editing}
       value={`${hotkey || ''}`.toUpperCase()}
+      onMouseDown={handleMouse}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       onBlur={handleChange}

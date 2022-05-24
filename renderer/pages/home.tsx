@@ -332,6 +332,7 @@ function Home() {
                       <React.Fragment key={keyNumber}>
                         <Grid item xs={2}>
                           <Hotkey
+                            allowMouse
                             name={`${index}.sequence.${keyNumber}`}
                             value={item.sequence?.[keyNumber] ?? ''}
                             label={`Key ${keyNumber + 1}`}
