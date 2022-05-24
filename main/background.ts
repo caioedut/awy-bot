@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron';
+import { BrowserWindow, app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
 import createWindow from './helpers/create-window';
@@ -16,19 +16,20 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 (async () => {
   await app.whenReady();
 
-  const window = createWindow('main', {
+  const window = createWindow('Main', {
+    show: false,
     title: 'Awy Bot',
     width: 1280,
     height: 768,
     minWidth: 1280,
     minHeight: 768,
-    // center: true,
+    center: true,
     darkTheme: true,
-    resizable: !isProd,
-    maximizable: !isProd,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   });
-
-  window.setMenuBarVisibility(false);
 
   // window.webContents.on('before-input-event', (e, input) => {
   //   if (input.code == 'F4' && input.alt) e.preventDefault();
@@ -37,11 +38,14 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
   if (isProd) {
     await window.loadURL('app://./home.html');
   } else {
-    window.maximize();
     const port = process.argv[2];
     await window.loadURL(`http://localhost:${port}/home`);
     window.webContents.openDevTools();
   }
+
+  window.setMenuBarVisibility(false);
+  window.maximize();
+  window.show();
 })();
 
 app.on('window-all-closed', () => {
