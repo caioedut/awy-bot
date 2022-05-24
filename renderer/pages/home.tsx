@@ -247,12 +247,12 @@ function Home() {
 
       <form ref={formRef}>
         <Section title="Application">
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <Typography variant="body2">
               <b>Window</b>
             </Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs>
             <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
               {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
                 <MenuItem key={index} value={win.ahk_id}>
@@ -261,7 +261,7 @@ function Home() {
               ))}
             </Select>
           </Grid>
-          <Grid item>
+          <Grid item width={52}>
             <Tooltip title="Refresh">
               <IconButton onClick={getWindows}>
                 <RefreshIcon color="primary" />
@@ -269,12 +269,12 @@ function Home() {
             </Tooltip>
           </Grid>
           <Box width="100%" />
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <Typography variant="body2">
               <b>Settings</b>
             </Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs>
             <ToggleButtonGroup exclusive value={config} size="small" color="primary" onChange={handleChangeConfig} sx={{ display: 'flex' }}>
               {settings.map((item) => (
                 <ToggleButton key={item} value={item} sx={{ flex: 1 }}>
@@ -285,16 +285,17 @@ function Home() {
               ))}
             </ToggleButtonGroup>
           </Grid>
-          <Grid item>
+          <Grid item width={52}>
             <Tooltip title="Reset current">
               <IconButton onClick={handleResetConfig}>
                 <PlaylistRemoveIcon color="primary" />
               </IconButton>
             </Tooltip>
           </Grid>
+          <Box width="100%" />
           <Grid item xs textAlign="right">
             <Button variant="contained" onClick={handleEditRaw}>
-              Raw Script
+              Custom Raw Script
             </Button>
           </Grid>
         </Section>
@@ -392,9 +393,9 @@ function Home() {
           </Box>
         ))}
 
-        <Dialog open={inputRaw !== null}>
-          <DialogTitle>Raw Script</DialogTitle>
-          <DialogContent sx={{ width: 520 }}>
+        <Dialog open={inputRaw !== null} maxWidth="lg" fullWidth>
+          <DialogTitle>Custom Raw Script</DialogTitle>
+          <DialogContent>
             <TextField
               multiline
               name="raw"
