@@ -47,10 +47,13 @@ function Hotkey(props: HotkeyProps) {
       4: 'XButton2',
     };
 
-    handleKeyDown({
-      key: buttons[e.button],
-      keyCode: null,
-    });
+    handleKeyDown({ key: buttons[e.button] });
+  };
+
+  const handleWheel = (e) => {
+    if (!editing || !allowMouse) return;
+
+    handleKeyDown({ key: e.deltaY < 0 ? 'WheelUp' : 'WheelDown' });
   };
 
   const handleKeyDown = (e) => {
@@ -134,6 +137,7 @@ function Hotkey(props: HotkeyProps) {
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       onBlur={handleChange}
+      onWheel={handleWheel}
       InputProps={{
         readOnly: true,
         endAdornment: (
