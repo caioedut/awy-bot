@@ -12,21 +12,15 @@ SendMode, Input
 global WindowId := A_Args[1]
 A_Args.RemoveAt(1)
 
-IsActive()
-If (WindowId) {
-  SetTimer, IsActive, 500
-}
-
 IsActive() {
-  If (WinActive("ahk_id" WindowId)) {
-    Suspend, Off
-  } Else {
+  If (!WinActive("ahk_id" WindowId)) {
     Suspend, On
+    Return 0
   }
-}
 
-IsRunning() {
-  Return !A_IsSuspended && !A_IsPaused
+  Suspend, Off
+
+  Return !A_IsPaused
 }
 
 Notify(Message, Width = 0) {

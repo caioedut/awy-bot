@@ -27,7 +27,7 @@ For index, value in A_Args
 }
 
 OnToggle(Key, Sequence, Delays) {
-  If (!IsRunning()) {
+  If (!IsActive()) {
     Send, %Key%
     Return
   }
@@ -46,8 +46,11 @@ OnToggle(Key, Sequence, Delays) {
 }
 
 OnPress(Key, Sequence, Delays, Loop := 0) {
-  If (!IsRunning()) {
-    Send, %Key%
+  If (!IsActive()) {
+    If (!Loop) {
+      Send, %Key%
+    }
+
     Return
   }
 
@@ -56,7 +59,7 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
 
   For index, value in Sequence
   {
-    If (!IsRunning()) {
+    If (!IsActive()) {
       Return
     }
 
@@ -76,7 +79,7 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
 
 ~$Pause::
 {
-  If (IsRunning()) {
+  If (IsActive()) {
     Notify("Paused")
     Pause, On, 1
   } Else {
