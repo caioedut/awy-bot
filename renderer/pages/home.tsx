@@ -185,6 +185,7 @@ function Home() {
 
   const handleResetConfig = () => {
     store.clear();
+    setRaw(null);
     setLocks(defaultLocks);
     setBindings(defaultBindings);
   };
@@ -394,7 +395,6 @@ function Home() {
         <Dialog open={inputRaw !== null}>
           <DialogTitle>Raw Script</DialogTitle>
           <DialogContent sx={{ width: 520 }}>
-            <code>asd</code>
             <TextField
               multiline
               name="raw"
