@@ -43,11 +43,12 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
   } else {
     const port = process.argv[2];
     await window.loadURL(`http://localhost:${port}/home`);
+
+    window.maximize();
     window.webContents.openDevTools();
   }
 
   window.setMenuBarVisibility(false);
-  window.maximize();
   window.show();
 })();
 
