@@ -11,17 +11,7 @@ export default function raw(e, arg) {
   let raw = (body.raw || '').trim();
 
   if (raw) {
-    raw = `
-      #Include %A_ScriptDir%\\core.ahk
-
-      #If WinActive("ahk_id" WindowId)
-
-      ; Global Variables
-      MiddlePosX := A_ScreenWidth // 2
-      MiddlePosY := A_ScreenHeight // 2
-
-      ${raw}
-    `;
+    raw = `#Include %A_ScriptDir%\\core.ahk\n${raw}`;
   }
 
   const file = path.join(AHK_SCRIPTS_PATH, 'raw.ahk');

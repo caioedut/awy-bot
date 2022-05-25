@@ -9,7 +9,10 @@ ListLines Off
 SendMode, Input
 FileEncoding, UTF-8
 
+; Global Variables
 global Scripts := ["raw.ahk", "lock.ahk", "remap.ahk"]
+global MiddlePosX := A_ScreenWidth // 2
+global MiddlePosY := A_ScreenHeight // 2
 
 ; ATTENTION: First argument is WindowId (FOREVER AND EVER)
 global WindowId := A_Args[1]
