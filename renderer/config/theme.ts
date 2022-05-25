@@ -58,7 +58,6 @@ export const theme = createTheme({
         body: {
           fontSize: 12,
           backgroundColor: '#333333',
-          padding: 16,
         },
         '*::placeholder': {
           fontSize: '.8em',

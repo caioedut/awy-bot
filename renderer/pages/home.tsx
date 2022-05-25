@@ -265,7 +265,7 @@ export default function Home() {
   const groups = ArrayHelper.groupBy(bindings, 'group');
 
   return (
-    <React.Fragment>
+    <Box p={2}>
       <Head>
         <title>Awy Bot</title>
       </Head>
@@ -447,6 +447,6 @@ export default function Home() {
           </DialogActions>
         </Dialog>
       </form>
-    </React.Fragment>
+    </Box>
   );
 }

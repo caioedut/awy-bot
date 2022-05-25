@@ -2,7 +2,6 @@ import { BrowserWindow, app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
 import createWindow from './helpers/create-window';
-import { runScript } from './utils';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
@@ -16,8 +15,6 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
 (async () => {
   await app.whenReady();
-
-  // runScript('main.ahk');
 
   const window = createWindow('Main', {
     show: false,
@@ -47,18 +44,31 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
     hasShadow: true,
     skipTaskbar: true,
     vibrancy: 'dark',
-    x: 20,
-    y: 20,
-    width: 240,
-    height: 240,
+    x: 16,
+    y: 16,
+    width: 0,
+    height: 0,
     movable: true,
     maximizable: false,
     resizable: false,
-    opacity: 0.8,
+    opacity: 0.9,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
+  });
+
+  ipcMain.on('overlay-resize', (e, arg) => {
+    const [width, height] = `${arg ?? ''}`.split('|').map(Number);
+
+    if (width > 16 && height > 16) {
+      overlayWindow.setContentSize(width, height);
+      overlayWindow.show();
+    } else {
+      overlayWindow.hide();
+    }
+
+    e.returnValue = 'ok';
   });
 
   // window.webContents.on('before-input-event', (e, input) => {
@@ -84,7 +94,6 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
   }
 
   window.show();
-  overlayWindow.show();
 })();
 
 app.on('window-all-closed', () => {
