@@ -33,7 +33,7 @@ Loop %windows%
     Continue
   }
 
-  Response .= id "|[" exe "]: " title "`n"
+  Response .= id "|" exe "|" title "`n"
 }
 
 FileAppend, %Response%, *

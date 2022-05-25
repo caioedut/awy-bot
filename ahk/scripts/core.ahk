@@ -7,23 +7,13 @@
 SetBatchLines -1
 ListLines Off
 SendMode, Input
+FileEncoding, UTF-8
 
 global Scripts := ["raw.ahk", "lock.ahk", "remap.ahk"]
 
 ; ATTENTION: First argument is WindowId (FOREVER AND EVER)
 global WindowId := A_Args[1]
 A_Args.RemoveAt(1)
-
-IsActive() {
-  If (!WinActive("ahk_id" WindowId)) {
-    Suspend, On
-    Return 0
-  }
-
-  Suspend, Off
-
-  Return !A_IsPaused
-}
 
 Notify(Message, Width = 0) {
   SplashTextOff

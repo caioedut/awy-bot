@@ -9,9 +9,5 @@ For index, Key in A_Args
 }
 
 OnPress(Key) {
-  If (!IsActive()) {
-    Send, %Key%
-  }
-
   Return
 }

@@ -1,4 +1,5 @@
 #Include %A_ScriptDir%\core.ahk
+#Persistent
 
 global pausedByUser := False
 

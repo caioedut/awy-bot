@@ -1,5 +1,4 @@
 #Include %A_ScriptDir%\core.ahk
-
 #Persistent
 
 global toggleStatus := []
@@ -27,11 +26,6 @@ For index, value in A_Args
 }
 
 OnToggle(Key, Sequence, Delays) {
-  If (!IsActive()) {
-    Send, %Key%
-    Return
-  }
-
   toggleStatus[Key] := !toggleStatus[Key]
   status := "Off"
 
@@ -46,14 +40,6 @@ OnToggle(Key, Sequence, Delays) {
 }
 
 OnPress(Key, Sequence, Delays, Loop := 0) {
-  If (!IsActive()) {
-    If (!Loop) {
-      Send, %Key%
-    }
-
-    Return
-  }
-
   If (Loop && !toggleStatus[Key]) {
     SetTimer, , Off
     Return
@@ -64,10 +50,6 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
 
   For index, value in Sequence
   {
-    If (!IsActive()) {
-      Return
-    }
-
     Send, %value%
 
     delay := Delays[index]

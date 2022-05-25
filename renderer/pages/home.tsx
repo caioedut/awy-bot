@@ -49,8 +49,10 @@ const defaultBindings: Binding[] = [
 ];
 
 type Window = {
-  title: string;
   ahk_id: string;
+  ahk_exe: string;
+  title: string;
+  short: string;
 };
 
 type Lock = {
@@ -70,8 +72,7 @@ type Binding = {
 
 function Home() {
   const formRef = useRef(null);
-
-  const timeoutRef = useRef({ raw: null, locks: null, bindings: null });
+  const timeoutRef = useRef({});
 
   // Load/save configs
   const [settings] = useState([1, 2, 3, 4, 5, 7, 8, 9, 10]);
@@ -96,6 +97,14 @@ function Home() {
 
   useMount(getWindows);
 
+  const withTimeout = (key: string, callback: Function) => {
+    if (timeoutRef.current?.[key]) {
+      clearTimeout(timeoutRef.current[key]);
+    }
+
+    timeoutRef.current[key] = setTimeout(callback, 1000);
+  };
+
   useEffect(() => {
     const newRaw = store.get('raw', null) as string;
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
@@ -107,62 +116,42 @@ function Home() {
   }, [store]);
 
   useEffect(() => {
-    const data = window ? { window } : {};
-    ipcRenderer.sendSync('main', JSON.stringify(data));
+    withTimeout('main', () => {
+      const data = window ? { window } : {};
+      ipcRenderer.sendSync('main', JSON.stringify(data));
+    });
   }, [window]);
 
   useEffect(() => {
     store.set('locks', locks);
 
-    if (timeoutRef.current.locks) {
-      clearTimeout(timeoutRef.current.locks);
-    }
-
-    timeoutRef.current.locks = setTimeout(() => {
+    withTimeout('locks', () => {
       const data = window && locks ? { window, locks } : {};
       ipcRenderer.sendSync('lock', JSON.stringify(data));
-    }, 1000);
+    });
   }, [window, locks]);
 
   useEffect(() => {
     store.set('raw', raw);
 
-    if (timeoutRef.current.raw) {
-      clearTimeout(timeoutRef.current.raw);
-    }
-
-    timeoutRef.current.raw = setTimeout(() => {
+    withTimeout('raw', () => {
       const data = window && raw ? { window, raw } : {};
       ipcRenderer.sendSync('raw', JSON.stringify(data));
-    }, 1000);
+    });
   }, [window, raw]);
 
   useEffect(() => {
     store.set('bindings', bindings);
 
-    if (timeoutRef.current.bindings) {
-      clearTimeout(timeoutRef.current.bindings);
-    }
-
-    timeoutRef.current.bindings = setTimeout(() => {
+    withTimeout('bindings', () => {
       const data = window && bindings ? { window, bindings } : {};
       ipcRenderer.sendSync('remap', JSON.stringify(data));
-    }, 1000);
+    });
   }, [window, bindings]);
 
   function getWindows() {
     const response = ipcRenderer.sendSync('windows');
-    const data = JSON.parse(response);
-
-    setVisibleWindows(
-      data.map((item) => {
-        const split = item.split('|');
-        const ahk_id = split.shift();
-        const title = split.filter(Boolean).join('|');
-
-        return { ahk_id, title };
-      }),
-    );
+    setVisibleWindows(JSON.parse(response));
   }
 
   const getNumber = (value) => {
@@ -274,9 +263,13 @@ function Home() {
           </Grid>
           <Grid item xs>
             <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
-              {[{ title: '[Select]', ahk_id: '' }, ...visibleWindows].map((win, index) => (
+              <MenuItem value="">[Select a window]</MenuItem>
+              {visibleWindows.map((win, index) => (
                 <MenuItem key={index} value={win.ahk_id}>
-                  {win.title}
+                  <Box component="span" color="text.disabled">
+                    [{win.ahk_exe.toLowerCase()}]
+                  </Box>
+                  :&nbsp;&nbsp;{win.short}
                 </MenuItem>
               ))}
             </Select>
