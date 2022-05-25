@@ -32,11 +32,12 @@ OnToggle(Key, Sequence, Delays) {
   If (toggleStatus[Key]) {
     status := "On"
     fn := Func("OnPress").bind(Key, Sequence, Delays, 1)
-    SetTimer, %fn%, 250
+    SetTimer, %fn%, 100
   }
 
   StringUpper, message, % Key
-  Notify("[" HotkeyClear(message) "] Loop: " status)
+  Notify("[" HotkeyClear(message) "] [LOOP]: " status)
+  SetOverlay(HotkeyClear(message) " [LOOP]", toggleStatus[Key])
 }
 
 OnPress(Key, Sequence, Delays, Loop := 0) {

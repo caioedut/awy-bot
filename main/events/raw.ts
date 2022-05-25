@@ -11,7 +11,9 @@ export default function raw(e, arg) {
   let raw = (body.raw || '').trim();
 
   if (raw) {
-    raw = `#Include %A_ScriptDir%\\core.ahk\n${raw}`;
+    raw = '#Include %A_ScriptDir%\\core.ahk\n' + 'SetOverlay("Custom Raw Script", 1)\n' + raw;
+  } else {
+    raw = '#Include %A_ScriptDir%\\core.ahk\n' + 'SetOverlay("Custom Raw Script", 0)\n';
   }
 
   const file = path.join(AHK_SCRIPTS_PATH, 'raw.ahk');

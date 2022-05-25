@@ -70,7 +70,7 @@ type Binding = {
   loop?: boolean;
 };
 
-function Home() {
+export default function Home() {
   const formRef = useRef(null);
   const timeoutRef = useRef({});
 
@@ -87,6 +87,7 @@ function Home() {
   const [locks, setLocks] = useState<Lock[]>([]);
   const [bindings, setBindings] = useState<Binding[]>([]);
   const [raw, setRaw] = useState('');
+  const [overlay, setOverlay] = useState(false);
 
   // Components
   const [inputRaw, setInputRaw] = useState<string>(null);
@@ -107,10 +108,12 @@ function Home() {
 
   useEffect(() => {
     const newRaw = store.get('raw', null) as string;
+    const overlay = store.get('overlay', false) as boolean;
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
 
     setRaw(newRaw);
+    setOverlay(overlay);
     setLocks(ArrayHelper.uniqueBy(newLocks, 'key', false));
     setBindings(ArrayHelper.uniqueBy(newBindings, 'key', false));
   }, [store]);
@@ -121,6 +124,15 @@ function Home() {
       ipcRenderer.sendSync('main', JSON.stringify(data));
     });
   }, [window]);
+
+  useEffect(() => {
+    store.set('overlay', overlay);
+
+    withTimeout('overlay', () => {
+      const data = overlay ? { window, overlay } : {};
+      ipcRenderer.sendSync('overlay', JSON.stringify(data));
+    });
+  }, [window, overlay]);
 
   useEffect(() => {
     store.set('locks', locks);
@@ -246,6 +258,10 @@ function Home() {
     setInputRaw(null);
   };
 
+  const handleOverlay = () => {
+    setOverlay((current) => !current);
+  };
+
   const groups = ArrayHelper.groupBy(bindings, 'group');
 
   return (
@@ -307,6 +323,9 @@ function Home() {
           </Grid>
           <Box width="100%" />
           <Grid item xs textAlign="right">
+            <Button variant="contained" onClick={handleOverlay}>
+              Overlay {overlay ? 'On' : 'Off'}
+            </Button>
             <Button variant="contained" onClick={handleEditRaw}>
               Custom Raw Script
             </Button>
@@ -431,5 +450,3 @@ function Home() {
     </React.Fragment>
   );
 }
-
-export default Home;

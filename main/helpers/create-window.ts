@@ -1,14 +1,22 @@
 import { BrowserWindow, BrowserWindowConstructorOptions, screen } from 'electron';
 import Store from 'electron-store';
 
+const isProd: boolean = process.env.NODE_ENV === 'production';
+
 export default (windowName: string, options: BrowserWindowConstructorOptions): BrowserWindow => {
   const key = 'window-state';
   const name = `window-state-${windowName}`;
   const store = new Store({ name });
+
+  if (!isProd) {
+    store.clear();
+  }
+
   const defaultSize = {
     width: options.width,
     height: options.height,
   };
+
   let state = {};
   let win;
 

@@ -35,3 +35,11 @@ HotkeyClear(Key) {
   Key := StrReplace(Key, "}", "")
   Return Key
 }
+
+SetOverlay(Key, Value) {
+  If (Value) {
+    IniWrite, 1, overlay.ini, Default, %Key%
+  } Else {
+    IniDelete, overlay.ini, Default, %Key%
+  }
+}

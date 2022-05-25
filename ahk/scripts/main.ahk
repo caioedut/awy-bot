@@ -3,7 +3,10 @@
 
 global pausedByUser := False
 
-SetTimer, CheckFocus, 100
+; Reset Overlay
+IniDelete, overlay.ini, Default
+
+SetTimer, CheckFocus, 200
 Return
 
 ~$Pause::
@@ -16,17 +19,22 @@ Return
     Notify("Resumed", 60)
   }
 
+  SetOverlay("Paused", pausedByUser)
+
   Return
 }
 
 CheckFocus:
 {
-  If (!pausedByUser && WinActive("ahk_id" WindowId)) {
+  isWinActive := WinActive("ahk_id" WindowId)
+
+  If (isWinActive && !pausedByUser) {
     PauseSuspendAll(False)
   } Else {
     PauseSuspendAll(True)
   }
 
+  SetOverlay("Suspended", !isWinActive)
   Return
 }
 
