@@ -1,42 +1,71 @@
-#NoEnv
-#NoTrayIcon
-#SingleInstance Force
-#KeyHistory 0
-#MaxHotkeysPerInterval 1000
+#Include %A_ScriptDir%\core.ahk
 
-SetBatchLines -1
-ListLines Off
-SendMode, Input
+global pausedByUser := False
 
-; ATTENTION: First argument is WindowId (FOREVER AND EVER)
-global WindowId := A_Args[1]
-A_Args.RemoveAt(1)
+SetTimer, CheckFocus, 100
+Return
 
-IsActive() {
-  If (!WinActive("ahk_id" WindowId)) {
-    Suspend, On
-    Return 0
+~$Pause::
+{
+  pausedByUser := !pausedByUser
+
+  If (pausedByUser) {
+    Notify("Paused")
+  } Else {
+    Notify("Resumed", 60)
   }
 
-  Suspend, Off
-
-  Return !A_IsPaused
+  Return
 }
 
-Notify(Message, Width = 0) {
-  SplashTextOff
-
-  If (!Width) {
-    Width := StrLen(Message) * 8
+CheckFocus:
+{
+  If (!pausedByUser && WinActive("ahk_id" WindowId)) {
+    PauseSuspendAll(False)
+  } Else {
+    PauseSuspendAll(True)
   }
 
-  SplashTextOn, %Width%, , %Message%
-  Sleep, 300
-  SplashTextOff
+  Return
 }
 
-HotkeyClear(Key) {
-  Key := StrReplace(Key, "{", "")
-  Key := StrReplace(Key, "}", "")
-  Return Key
+
+PauseSuspendAll(status := True)
+{
+	prevDetectWindows := A_DetectHiddenWindows
+	prevMatchMode := A_TitleMatchMode
+
+	DetectHiddenWindows, On
+	SetTitleMatchMode, 2
+
+	For index, element in Scripts
+  {
+    If (script_id := WinExist(element " ahk_class AutoHotkey")) {
+      ; Force the script to update its Pause/Suspend checkmarks.
+      SendMessage, 0x211,,,, ahk_id %script_id%  ; WM_ENTERMENULOOP
+      SendMessage, 0x212,,,, ahk_id %script_id%  ; WM_EXITMENULOOP
+
+      ; Get script status from its main menu.
+      mainMenu := DllCall("GetMenu", "uint", script_id)
+      fileMenu := DllCall("GetSubMenu", "uint", mainMenu, "int", 0)
+      isPaused := DllCall("GetMenuState", "uint", fileMenu, "uint", 4, "uint", 0x400) >> 3 & 1
+      isSuspended := DllCall("GetMenuState", "uint", fileMenu, "uint", 5, "uint", 0x400) >> 3 & 1
+
+      DllCall("CloseHandle", "uint", fileMenu)
+      DllCall("CloseHandle", "uint", mainMenu)
+
+      if (status && !isSuspended) || (!status && isSuspended) {
+        PostMessage, 0x111, 65305, 1,,  ahk_id %script_id%
+      }
+
+      if (status && !isPaused) || (!status && isPaused) {
+        PostMessage, 0x111, 65403,,,  ahk_id %script_id%
+      }
+    }
+  }
+
+	DetectHiddenWindows, %prevDetectWindows%
+	SetTitleMatchMode, %prevMatchMode%
+
+	return script_id
 }

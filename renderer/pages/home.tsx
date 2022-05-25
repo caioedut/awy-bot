@@ -70,7 +70,8 @@ type Binding = {
 
 function Home() {
   const formRef = useRef(null);
-  const bindingTimeoutRef = useRef(null);
+
+  const timeoutRef = useRef({ raw: null, locks: null, bindings: null });
 
   // Load/save configs
   const [settings] = useState([1, 2, 3, 4, 5, 7, 8, 9, 10]);
@@ -106,25 +107,44 @@ function Home() {
   }, [store]);
 
   useEffect(() => {
+    const data = window ? { window } : {};
+    ipcRenderer.sendSync('main', JSON.stringify(data));
+  }, [window]);
+
+  useEffect(() => {
     store.set('locks', locks);
-    const data = window && locks ? { window, locks } : {};
-    ipcRenderer.sendSync('lock', JSON.stringify(data));
+
+    if (timeoutRef.current.locks) {
+      clearTimeout(timeoutRef.current.locks);
+    }
+
+    timeoutRef.current.locks = setTimeout(() => {
+      const data = window && locks ? { window, locks } : {};
+      ipcRenderer.sendSync('lock', JSON.stringify(data));
+    }, 1000);
   }, [window, locks]);
 
   useEffect(() => {
     store.set('raw', raw);
-    const data = window && raw ? { window, raw } : {};
-    ipcRenderer.sendSync('raw', JSON.stringify(data));
+
+    if (timeoutRef.current.raw) {
+      clearTimeout(timeoutRef.current.raw);
+    }
+
+    timeoutRef.current.raw = setTimeout(() => {
+      const data = window && raw ? { window, raw } : {};
+      ipcRenderer.sendSync('raw', JSON.stringify(data));
+    }, 1000);
   }, [window, raw]);
 
   useEffect(() => {
     store.set('bindings', bindings);
 
-    if (bindingTimeoutRef.current) {
-      clearTimeout(bindingTimeoutRef.current);
+    if (timeoutRef.current.bindings) {
+      clearTimeout(timeoutRef.current.bindings);
     }
 
-    bindingTimeoutRef.current = setTimeout(() => {
+    timeoutRef.current.bindings = setTimeout(() => {
       const data = window && bindings ? { window, bindings } : {};
       ipcRenderer.sendSync('remap', JSON.stringify(data));
     }, 1000);

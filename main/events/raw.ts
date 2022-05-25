@@ -12,7 +12,7 @@ export default function raw(e, arg) {
 
   if (raw) {
     raw = `
-      #Include %A_ScriptDir%\\main.ahk
+      #Include %A_ScriptDir%\\core.ahk
 
       #If WinActive("ahk_id" WindowId)
 
@@ -21,19 +21,6 @@ export default function raw(e, arg) {
       MiddlePosY := A_ScreenHeight // 2
 
       ${raw}
-
-      ~$Pause::
-      {
-        If (IsActive()) {
-          Notify("Paused")
-          Pause, On, 1
-        } Else {
-          Notify("Resumed", 60)
-          Pause, Off, 1
-        }
-
-        Return
-      }
     `;
   }
 

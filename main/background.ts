@@ -2,6 +2,7 @@ import { BrowserWindow, app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
 import createWindow from './helpers/create-window';
+import { runScript } from './utils';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
@@ -15,6 +16,8 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
 (async () => {
   await app.whenReady();
+
+  // runScript('main.ahk');
 
   const window = createWindow('Main', {
     show: false,
@@ -53,6 +56,7 @@ app.on('window-all-closed', () => {
 });
 
 // Listen events
+ipcMain.on('main', require('./events/main').default);
 ipcMain.on('raw', require('./events/raw').default);
 ipcMain.on('lock', require('./events/lock').default);
 ipcMain.on('remap', require('./events/remap').default);

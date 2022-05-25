@@ -1,4 +1,4 @@
-#Include %A_ScriptDir%\main.ahk
+#Include %A_ScriptDir%\core.ahk
 
 WinGet windows, List
 Loop %windows%

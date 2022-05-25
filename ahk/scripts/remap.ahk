@@ -1,4 +1,4 @@
-#Include %A_ScriptDir%\main.ahk
+#Include %A_ScriptDir%\core.ahk
 
 #Persistent
 
@@ -76,17 +76,4 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
       Sleep, %delay%
     }
   }
-}
-
-~$Pause::
-{
-  If (IsActive()) {
-    Notify("Paused")
-    Pause, On, 1
-  } Else {
-    Notify("Resumed", 60)
-    Pause, Off, 1
-  }
-
-  Return
 }
