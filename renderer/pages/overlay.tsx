@@ -11,6 +11,7 @@ type OverlayType = {
   Default: object;
   Lock: object;
   Loop: object;
+  Actions: object;
 };
 
 export default function Overlay() {
@@ -37,13 +38,13 @@ export default function Overlay() {
   }, [overlays]);
 
   // Sort by keys
-  const { Default = {} as any, Lock = {}, Loop = {}, ...rest } = overlays;
+  const { Default = {} as any, Lock = {}, Actions = {}, Loop = {}, ...rest } = overlays;
 
   if (!Object.values(Default).length) {
     Default.Running = 1;
   }
 
-  const sections = Object.entries({ Default, Lock, Loop, ...rest });
+  const sections = Object.entries({ Default, Lock, Actions, Loop, ...rest });
 
   return (
     <Box
