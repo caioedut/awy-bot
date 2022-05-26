@@ -28,7 +28,7 @@ const adjustPosition = (window): number[] => {
 export default async function overlay() {
   const store = new Store({ name: 'window-state-overlay' });
 
-  const [x, y]: number[] = store.get('position', []) as number[];
+  const [x, y]: number[] = store.get('position', [4, 4]) as number[];
 
   const window = new BrowserWindow({
     x,
