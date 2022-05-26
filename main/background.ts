@@ -1,4 +1,4 @@
-import { BrowserWindow, app, ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
 import createWindow from './helpers/create-window';
@@ -22,6 +22,16 @@ const windows = {
 (async () => {
   await app.whenReady();
 
+  ipcMain.on('overlay', (e, arg) => {
+    require('./events/overlay').default(e, arg, windows);
+  });
+
+  ipcMain.on('overlay-resize', (e, arg) => {
+    const [width, height] = `${arg ?? ''}`.split('|').map(Number);
+    windows.overlay.setContentSize(width, height);
+    e.returnValue = 'ok';
+  });
+
   windows.main = createWindow('Main', {
     show: false,
     thickFrame: true,
@@ -40,19 +50,12 @@ const windows = {
 
   windows.overlay = await overlay();
 
-  ipcMain.on('overlay', (e, arg) => {
-    require('./events/overlay').default(e, arg, windows);
+  windows.main.webContents.on('before-input-event', (e, input) => {
+    if (input.code == 'F4' && input.alt) e.preventDefault();
   });
 
-  ipcMain.on('overlay-resize', (e, arg) => {
-    const [width, height] = `${arg ?? ''}`.split('|').map(Number);
-    windows.overlay.setContentSize(width, height);
-    e.returnValue = 'ok';
-  });
-
-  // windows.main.webContents.on('before-input-event', (e, input) => {
-  //   if (input.code == 'F4' && input.alt) e.preventDefault();
-  // });
+  windows.main.on('close', app.quit);
+  windows.main.setMenuBarVisibility(false);
 
   if (isProd) {
     await windows.main.loadURL('app://./home.html');
@@ -64,7 +67,6 @@ const windows = {
     windows.main.webContents.openDevTools();
   }
 
-  windows.main.setMenuBarVisibility(false);
   windows.main.show();
 })();
 
