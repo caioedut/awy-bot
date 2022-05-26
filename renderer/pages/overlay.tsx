@@ -8,19 +8,20 @@ import Box from '@mui/material/Box';
 const ipcRenderer = electron.ipcRenderer;
 
 type OverlayType = {
-  Paused: string;
-  Focused: string;
+  Default: object;
+  Lock: object;
+  Loop: object;
 };
 
 export default function Overlay() {
   const contentRef = useRef(null);
-  const [config, setConfig] = useState<OverlayType>({} as OverlayType);
+  const [overlays, setOverlays] = useState<OverlayType>({} as OverlayType);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const data = { type: 'get' };
       const response = ipcRenderer.sendSync('overlay', JSON.stringify(data));
-      setConfig(JSON.parse(response || '{}'));
+      setOverlays(JSON.parse(response || '{}'));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -33,9 +34,16 @@ export default function Overlay() {
 
     const data = `${width}|${height}`;
     ipcRenderer.sendSync('overlay-resize', data);
-  }, [config]);
+  }, [overlays]);
 
-  const entries = Object.entries(config);
+  // Sort by keys
+  const { Default = {} as any, Lock = {}, Loop = {}, ...rest } = overlays;
+
+  if (!Object.values(Default).length) {
+    Default.Running = 1;
+  }
+
+  const sections = Object.entries({ Default, Lock, Loop, ...rest });
 
   return (
     <Box
@@ -47,13 +55,25 @@ export default function Overlay() {
       }}
     >
       <Box ref={contentRef} sx={{ display: 'inline-block' }}>
-        <Line>
+        <Line color="primary.main">
           <b>Awy Bot</b>
         </Line>
-        {!entries.length && <Line color="success.main">Running</Line>}
-        {entries.map(([label, value]) => (
-          <Item label={label} value={value} />
-        ))}
+
+        {sections.map(
+          ([title, configs = {}]) =>
+            Object.values(configs).length > 0 && (
+              <>
+                {title !== 'Default' && (
+                  <Line key={title} color="primary.main" mt={0.5}>
+                    <b>{title}</b>
+                  </Line>
+                )}
+                {Object.entries(configs).map(([label]) => (
+                  <Item label={title === 'Default' ? label : <kbd>{label}</kbd>} />
+                ))}
+              </>
+            ),
+        )}
       </Box>
     </Box>
   );
@@ -66,14 +86,7 @@ const Line = (props) => (
   </>
 );
 
-const Item = (props: { label: string; value?: string }) => {
-  const { label, value } = props;
-
-  const color = Number(value) ? 'success.main' : 'error.main';
-
-  if (!Number(value)) {
-    return null;
-  }
-
+const Item = (props: { label: any; color?: string }) => {
+  const { label, color = 'success.main' } = props;
   return <Line color={color}>{label}</Line>;
 };

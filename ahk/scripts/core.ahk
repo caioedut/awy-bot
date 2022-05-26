@@ -36,10 +36,14 @@ HotkeyClear(Key) {
   Return Key
 }
 
-SetOverlay(Key, Value := 1) {
+SetOverlay(Key, Value := 1, Session := "Default") {
   If (Value) {
-    IniWrite, 1, overlay.ini, Default, %Key%
+    IniWrite, 1, overlay.ini, %Session%, %Key%
   } Else {
-    IniDelete, overlay.ini, Default, %Key%
+    IniDelete, overlay.ini, %Session%, %Key%
   }
+}
+
+ClearOverlay(Session) {
+  IniDelete, overlay.ini, %Session%
 }

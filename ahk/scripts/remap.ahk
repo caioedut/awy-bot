@@ -3,6 +3,8 @@
 
 global toggleStatus := []
 
+ClearOverlay("Loop")
+
 For index, value in A_Args
 {
   Array := StrSplit(value, "|")
@@ -35,10 +37,9 @@ OnToggle(Key, Sequence, Delays) {
     SetTimer, %fn%, 100
   }
 
-  StringUpper, message, % Key
-  keyLabel := "(" HotkeyClear(message) ") Loop"
-  Notify(keyLabel ": " status)
-  SetOverlay(keyLabel, toggleStatus[Key] ? 1 : 0)
+  StringUpper, keyLabel, % HotkeyClear(Key)
+  Notify("(" keyLabel ") Loop: " status)
+  SetOverlay(keyLabel, toggleStatus[Key] ? 1 : 0, "Loop")
 }
 
 OnPress(Key, Sequence, Delays, Loop := 0) {

@@ -7,14 +7,16 @@ export default function overlay(e, arg, windows) {
   const { type, overlay } = body;
 
   if (type === 'get') {
-    let response = { Default: {} };
+    let response = {};
 
     try {
       const content = fs.readFileSync('overlay.ini', 'utf-8');
       response = ini.parse(content);
     } catch (err) {}
 
-    return (e.returnValue = JSON.stringify(response.Default));
+    console.log(response);
+
+    return (e.returnValue = JSON.stringify(response));
   }
 
   if (windows?.overlay) {

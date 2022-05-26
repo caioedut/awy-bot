@@ -65,6 +65,10 @@ const windows = {
 
     windows.main.maximize();
     windows.main.webContents.openDevTools();
+
+    // windows.overlay.setSize(1280, 768);
+    // windows.overlay.maximize();
+    // windows.overlay.webContents.openDevTools();
   }
 
   windows.main.show();
