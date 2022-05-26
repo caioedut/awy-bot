@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
+import axios from 'axios';
 import electron from 'electron';
 import Head from 'next/head';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import IntegrationInstructionsOutlinedIcon from '@mui/icons-material/IntegrationInstructionsOutlined';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Box from '@mui/material/Box';
@@ -34,6 +38,8 @@ import useMount from '../hooks/useMount';
 import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;
+
+const gitUrlMain = 'https://api.github.com/repos/caioedut/awy-bot-scripts/git/trees/main';
 
 const defaultLocks = [
   { key: 'Win', name: 'Windows' },
@@ -77,6 +83,7 @@ type Action = {
   label: string;
   script: string;
   enabled?: boolean;
+  new?: boolean;
 };
 
 export default function Home() {
@@ -90,6 +97,9 @@ export default function Home() {
 
   // Collections
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
+
+  // Script repository
+  const [repositoryFiles, setRepositoryFiles] = useState(null);
 
   // Models
   const [overlay, setOverlay] = useState(false);
@@ -284,6 +294,29 @@ export default function Home() {
     setInputRaw(null);
   };
 
+  const handleRepository = async (git: { type: string; path: string; url: string } = null) => {
+    git = git || {
+      type: 'tree',
+      path: 'Root',
+      url: gitUrlMain,
+    };
+
+    if (git.type === 'tree') {
+      const { data } = await axios.get(git.url);
+      const files = data.tree.map(({ type, path, url }) => ({ type, path, url }));
+      return setRepositoryFiles(files);
+    }
+
+    const { data } = await axios.get(git.url);
+    const buffer = new Buffer(data.content, 'base64');
+
+    const label = git.path.replace(/\.ahk$/, '');
+    const script = buffer.toString('ascii');
+
+    setRepositoryFiles(null);
+    setActionModel({ label, script });
+  };
+
   const handleToggleAction = (label) => {
     const newActions = [...actions];
 
@@ -430,8 +463,13 @@ export default function Home() {
               </Grid>
             ))}
             <Grid item>
-              <Button variant="contained" onClick={() => setActionModel({ label: '', script: '' })}>
+              <Button variant="contained" onClick={() => setActionModel({ label: '', script: '', new: true })}>
                 Create New
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="outlined" onClick={() => handleRepository()}>
+                Repository
               </Button>
             </Grid>
           </Section>
@@ -515,6 +553,7 @@ export default function Home() {
           <DialogTitle>Edit Action</DialogTitle>
           <DialogContent>
             <TextField
+              disabled={!actionModel?.new}
               name="label"
               label="Label"
               value={actionModel?.label ?? ''}
@@ -549,6 +588,40 @@ export default function Home() {
             <Button variant="contained" onClick={handleSaveAction} disabled={!actionModel?.label?.trim() || !actionModel?.script?.trim()}>
               Save Action
             </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={Boolean(repositoryFiles)} maxWidth="xs" fullWidth>
+          <DialogTitle>
+            <Grid container spacing={1} alignItems="center">
+              <Grid item>
+                <Tooltip title="Go to root directory">
+                  <IconButton edge="start" onClick={() => handleRepository()}>
+                    <HomeOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+              <Grid item>Repository Scripts</Grid>
+            </Grid>
+          </DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} alignItems="center">
+              {repositoryFiles?.map((file) => (
+                <Grid item key={file.url}>
+                  <Button //
+                    variant={file.type === 'tree' ? 'contained' : 'outlined'}
+                    sx={{ textTransform: 'none' }}
+                    onClick={() => handleRepository(file)}
+                    startIcon={file.type === 'tree' ? <FolderOutlinedIcon /> : <IntegrationInstructionsOutlinedIcon />}
+                  >
+                    {file.path.replace(/\.ahk$/, '')}
+                  </Button>
+                </Grid>
+              ))}
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setRepositoryFiles(null)}>Cancel</Button>
           </DialogActions>
         </Dialog>
 
