@@ -6,8 +6,7 @@ import { runScript, runScriptSync } from '../utils';
 
 export default function actions(e, arg) {
   const body = JSON.parse(arg || '{}');
-  const window = body.window || '';
-  const actions = body.actions || [];
+  const { window, actions = [] } = body;
 
   runScriptSync('actions.ahk');
 

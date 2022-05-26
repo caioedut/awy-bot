@@ -1,9 +1,9 @@
 #Include %A_ScriptDir%\core.ahk
 #Persistent
 
-global toggleStatus := []
-
 ClearOverlay("Loop")
+
+global toggleStatus := []
 
 For index, value in A_Args
 {

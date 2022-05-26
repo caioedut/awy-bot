@@ -3,7 +3,6 @@ import ini from 'ini';
 
 export default function overlay(e, arg, windows) {
   const body = JSON.parse(arg || '{}');
-
   const { type, overlay } = body;
 
   if (type === 'get') {

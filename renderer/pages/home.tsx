@@ -144,14 +144,14 @@ export default function Home() {
 
   useEffect(() => {
     withTimeout('main', () => {
-      const data = window ? { window } : {};
+      const data = { window };
       ipcRenderer.sendSync('main', JSON.stringify(data));
     });
   }, [window]);
 
   useEffect(() => {
     store.set('overlay', overlay);
-    const data = overlay ? { window, overlay } : {};
+    const data = { window, overlay };
     ipcRenderer.sendSync('overlay', JSON.stringify(data));
   }, [window, overlay]);
 
@@ -159,7 +159,7 @@ export default function Home() {
     store.set('locks', locks);
 
     withTimeout('locks', () => {
-      const data = window && locks ? { window, locks } : {};
+      const data = { window, locks };
       ipcRenderer.sendSync('lock', JSON.stringify(data));
     });
   }, [window, locks]);
@@ -168,7 +168,7 @@ export default function Home() {
     store.set('bindings', bindings);
 
     withTimeout('bindings', () => {
-      const data = window && bindings ? { window, bindings } : {};
+      const data = { window, bindings };
       ipcRenderer.sendSync('remap', JSON.stringify(data));
     });
   }, [window, bindings]);
@@ -178,7 +178,7 @@ export default function Home() {
 
     withTimeout('actions', () => {
       const enabled = actions?.filter(({ enabled }) => enabled);
-      const data = window && enabled ? { window, actions: enabled } : {};
+      const data = { window, actions: enabled };
       ipcRenderer.sendSync('actions', JSON.stringify(data));
     });
   }, [window, actions]);
@@ -364,6 +364,7 @@ export default function Home() {
                 ))}
               </Select>
             </Grid>
+            <Box height={44} />
             <Grid item width={52}>
               <Tooltip title="Refresh">
                 <IconButton onClick={getWindows}>
@@ -381,13 +382,14 @@ export default function Home() {
               <ToggleButtonGroup exclusive value={config} color="primary" onChange={handleChangeConfig} sx={{ display: 'flex' }}>
                 {settings.map((item) => (
                   <ToggleButton key={item} value={item} sx={{ flex: 1 }}>
-                    <Box my={-0.2}>
-                      <b>{item}</b>
+                    <Box component="b" my={-0.2}>
+                      {item}
                     </Box>
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
             </Grid>
+            <Box height={44} />
             <Grid item width={52}>
               <Tooltip title="Reset current">
                 <IconButton onClick={handleResetConfig}>
@@ -396,32 +398,16 @@ export default function Home() {
               </Tooltip>
             </Grid>
             <Box width="100%" />
-            <Grid item xs>
-              <FormControlLabel //
-                label="Overlay"
-                control={<Switch checked={overlay} onChange={handleOverlay} />}
-              />
+            <Grid item xs={2}>
+              <Typography variant="body2">
+                <b>Overlay</b>
+              </Typography>
             </Grid>
+            <Grid item xs>
+              <Switch checked={overlay} onChange={handleOverlay} />
+            </Grid>
+            <Box height={44} />
           </Section>
-
-          <Box mt={2}>
-            <Section title="Lock">
-              {locks.map((item, index) => (
-                <Grid item key={item.key}>
-                  <FormControlLabel
-                    label={item.name}
-                    control={
-                      <input //
-                        type="checkbox"
-                        checked={item.lock ?? false}
-                        onChange={(e) => handleLock(index, e.target.checked)}
-                      />
-                    }
-                  />
-                </Grid>
-              ))}
-            </Section>
-          </Box>
 
           <Box mt={2}>
             <Section title="Actions" justifyContent="initial">
@@ -454,6 +440,25 @@ export default function Home() {
                   Browse Repository
                 </Button>
               </Grid>
+            </Section>
+          </Box>
+
+          <Box mt={2}>
+            <Section title="Lock">
+              {locks.map((item, index) => (
+                <Grid item key={item.key}>
+                  <FormControlLabel
+                    label={item.name}
+                    control={
+                      <input //
+                        type="checkbox"
+                        checked={item.lock ?? false}
+                        onChange={(e) => handleLock(index, e.target.checked)}
+                      />
+                    }
+                  />
+                </Grid>
+              ))}
             </Section>
           </Box>
 

@@ -10,7 +10,7 @@ SendMode, Input
 FileEncoding, UTF-8
 
 ; Global Variables
-global Scripts := ["raw.ahk", "action.ahk", "lock.ahk", "remap.ahk"]
+global Scripts := ["lock.ahk", "remap.ahk", "action.ahk"]
 global MiddlePosX := A_ScreenWidth // 2
 global MiddlePosY := A_ScreenHeight // 2
 

@@ -2,11 +2,11 @@ import { getHotkey, runScript } from '../utils';
 
 export default function lock(e, arg) {
   const body = JSON.parse(arg || '{}');
-  const window = body.window || '';
+  const { window, locks = [] } = body;
 
   let winKey = false;
 
-  const locks: string[] = (body.locks || [])
+  const params: string[] = locks
     .filter(({ lock }) => lock)
     .map(({ key }) => {
       if (key === 'Win') {
@@ -18,10 +18,10 @@ export default function lock(e, arg) {
     });
 
   if (winKey) {
-    locks.push(getHotkey('RWin'));
+    params.push(getHotkey('RWin'));
   }
 
-  runScript('lock.ahk', locks, window);
+  runScript('lock.ahk', params, window);
 
   e.returnValue = 'ok';
 }

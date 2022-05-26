@@ -2,9 +2,7 @@ import { getHotkey, runScript } from '../utils';
 
 export default function remap(e, arg) {
   const body = JSON.parse(arg || '{}');
-
-  const window = body.window || '';
-  const bindings = body.bindings || [];
+  const { window, bindings = [] } = body;
 
   const params = bindings
     .filter(({ key, sequence }) => key && sequence?.length)
