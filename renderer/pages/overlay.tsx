@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import electron from 'electron';
 import { setInterval } from 'timers';
@@ -62,16 +62,16 @@ export default function Overlay() {
         {sections.map(
           ([title, configs = {}]) =>
             Object.values(configs).length > 0 && (
-              <>
+              <React.Fragment key={title}>
                 {title !== 'Default' && (
-                  <Line key={title} color="primary.main" mt={0.5}>
+                  <Line color="primary.main" mt={0.5}>
                     <b>{title}</b>
                   </Line>
                 )}
                 {Object.entries(configs).map(([label]) => (
                   <Item label={title === 'Default' ? label : <kbd>{label}</kbd>} />
                 ))}
-              </>
+              </React.Fragment>
             ),
         )}
       </Box>

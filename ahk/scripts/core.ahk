@@ -14,6 +14,10 @@ global Scripts := ["raw.ahk", "lock.ahk", "remap.ahk"]
 global MiddlePosX := A_ScreenWidth // 2
 global MiddlePosY := A_ScreenHeight // 2
 
+; Mouse
+global MouseBackupX := 0
+global MouseBackupY := 0
+
 ; ATTENTION: First argument is WindowId (FOREVER AND EVER)
 global WindowId := A_Args[1]
 A_Args.RemoveAt(1)
@@ -46,4 +50,20 @@ SetOverlay(Key, Value := 1, Session := "Default") {
 
 ClearOverlay(Session) {
   IniDelete, overlay.ini, %Session%
+}
+
+MouseLock() {
+  BlockInput, MouseMove
+}
+
+MouseRelease() {
+  BlockInput, MouseMoveOff
+}
+
+MouseBackup() {
+  MouseGetPos, MouseBackupX, MouseBackupY
+}
+
+MouseRestore() {
+  MouseMove, MouseBackupX, MouseBackupY
 }

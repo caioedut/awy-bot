@@ -14,8 +14,6 @@ export default function overlay(e, arg, windows) {
       response = ini.parse(content);
     } catch (err) {}
 
-    console.log(response);
-
     return (e.returnValue = JSON.stringify(response));
   }
 
