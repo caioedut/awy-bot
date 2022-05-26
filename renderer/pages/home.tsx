@@ -4,10 +4,12 @@ import electron from 'electron';
 import Head from 'next/head';
 
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -280,6 +282,15 @@ export default function Home() {
     setInputRaw(null);
   };
 
+  const handleDeleteAction = (label) => {
+    const newActions = [...actions];
+
+    const index = actions.findIndex((item) => item.label === label);
+    newActions.splice(index, 1);
+
+    setActions(newActions);
+  };
+
   const handleSaveAction = () => {
     const newActions = [...actions];
     const model = actions.find(({ label }) => label === actionModel.label);
@@ -390,13 +401,17 @@ export default function Home() {
           <Section title="Actions" justifyContent="initial">
             {actions.map((item) => (
               <Grid item key={item.label}>
-                <Button //
-                  variant="outlined"
-                  onClick={() => setActionModel(item)}
-                  sx={{ textTransform: 'none' }}
-                >
-                  {item.label}
-                </Button>
+                <ButtonGroup variant="outlined">
+                  <Button variant="contained" sx={{ textTransform: 'none' }}>
+                    {item.label}
+                  </Button>
+                  <Button size="small" onClick={() => setActionModel(item)}>
+                    <EditIcon fontSize="small" />
+                  </Button>
+                  <Button size="small">
+                    <DeleteIcon fontSize="small" onClick={() => handleDeleteAction(item.label)} />
+                  </Button>
+                </ButtonGroup>
               </Grid>
             ))}
             <Grid item>
