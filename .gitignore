@@ -1,5 +1,6 @@
 raw.ahk
 overlay.ini
+scripts/actions/
 
 # env
 *.env

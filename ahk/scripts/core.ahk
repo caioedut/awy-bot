@@ -1,5 +1,5 @@
 #NoEnv
-#NoTrayIcon
+;#NoTrayIcon
 #SingleInstance Force
 #KeyHistory 0
 #MaxHotkeysPerInterval 1000
@@ -10,7 +10,7 @@ SendMode, Input
 FileEncoding, UTF-8
 
 ; Global Variables
-global Scripts := ["raw.ahk", "lock.ahk", "remap.ahk"]
+global Scripts := ["raw.ahk", "action.ahk", "lock.ahk", "remap.ahk"]
 global MiddlePosX := A_ScreenWidth // 2
 global MiddlePosY := A_ScreenHeight // 2
 

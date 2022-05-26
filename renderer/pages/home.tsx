@@ -71,6 +71,11 @@ type Binding = {
   loop?: boolean;
 };
 
+type Action = {
+  label: string;
+  script: string;
+};
+
 export default function Home() {
   const formRef = useRef(null);
   const timeoutRef = useRef({});
@@ -84,14 +89,16 @@ export default function Home() {
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
 
   // Models
+  const [overlay, setOverlay] = useState(false);
   const [window, setWindow] = useState('');
   const [locks, setLocks] = useState<Lock[]>([]);
   const [bindings, setBindings] = useState<Binding[]>([]);
   const [raw, setRaw] = useState('');
-  const [overlay, setOverlay] = useState(false);
+  const [actions, setActions] = useState<Action[]>([]);
 
   // Components
   const [inputRaw, setInputRaw] = useState<string>(null);
+  const [actionModel, setActionModel] = useState<Action>(null);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
     bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
@@ -108,13 +115,15 @@ export default function Home() {
   };
 
   useEffect(() => {
+    const newOverlay = store.get('overlay', false) as boolean;
     const newRaw = store.get('raw', null) as string;
-    const overlay = store.get('overlay', false) as boolean;
+    const newActions = store.get('actions', []) as Action[];
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
 
+    setOverlay(newOverlay);
+    setActions(newActions);
     setRaw(newRaw);
-    setOverlay(overlay);
     setLocks(ArrayHelper.uniqueBy(newLocks, 'key', false));
     setBindings(ArrayHelper.uniqueBy(newBindings, 'key', false));
   }, [store]);
@@ -158,6 +167,15 @@ export default function Home() {
       ipcRenderer.sendSync('remap', JSON.stringify(data));
     });
   }, [window, bindings]);
+
+  useEffect(() => {
+    store.set('actions', actions);
+
+    withTimeout('actions', () => {
+      const data = window && actions ? { window, actions } : {};
+      ipcRenderer.sendSync('actions', JSON.stringify(data));
+    });
+  }, [window, actions]);
 
   function getWindows() {
     const response = ipcRenderer.sendSync('windows');
@@ -204,6 +222,7 @@ export default function Home() {
 
   const handleResetConfig = () => {
     store.clear();
+    setActions([]);
     setRaw(null);
     setOverlay(false);
     setLocks(defaultLocks);
@@ -248,6 +267,10 @@ export default function Home() {
     setBindings(newBindings);
   };
 
+  const handleOverlay = () => {
+    setOverlay((current) => !current);
+  };
+
   const handleEditRaw = () => {
     setInputRaw(raw ?? '');
   };
@@ -257,8 +280,18 @@ export default function Home() {
     setInputRaw(null);
   };
 
-  const handleOverlay = () => {
-    setOverlay((current) => !current);
+  const handleSaveAction = () => {
+    const newActions = [...actions];
+    const model = actions.find(({ label }) => label === actionModel.label);
+
+    if (model) {
+      Object.assign(model, actionModel);
+    } else {
+      newActions.push(actionModel);
+    }
+
+    setActions([...newActions]);
+    setActionModel(null);
   };
 
   const groups = ArrayHelper.groupBy(bindings, 'group');
@@ -353,6 +386,27 @@ export default function Home() {
           </Section>
         </Box>
 
+        <Box mt={2}>
+          <Section title="Actions" justifyContent="initial">
+            {actions.map((item) => (
+              <Grid item key={item.label}>
+                <Button //
+                  variant="outlined"
+                  onClick={() => setActionModel(item)}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {item.label}
+                </Button>
+              </Grid>
+            ))}
+            <Grid item>
+              <Button variant="contained" onClick={() => setActionModel({ label: '', script: '' })}>
+                Create New
+              </Button>
+            </Grid>
+          </Section>
+        </Box>
+
         {groups.map(({ key, title, data }) => (
           <Box key={key} mt={2}>
             <Section title={TextHelper.capitalize(title)}>
@@ -426,6 +480,47 @@ export default function Home() {
             </Section>
           </Box>
         ))}
+
+        <Dialog open={Boolean(actionModel)} maxWidth="lg" fullWidth>
+          <DialogTitle>Edit Action</DialogTitle>
+          <DialogContent>
+            <TextField
+              name="label"
+              label="Label"
+              value={actionModel?.label ?? ''}
+              sx={{ mt: 1 }}
+              onChange={({ target }) => {
+                setActionModel((current) => ({
+                  ...current,
+                  [target.name]: target.value.replace(/\W/g, ''),
+                }));
+              }}
+            />
+            <TextField
+              multiline
+              name="script"
+              label="Script"
+              rows={30}
+              value={actionModel?.script ?? ''}
+              sx={{ mt: 3 }}
+              InputProps={{
+                sx: { fontFamily: 'monospace', fontSize: 12 },
+              }}
+              onChange={({ target }) => {
+                setActionModel((current) => ({
+                  ...current,
+                  [target.name]: target.value,
+                }));
+              }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setActionModel(null)}>Cancel</Button>
+            <Button variant="contained" onClick={handleSaveAction} disabled={!actionModel?.label?.trim() || !actionModel?.script?.trim()}>
+              Save Action
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Dialog open={inputRaw !== null} maxWidth="lg" fullWidth>
           <DialogTitle>Custom Raw Script</DialogTitle>

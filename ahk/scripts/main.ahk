@@ -57,7 +57,12 @@ PauseSuspendAll(status := True)
 
 	For index, element in Scripts
   {
-    If (script_id := WinExist(element " ahk_class AutoHotkey")) {
+    WinGet, matchWindows, List, % element " ahk_class AutoHotkey"
+
+    Loop, %matchWindows%
+    {
+      script_id := matchWindows%A_Index%
+
       ; Force the script to update its Pause/Suspend checkmarks.
       SendMessage, 0x211,,,, ahk_id %script_id%  ; WM_ENTERMENULOOP
       SendMessage, 0x212,,,, ahk_id %script_id%  ; WM_EXITMENULOOP

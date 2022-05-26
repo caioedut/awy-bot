@@ -69,7 +69,7 @@ export default function Overlay() {
                   </Line>
                 )}
                 {Object.entries(configs).map(([label]) => (
-                  <Item label={title === 'Default' ? label : <kbd>{label}</kbd>} />
+                  <Item key={label} label={title === 'Default' ? label : <kbd>{label}</kbd>} />
                 ))}
               </React.Fragment>
             ),
