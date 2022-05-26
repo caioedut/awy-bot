@@ -47,7 +47,9 @@ export default function Overlay() {
       }}
     >
       <Box ref={contentRef} sx={{ display: 'inline-block' }}>
-        <Line>Awy Bot</Line>
+        <Line>
+          <b>Awy Bot</b>
+        </Line>
         {!entries.length && <Line color="success.main">Running</Line>}
         {entries.map(([label, value]) => (
           <Item label={label} value={value} />
