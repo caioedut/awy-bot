@@ -2,6 +2,7 @@ import { BrowserWindow, app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
 import createWindow from './helpers/create-window';
+import overlay from './windows/overlay';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
@@ -13,10 +14,15 @@ if (isProd) {
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
+const windows = {
+  main: null,
+  overlay: null,
+};
+
 (async () => {
   await app.whenReady();
 
-  const window = createWindow('Main', {
+  windows.main = createWindow('Main', {
     show: false,
     thickFrame: true,
     title: 'Awy Bot',
@@ -32,68 +38,34 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
     },
   });
 
-  const overlayWindow = new BrowserWindow({
-    title: 'Overlay - Awy Bot',
-    show: false,
-    frame: false,
-    modal: true,
-    alwaysOnTop: true,
-    darkTheme: true,
-    autoHideMenuBar: true,
-    focusable: false,
-    hasShadow: true,
-    skipTaskbar: true,
-    vibrancy: 'dark',
-    x: 16,
-    y: 16,
-    width: 0,
-    height: 0,
-    movable: true,
-    maximizable: false,
-    resizable: false,
-    opacity: 0.9,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
+  windows.overlay = await overlay();
+
+  ipcMain.on('overlay', (e, arg) => {
+    require('./events/overlay').default(e, arg, windows);
   });
 
   ipcMain.on('overlay-resize', (e, arg) => {
     const [width, height] = `${arg ?? ''}`.split('|').map(Number);
-
-    if (width > 16 && height > 16) {
-      overlayWindow.setContentSize(width, height);
-      overlayWindow.show();
-    } else {
-      overlayWindow.hide();
-    }
-
+    windows.overlay.setContentSize(width, height);
     e.returnValue = 'ok';
   });
 
-  // window.webContents.on('before-input-event', (e, input) => {
+  // windows.main.webContents.on('before-input-event', (e, input) => {
   //   if (input.code == 'F4' && input.alt) e.preventDefault();
   // });
 
-  window.setMenuBarVisibility(false);
-
   if (isProd) {
-    await window.loadURL('app://./home.html');
-    await overlayWindow.loadURL('app://./overlay.html');
+    await windows.main.loadURL('app://./home.html');
   } else {
     const port = process.argv[2];
+    await windows.main.loadURL(`http://localhost:${port}/home`);
 
-    await window.loadURL(`http://localhost:${port}/home`);
-    await overlayWindow.loadURL(`http://localhost:${port}/overlay`);
-
-    window.maximize();
-    window.webContents.openDevTools();
-
-    // overlayWindow.setSize(1280, 768);
-    // overlayWindow.webContents.openDevTools();
+    windows.main.maximize();
+    windows.main.webContents.openDevTools();
   }
 
-  window.show();
+  windows.main.setMenuBarVisibility(false);
+  windows.main.show();
 })();
 
 app.on('window-all-closed', () => {
@@ -106,4 +78,3 @@ ipcMain.on('raw', require('./events/raw').default);
 ipcMain.on('lock', require('./events/lock').default);
 ipcMain.on('remap', require('./events/remap').default);
 ipcMain.on('windows', require('./events/windows').default);
-ipcMain.on('overlay', require('./events/overlay').default);

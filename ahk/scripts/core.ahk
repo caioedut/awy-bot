@@ -36,7 +36,7 @@ HotkeyClear(Key) {
   Return Key
 }
 
-SetOverlay(Key, Value) {
+SetOverlay(Key, Value := 1) {
   If (Value) {
     IniWrite, 1, overlay.ini, Default, %Key%
   } Else {

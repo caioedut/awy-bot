@@ -6,7 +6,8 @@ global pausedByUser := False
 ; Reset Overlay
 IniDelete, overlay.ini, Default
 
-SetTimer, CheckFocus, 200
+SetTimer, CheckFocus, 100
+SetTimer, CheckOverlay, 1000
 Return
 
 ~$Pause::
@@ -26,18 +27,24 @@ Return
 
 CheckFocus:
 {
-  isWinActive := WinActive("ahk_id" WindowId)
-
-  If (isWinActive && !pausedByUser) {
+  If (WinActive("ahk_id" WindowId) && !pausedByUser) {
     PauseSuspendAll(False)
   } Else {
     PauseSuspendAll(True)
   }
 
-  SetOverlay("Suspended", !isWinActive)
   Return
 }
 
+CheckOverlay:
+{
+  isWinActive := WinActive("ahk_id" WindowId)
+
+  SetOverlay("No Window", WindowId ? 0 : 1)
+  SetOverlay("Suspended", !WindowId || isWinActive ? 0 : 1)
+
+  Return
+}
 
 PauseSuspendAll(status := True)
 {

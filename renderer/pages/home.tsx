@@ -17,6 +17,7 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -322,10 +323,13 @@ export default function Home() {
             </Tooltip>
           </Grid>
           <Box width="100%" />
+          <Grid item xs>
+            <FormControlLabel label="Overlay" control={<Switch checked={overlay} onChange={handleOverlay} />} />
+          </Grid>
           <Grid item xs textAlign="right">
-            <Button variant="contained" onClick={handleOverlay}>
-              Overlay {overlay ? 'On' : 'Off'}
-            </Button>
+            {/*<Button variant="contained" onClick={handleOverlay}>*/}
+            {/*  Overlay {overlay ? 'On' : 'Off'}*/}
+            {/*</Button>*/}
             <Button variant="contained" onClick={handleEditRaw}>
               Custom Raw Script
             </Button>

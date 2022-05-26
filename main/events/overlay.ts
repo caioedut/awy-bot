@@ -1,19 +1,33 @@
 import fs from 'fs';
 import ini from 'ini';
 
-export default function overlay(e, arg) {
+export default function overlay(e, arg, windows) {
   const body = JSON.parse(arg || '{}');
 
-  const { type, window, overlay } = body;
+  const { type, overlay } = body;
 
   if (type === 'get') {
-    const config = ini.parse(fs.readFileSync('overlay.ini', 'utf-8'));
+    let response = { Default: {} };
 
-    return (e.returnValue = JSON.stringify(config.Default));
+    try {
+      const content = fs.readFileSync('overlay.ini', 'utf-8');
+      response = ini.parse(content);
+    } catch (err) {}
+
+    return (e.returnValue = JSON.stringify(response.Default));
   }
 
-  // const overlayWindow = BrowserWindow.getAllWindows()[1];
-  // overlayWindow.show();
+  if (windows?.overlay) {
+    windows.overlay.show();
+
+    // TODO
+    // if (overlay) {
+    //   windows.overlay.show();
+    // } else {
+    //   windows.overlay.destroy();
+    //   windows.overlay = null;
+    // }
+  }
 
   e.returnValue = 'ok';
 }

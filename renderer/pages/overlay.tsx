@@ -4,7 +4,6 @@ import electron from 'electron';
 import { setInterval } from 'timers';
 
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
 
 const ipcRenderer = electron.ipcRenderer;
 
@@ -21,11 +20,8 @@ export default function Overlay() {
     const interval = setInterval(() => {
       const data = { type: 'get' };
       const response = ipcRenderer.sendSync('overlay', JSON.stringify(data));
-
-      if (response !== JSON.stringify(config)) {
-        setConfig(JSON.parse(response || '{}'));
-      }
-    }, 2000);
+      setConfig(JSON.parse(response || '{}'));
+    }, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -51,12 +47,8 @@ export default function Overlay() {
       }}
     >
       <Box ref={contentRef} sx={{ display: 'inline-block' }}>
-        {entries.length > 0 && (
-          <>
-            <Box sx={{ display: 'inline-block', whiteSpace: 'nowrap' }}>Awy Bot</Box>
-            <br />
-          </>
-        )}
+        <Line>Awy Bot</Line>
+        {!entries.length && <Line color="success.main">Running</Line>}
         {entries.map(([label, value]) => (
           <Item label={label} value={value} />
         ))}
@@ -64,6 +56,13 @@ export default function Overlay() {
     </Box>
   );
 }
+
+const Line = (props) => (
+  <>
+    <Box {...props} sx={{ display: 'inline-block', whiteSpace: 'nowrap' }} />
+    <br />
+  </>
+);
 
 const Item = (props: { label: string; value?: string }) => {
   const { label, value } = props;
@@ -74,12 +73,5 @@ const Item = (props: { label: string; value?: string }) => {
     return null;
   }
 
-  return (
-    <>
-      <Box color={color} sx={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
-        {label}
-      </Box>
-      <br />
-    </>
-  );
+  return <Line color={color}>{label}</Line>;
 };
