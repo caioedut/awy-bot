@@ -8,16 +8,11 @@ export default function raw(e, arg) {
   const body = JSON.parse(arg || '{}');
   const window = body.window || '';
 
-  let raw = (body.raw || '').trim();
-
-  if (raw) {
-    raw = '#Include %A_ScriptDir%\\core.ahk\n' + 'SetOverlay("Custom Raw Script", 1)\n' + raw;
-  } else {
-    raw = '#Include %A_ScriptDir%\\core.ahk\n' + 'SetOverlay("Custom Raw Script", 0)\n';
-  }
+  const raw = (body.raw || '').trim();
+  const script = `#Include %A_ScriptDir%\\core.ahk\nSetOverlay("Custom Raw Script", ${Boolean(raw)})\n${raw || ''}\nReturn`;
 
   const file = path.join(AHK_SCRIPTS_PATH, 'raw.ahk');
-  fs.writeFileSync(file, raw);
+  fs.writeFileSync(file, script);
 
   runScript('raw.ahk', [], window);
 
