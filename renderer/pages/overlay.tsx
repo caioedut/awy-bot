@@ -70,7 +70,7 @@ export default function Overlay() {
                   </Line>
                 )}
                 {Object.entries(configs).map(([label]) => (
-                  <Item key={label} label={title === 'Default' ? label : <kbd>{label}</kbd>} />
+                  <Item key={label} label={['Default', 'Actions'].includes(title) ? label : <kbd>{label}</kbd>} />
                 ))}
               </React.Fragment>
             ),
