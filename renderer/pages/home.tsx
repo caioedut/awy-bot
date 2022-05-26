@@ -76,6 +76,7 @@ type Binding = {
 type Action = {
   label: string;
   script: string;
+  enabled?: boolean;
 };
 
 export default function Home() {
@@ -174,7 +175,8 @@ export default function Home() {
     store.set('actions', actions);
 
     withTimeout('actions', () => {
-      const data = window && actions ? { window, actions } : {};
+      const enabled = actions?.filter(({ enabled }) => enabled);
+      const data = window && enabled ? { window, actions: enabled } : {};
       ipcRenderer.sendSync('actions', JSON.stringify(data));
     });
   }, [window, actions]);
@@ -282,10 +284,19 @@ export default function Home() {
     setInputRaw(null);
   };
 
+  const handleToggleAction = (label) => {
+    const newActions = [...actions];
+
+    const index = newActions.findIndex((item) => item.label === label);
+    newActions[index].enabled = !newActions[index].enabled;
+
+    setActions(newActions);
+  };
+
   const handleDeleteAction = (label) => {
     const newActions = [...actions];
 
-    const index = actions.findIndex((item) => item.label === label);
+    const index = newActions.findIndex((item) => item.label === label);
     newActions.splice(index, 1);
 
     setActions(newActions);
@@ -402,8 +413,12 @@ export default function Home() {
             {actions.map((item) => (
               <Grid item key={item.label}>
                 <ButtonGroup variant="outlined">
-                  <Button variant="contained" sx={{ textTransform: 'none' }}>
-                    {item.label}
+                  <Button
+                    variant={item.enabled ? 'contained' : 'outlined'}
+                    sx={{ textTransform: 'none' }}
+                    onClick={() => handleToggleAction(item.label)}
+                  >
+                    [{item.enabled ? 'ON' : 'OFF'}] {item.label}
                   </Button>
                   <Button size="small" onClick={() => setActionModel(item)}>
                     <EditIcon fontSize="small" />
