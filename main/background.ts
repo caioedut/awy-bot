@@ -22,16 +22,6 @@ const windows = {
 (async () => {
   await app.whenReady();
 
-  ipcMain.on('overlay', (e, arg) => {
-    require('./events/overlay').default(e, arg, windows);
-  });
-
-  ipcMain.on('overlay-resize', (e, arg) => {
-    const [width, height] = `${arg ?? ''}`.split('|').map(Number);
-    windows.overlay.setContentSize(width, height);
-    e.returnValue = 'ok';
-  });
-
   windows.main = createWindow('Main', {
     show: false,
     thickFrame: true,
@@ -56,6 +46,16 @@ const windows = {
 
   windows.main.on('close', app.quit);
   windows.main.setMenuBarVisibility(false);
+
+  ipcMain.on('overlay', (e, arg) => {
+    require('./events/overlay').default(e, arg, windows);
+  });
+
+  ipcMain.on('overlay-resize', (e, arg) => {
+    const [width, height] = `${arg ?? ''}`.split('|').map(Number);
+    windows.overlay.setContentSize(width, height);
+    e.returnValue = 'ok';
+  });
 
   if (isProd) {
     await windows.main.loadURL('app://./home.html');
