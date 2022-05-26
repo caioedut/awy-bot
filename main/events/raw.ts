@@ -9,7 +9,7 @@ export default function raw(e, arg) {
   const window = body.window || '';
 
   const raw = (body.raw || '').trim();
-  const script = `#Include %A_ScriptDir%\\core.ahk\nSetOverlay("Custom Raw Script", ${Boolean(raw)})\n${raw || ''}\nReturn`;
+  const script = `#Include %A_ScriptDir%\\core.ahk\nSetOverlay("Custom Raw Script", ${+Boolean(raw)})\n${raw || ''}\nReturn`;
 
   const file = path.join(AHK_SCRIPTS_PATH, 'raw.ahk');
   fs.writeFileSync(file, script);
