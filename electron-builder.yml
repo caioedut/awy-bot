@@ -2,8 +2,6 @@ appId: com.caioedut.awybot
 productName: Awy Bot
 copyright: Copyright © CaioEduT
 
-asar: false
-
 directories:
   output: build
   buildResources: resources
