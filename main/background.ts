@@ -31,7 +31,9 @@ const windows = {
     minWidth: 1280,
     minHeight: 768,
     center: true,
+    roundedCorners: true,
     darkTheme: true,
+    backgroundColor: '#333333',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

@@ -18,6 +18,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import Fade from '@mui/material/Fade';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
@@ -31,6 +32,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
 import Hotkey from '../components/Hotkey';
+import Loading from '../components/Loading';
 import Section from '../components/Section';
 import ArrayHelper from '../helpers/ArrayHelper';
 import TextHelper from '../helpers/TextHelper';
@@ -91,6 +93,7 @@ export default function Home() {
   const timeoutRef = useRef({});
 
   // Load/save configs
+  const [loading, setLoading] = useState(true);
   const [settings] = useState([1, 2, 3, 4, 5, 7, 8, 9, 10]);
   const [config, setConfig] = useState(settings[0]);
   const store = useMemo(() => Storage.with(config), [config]);
@@ -106,11 +109,9 @@ export default function Home() {
   const [window, setWindow] = useState('');
   const [locks, setLocks] = useState<Lock[]>([]);
   const [bindings, setBindings] = useState<Binding[]>([]);
-  const [raw, setRaw] = useState('');
   const [actions, setActions] = useState<Action[]>([]);
 
   // Components
-  const [inputRaw, setInputRaw] = useState<string>(null);
   const [actionModel, setActionModel] = useState<Action>(null);
 
   if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
@@ -129,16 +130,16 @@ export default function Home() {
 
   useEffect(() => {
     const newOverlay = store.get('overlay', false) as boolean;
-    const newRaw = store.get('raw', null) as string;
     const newActions = store.get('actions', []) as Action[];
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
 
     setOverlay(newOverlay);
     setActions(newActions);
-    setRaw(newRaw);
     setLocks(ArrayHelper.uniqueBy(newLocks, 'key', false));
     setBindings(ArrayHelper.uniqueBy(newBindings, 'key', false));
+
+    setLoading(false);
   }, [store]);
 
   useEffect(() => {
@@ -162,15 +163,6 @@ export default function Home() {
       ipcRenderer.sendSync('lock', JSON.stringify(data));
     });
   }, [window, locks]);
-
-  useEffect(() => {
-    store.set('raw', raw);
-
-    withTimeout('raw', () => {
-      const data = window && raw ? { window, raw } : {};
-      ipcRenderer.sendSync('raw', JSON.stringify(data));
-    });
-  }, [window, raw]);
 
   useEffect(() => {
     store.set('bindings', bindings);
@@ -237,7 +229,6 @@ export default function Home() {
   const handleResetConfig = () => {
     store.clear();
     setActions([]);
-    setRaw(null);
     setOverlay(false);
     setLocks(defaultLocks);
     setBindings(defaultBindings);
@@ -283,15 +274,6 @@ export default function Home() {
 
   const handleOverlay = () => {
     setOverlay((current) => !current);
-  };
-
-  const handleEditRaw = () => {
-    setInputRaw(raw ?? '');
-  };
-
-  const handleSaveRaw = () => {
-    setRaw(inputRaw);
-    setInputRaw(null);
   };
 
   const handleRepository = async (git: { type: string; path: string; url: string } = null) => {
@@ -351,302 +333,281 @@ export default function Home() {
 
   const groups = ArrayHelper.groupBy(bindings, 'group');
 
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
-    <Box p={2}>
-      <Head>
-        <title>Awy Bot</title>
-      </Head>
+    <Fade in={!loading}>
+      <Box p={2}>
+        <Head>
+          <title>Awy Bot</title>
+        </Head>
 
-      <form ref={formRef}>
-        <Section title="Application">
-          <Grid item xs={2}>
-            <Typography variant="body2">
-              <b>Window</b>
-            </Typography>
-          </Grid>
-          <Grid item xs>
-            <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
-              <MenuItem value="">[Select a window]</MenuItem>
-              {visibleWindows.map((win, index) => (
-                <MenuItem key={index} value={win.ahk_id}>
-                  <Box component="span" color="text.disabled">
-                    [{win.ahk_exe.toLowerCase()}]
-                  </Box>
-                  :&nbsp;&nbsp;{win.short}
-                </MenuItem>
-              ))}
-            </Select>
-          </Grid>
-          <Grid item width={52}>
-            <Tooltip title="Refresh">
-              <IconButton onClick={getWindows}>
-                <RefreshIcon color="primary" />
-              </IconButton>
-            </Tooltip>
-          </Grid>
-          <Box width="100%" />
-          <Grid item xs={2}>
-            <Typography variant="body2">
-              <b>Settings</b>
-            </Typography>
-          </Grid>
-          <Grid item xs>
-            <ToggleButtonGroup exclusive value={config} color="primary" onChange={handleChangeConfig} sx={{ display: 'flex' }}>
-              {settings.map((item) => (
-                <ToggleButton key={item} value={item} sx={{ flex: 1 }}>
-                  <Box my={-0.2} fontSize={14}>
-                    {item}
-                  </Box>
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          </Grid>
-          <Grid item width={52}>
-            <Tooltip title="Reset current">
-              <IconButton onClick={handleResetConfig}>
-                <PlaylistRemoveIcon color="primary" />
-              </IconButton>
-            </Tooltip>
-          </Grid>
-          <Box width="100%" />
-          <Grid item xs>
-            <FormControlLabel //
-              label="Overlay"
-              control={<Switch checked={overlay} onChange={handleOverlay} />}
-            />
-          </Grid>
-          <Grid item xs textAlign="right">
-            <Button variant="contained" onClick={handleEditRaw}>
-              Custom Raw Script
-            </Button>
-          </Grid>
-        </Section>
-
-        <Box mt={2}>
-          <Section title="Lock">
-            {locks.map((item, index) => (
-              <Grid item key={item.key}>
-                <FormControlLabel
-                  label={item.name}
-                  control={
-                    <input //
-                      type="checkbox"
-                      checked={item.lock ?? false}
-                      onChange={(e) => handleLock(index, e.target.checked)}
-                    />
-                  }
-                />
-              </Grid>
-            ))}
-          </Section>
-        </Box>
-
-        <Box mt={2}>
-          <Section title="Actions" justifyContent="initial">
-            {actions.map((item) => (
-              <Grid item key={item.label}>
-                <ButtonGroup variant="outlined">
-                  <Button
-                    variant={item.enabled ? 'contained' : 'outlined'}
-                    sx={{ textTransform: 'none' }}
-                    onClick={() => handleToggleAction(item.label)}
-                  >
-                    [{item.enabled ? 'ON' : 'OFF'}] {item.label}
-                  </Button>
-                  <Button onClick={() => setActionModel(item)}>
-                    <EditIcon fontSize="small" />
-                  </Button>
-                  <Button>
-                    <DeleteIcon fontSize="small" onClick={() => handleDeleteAction(item.label)} />
-                  </Button>
-                </ButtonGroup>
-              </Grid>
-            ))}
-            <Grid item>
-              <Button variant="outlined" onClick={() => setActionModel({ label: '', script: '', new: true })}>
-                Create New
-              </Button>
+        <form ref={formRef}>
+          <Section title="Application">
+            <Grid item xs={2}>
+              <Typography variant="body2">
+                <b>Window</b>
+              </Typography>
             </Grid>
-            <Grid item>
-              <Button variant="contained" onClick={() => handleRepository()}>
-                Browse Repository
-              </Button>
+            <Grid item xs>
+              <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
+                <MenuItem value="">[Select a window]</MenuItem>
+                {visibleWindows.map((win, index) => (
+                  <MenuItem key={index} value={win.ahk_id}>
+                    <Box component="span" color="text.disabled">
+                      [{win.ahk_exe.toLowerCase()}]
+                    </Box>
+                    :&nbsp;&nbsp;{win.short}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+            <Grid item width={52}>
+              <Tooltip title="Refresh">
+                <IconButton onClick={getWindows}>
+                  <RefreshIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Box width="100%" />
+            <Grid item xs={2}>
+              <Typography variant="body2">
+                <b>Settings</b>
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <ToggleButtonGroup exclusive value={config} color="primary" onChange={handleChangeConfig} sx={{ display: 'flex' }}>
+                {settings.map((item) => (
+                  <ToggleButton key={item} value={item} sx={{ flex: 1 }}>
+                    <Box my={-0.2}>
+                      <b>{item}</b>
+                    </Box>
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Grid>
+            <Grid item width={52}>
+              <Tooltip title="Reset current">
+                <IconButton onClick={handleResetConfig}>
+                  <PlaylistRemoveIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Box width="100%" />
+            <Grid item xs>
+              <FormControlLabel //
+                label="Overlay"
+                control={<Switch checked={overlay} onChange={handleOverlay} />}
+              />
             </Grid>
           </Section>
-        </Box>
 
-        {groups.map(({ key, title, data }) => (
-          <Box key={key} mt={2}>
-            <Section title={TextHelper.capitalize(title)}>
-              {data.map((item) => {
-                const index = bindings.indexOf(item);
-
-                return (
-                  <React.Fragment key={index}>
-                    <Grid item xs={2} sx={{ position: 'relative' }}>
-                      {item.name ? (
-                        <Typography variant="body2">
-                          <b>{item.name}</b>
-                        </Typography>
-                      ) : (
-                        <Tooltip title="Delete">
-                          <IconButton sx={{ position: 'absolute', top: 12, left: -22 }} onClick={() => handleDelete(index)}>
-                            <DeleteIcon color="primary" fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      <Hotkey
-                        name={`${index}.key`}
-                        value={item.key ?? ''}
-                        label="Trigger key"
-                        onChange={() => handleBinding(index)}
-                        sx={{ display: item.name ? 'none' : 'block' }}
+          <Box mt={2}>
+            <Section title="Lock">
+              {locks.map((item, index) => (
+                <Grid item key={item.key}>
+                  <FormControlLabel
+                    label={item.name}
+                    control={
+                      <input //
+                        type="checkbox"
+                        checked={item.lock ?? false}
+                        onChange={(e) => handleLock(index, e.target.checked)}
                       />
-                    </Grid>
-                    <Grid item xs={1}>
-                      <FormControlLabel
-                        label="Loop"
-                        control={
-                          <input
-                            type="checkbox"
-                            name={`${index}.loop`}
-                            checked={item.loop ?? false}
-                            disabled={!item.key}
-                            onChange={() => handleBinding(index)}
-                          />
-                        }
-                      />
-                    </Grid>
-                    {[0, 1, 2].map((keyNumber) => (
-                      <React.Fragment key={keyNumber}>
-                        <Grid item xs={2}>
-                          <Hotkey
-                            allowMouse
-                            name={`${index}.sequence.${keyNumber}`}
-                            value={item.sequence?.[keyNumber] ?? ''}
-                            label={`Key ${keyNumber + 1}`}
-                            onChange={() => handleBinding(index)}
-                          />
-                        </Grid>
-                        {keyNumber < 2 && (
-                          <Grid item xs={1}>
-                            <TextField //
-                              name={`${index}.delay.${keyNumber}`}
-                              value={item.delay?.[keyNumber] ?? ''}
-                              label="Delay"
-                              onChange={() => handleBinding(index)}
-                              onKeyDown={(e) => handleKeyDownDelay(index, e)}
-                            />
-                          </Grid>
-                        )}
-                      </React.Fragment>
-                    ))}
-                    <Grid item xs={12} />
-                  </React.Fragment>
-                );
-              })}
-            </Section>
-          </Box>
-        ))}
-
-        <Dialog open={Boolean(actionModel)} maxWidth="lg" fullWidth>
-          <DialogTitle>Edit Action</DialogTitle>
-          <DialogContent>
-            <TextField
-              disabled={!actionModel?.new}
-              name="label"
-              label="Label"
-              value={actionModel?.label ?? ''}
-              sx={{ mt: 1 }}
-              onChange={({ target }) => {
-                setActionModel((current) => ({
-                  ...current,
-                  [target.name]: target.value.replace(/\W/g, ''),
-                }));
-              }}
-            />
-            <TextField
-              multiline
-              name="script"
-              label="Script"
-              rows={30}
-              value={actionModel?.script ?? ''}
-              sx={{ mt: 3 }}
-              InputProps={{
-                sx: { fontFamily: 'monospace', fontSize: 12 },
-              }}
-              onChange={({ target }) => {
-                setActionModel((current) => ({
-                  ...current,
-                  [target.name]: target.value,
-                }));
-              }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setActionModel(null)}>Cancel</Button>
-            <Button variant="contained" onClick={handleSaveAction} disabled={!actionModel?.label?.trim() || !actionModel?.script?.trim()}>
-              Save Action
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <Dialog open={Boolean(repositoryFiles)} maxWidth="xs" fullWidth>
-          <DialogTitle>
-            <Grid container spacing={1} alignItems="center">
-              <Grid item>
-                <Tooltip title="Go to root directory">
-                  <IconButton edge="start" onClick={() => handleRepository()}>
-                    <HomeOutlinedIcon />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-              <Grid item>Browse Repository</Grid>
-            </Grid>
-          </DialogTitle>
-          <DialogContent>
-            <Grid container spacing={1} alignItems="center">
-              {repositoryFiles?.map((file) => (
-                <Grid item key={file.url}>
-                  <Button //
-                    variant={file.type === 'tree' ? 'contained' : 'outlined'}
-                    sx={{ textTransform: 'none' }}
-                    onClick={() => handleRepository(file)}
-                    startIcon={file.type === 'tree' ? <FolderOutlinedIcon /> : <IntegrationInstructionsOutlinedIcon />}
-                  >
-                    {file.path.replace(/\.ahk$/, '')}
-                  </Button>
+                    }
+                  />
                 </Grid>
               ))}
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setRepositoryFiles(null)}>Cancel</Button>
-          </DialogActions>
-        </Dialog>
+            </Section>
+          </Box>
 
-        <Dialog open={inputRaw !== null} maxWidth="lg" fullWidth>
-          <DialogTitle>Custom Raw Script</DialogTitle>
-          <DialogContent>
-            <TextField
-              multiline
-              name="raw"
-              rows={30}
-              value={inputRaw ?? ''}
-              onChange={(e) => setInputRaw(e.target.value)}
-              InputProps={{
-                sx: { fontFamily: 'monospace', fontSize: 12 },
-              }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setInputRaw(null)}>Cancel</Button>
-            <Button variant="contained" onClick={handleSaveRaw}>
-              Save and Run
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </form>
-    </Box>
+          <Box mt={2}>
+            <Section title="Actions" justifyContent="initial">
+              {actions.map((item) => (
+                <Grid item key={item.label}>
+                  <ButtonGroup variant="outlined">
+                    <Button
+                      variant={item.enabled ? 'contained' : 'outlined'}
+                      sx={{ textTransform: 'none' }}
+                      onClick={() => handleToggleAction(item.label)}
+                    >
+                      [{item.enabled ? 'ON' : 'OFF'}] {item.label}
+                    </Button>
+                    <Button onClick={() => setActionModel(item)}>
+                      <EditIcon fontSize="small" />
+                    </Button>
+                    <Button>
+                      <DeleteIcon fontSize="small" onClick={() => handleDeleteAction(item.label)} />
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
+              ))}
+              <Grid item>
+                <Button variant="outlined" onClick={() => setActionModel({ label: '', script: '', new: true })}>
+                  Create New
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button variant="contained" onClick={() => handleRepository()}>
+                  Browse Repository
+                </Button>
+              </Grid>
+            </Section>
+          </Box>
+
+          {groups.map(({ key, title, data }) => (
+            <Box key={key} mt={2}>
+              <Section title={TextHelper.capitalize(title)}>
+                {data.map((item) => {
+                  const index = bindings.indexOf(item);
+
+                  return (
+                    <React.Fragment key={index}>
+                      <Grid item xs={2} sx={{ position: 'relative' }}>
+                        {item.name ? (
+                          <Typography variant="body2">
+                            <b>{item.name}</b>
+                          </Typography>
+                        ) : (
+                          <Tooltip title="Delete">
+                            <IconButton sx={{ position: 'absolute', top: 12, left: -22 }} onClick={() => handleDelete(index)}>
+                              <DeleteIcon color="primary" fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        <Hotkey
+                          name={`${index}.key`}
+                          value={item.key ?? ''}
+                          label="Trigger key"
+                          onChange={() => handleBinding(index)}
+                          sx={{ display: item.name ? 'none' : 'block' }}
+                        />
+                      </Grid>
+                      <Grid item xs={1}>
+                        <FormControlLabel
+                          label="Loop"
+                          control={
+                            <input
+                              type="checkbox"
+                              name={`${index}.loop`}
+                              checked={item.loop ?? false}
+                              disabled={!item.key}
+                              onChange={() => handleBinding(index)}
+                            />
+                          }
+                        />
+                      </Grid>
+                      {[0, 1, 2].map((keyNumber) => (
+                        <React.Fragment key={keyNumber}>
+                          <Grid item xs={2}>
+                            <Hotkey
+                              allowMouse
+                              name={`${index}.sequence.${keyNumber}`}
+                              value={item.sequence?.[keyNumber] ?? ''}
+                              label={`Key ${keyNumber + 1}`}
+                              onChange={() => handleBinding(index)}
+                            />
+                          </Grid>
+                          {keyNumber < 2 && (
+                            <Grid item xs={1}>
+                              <TextField //
+                                name={`${index}.delay.${keyNumber}`}
+                                value={item.delay?.[keyNumber] ?? ''}
+                                label="Delay"
+                                onChange={() => handleBinding(index)}
+                                onKeyDown={(e) => handleKeyDownDelay(index, e)}
+                              />
+                            </Grid>
+                          )}
+                        </React.Fragment>
+                      ))}
+                      <Grid item xs={12} />
+                    </React.Fragment>
+                  );
+                })}
+              </Section>
+            </Box>
+          ))}
+
+          <Dialog open={Boolean(actionModel)} maxWidth="lg" fullWidth>
+            <DialogTitle>Edit Action</DialogTitle>
+            <DialogContent>
+              <TextField
+                disabled={!actionModel?.new}
+                name="label"
+                label="Label"
+                value={actionModel?.label ?? ''}
+                sx={{ mt: 1 }}
+                onChange={({ target }) => {
+                  setActionModel((current) => ({
+                    ...current,
+                    [target.name]: target.value.replace(/\W/g, ''),
+                  }));
+                }}
+              />
+              <TextField
+                multiline
+                name="script"
+                label="Script"
+                rows={30}
+                value={actionModel?.script ?? ''}
+                sx={{ mt: 3 }}
+                InputProps={{
+                  sx: { fontFamily: 'monospace', fontSize: 12 },
+                }}
+                onChange={({ target }) => {
+                  setActionModel((current) => ({
+                    ...current,
+                    [target.name]: target.value,
+                  }));
+                }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setActionModel(null)}>Cancel</Button>
+              <Button variant="contained" onClick={handleSaveAction} disabled={!actionModel?.label?.trim() || !actionModel?.script?.trim()}>
+                Save Action
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog open={Boolean(repositoryFiles)} maxWidth="xs" fullWidth>
+            <DialogTitle>
+              <Grid container spacing={1} alignItems="center">
+                <Grid item>
+                  <Tooltip title="Go to root directory">
+                    <IconButton edge="start" onClick={() => handleRepository()}>
+                      <HomeOutlinedIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item>Browse Repository</Grid>
+              </Grid>
+            </DialogTitle>
+            <DialogContent>
+              <Grid container spacing={1} alignItems="center">
+                {repositoryFiles?.map((file) => (
+                  <Grid item key={file.url}>
+                    <Button //
+                      variant={file.type === 'tree' ? 'contained' : 'outlined'}
+                      sx={{ textTransform: 'none' }}
+                      onClick={() => handleRepository(file)}
+                      startIcon={file.type === 'tree' ? <FolderOutlinedIcon /> : <IntegrationInstructionsOutlinedIcon />}
+                    >
+                      {file.path.replace(/\.ahk$/, '')}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setRepositoryFiles(null)}>Cancel</Button>
+            </DialogActions>
+          </Dialog>
+        </form>
+      </Box>
+    </Fade>
   );
 }
