@@ -8,6 +8,7 @@ IniDelete, overlay.ini, Default
 
 SetTimer, CheckFocus, 100
 SetTimer, CheckOverlay, 1000
+Gosub, CheckOverlay
 Return
 
 ~$Pause::

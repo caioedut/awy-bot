@@ -36,9 +36,9 @@ OnToggle(Key, Sequence, Delays) {
   }
 
   StringUpper, message, % Key
-  keyLabel := "[" HotkeyClear(message) "] Loop"
+  keyLabel := "(" HotkeyClear(message) ") Loop"
   Notify(keyLabel ": " status)
-  SetOverlay(keyLabel, toggleStatus[Key])
+  SetOverlay(keyLabel, toggleStatus[Key] ? 1 : 0)
 }
 
 OnPress(Key, Sequence, Delays, Loop := 0) {

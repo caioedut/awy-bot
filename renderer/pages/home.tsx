@@ -128,11 +128,8 @@ export default function Home() {
 
   useEffect(() => {
     store.set('overlay', overlay);
-
-    withTimeout('overlay', () => {
-      const data = overlay ? { window, overlay } : {};
-      ipcRenderer.sendSync('overlay', JSON.stringify(data));
-    });
+    const data = overlay ? { window, overlay } : {};
+    ipcRenderer.sendSync('overlay', JSON.stringify(data));
   }, [window, overlay]);
 
   useEffect(() => {
@@ -208,6 +205,7 @@ export default function Home() {
   const handleResetConfig = () => {
     store.clear();
     setRaw(null);
+    setOverlay(false);
     setLocks(defaultLocks);
     setBindings(defaultBindings);
   };
@@ -324,12 +322,12 @@ export default function Home() {
           </Grid>
           <Box width="100%" />
           <Grid item xs>
-            <FormControlLabel label="Overlay" control={<Switch checked={overlay} onChange={handleOverlay} />} />
+            <FormControlLabel //
+              label="Overlay"
+              control={<Switch checked={overlay} onChange={handleOverlay} />}
+            />
           </Grid>
           <Grid item xs textAlign="right">
-            {/*<Button variant="contained" onClick={handleOverlay}>*/}
-            {/*  Overlay {overlay ? 'On' : 'Off'}*/}
-            {/*</Button>*/}
             <Button variant="contained" onClick={handleEditRaw}>
               Custom Raw Script
             </Button>

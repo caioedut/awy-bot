@@ -18,15 +18,14 @@ export default function overlay(e, arg, windows) {
   }
 
   if (windows?.overlay) {
-    windows.overlay.show();
-
-    // TODO
-    // if (overlay) {
-    //   windows.overlay.show();
-    // } else {
-    //   windows.overlay.destroy();
-    //   windows.overlay = null;
-    // }
+    if (overlay) {
+      windows.overlay.show();
+    } else {
+      // TODO: destroy window to free memory
+      windows.overlay.hide();
+      // windows.overlay.destroy();
+      // windows.overlay = null;
+    }
   }
 
   e.returnValue = 'ok';
