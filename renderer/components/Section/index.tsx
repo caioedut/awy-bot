@@ -16,7 +16,7 @@ function Section(props: GridProps & { noGrid?: boolean; title: string }) {
         {noGrid ? (
           children
         ) : (
-          <Grid container spacing={2} alignItems="center" justifyContent="space-between" {...rest}>
+          <Grid container spacing={1} alignItems="center" justifyContent="space-between" {...rest}>
             {children}
           </Grid>
         )}

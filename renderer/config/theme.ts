@@ -25,6 +25,24 @@ export const theme = createTheme({
     },
   },
   components: {
+    MuiButtonGroup: {
+      defaultProps: { size: 'small' },
+    },
+    MuiButton: {
+      defaultProps: { size: 'small' },
+    },
+    MuiIconButton: {
+      defaultProps: { size: 'small' },
+    },
+    MuiToggleButtonGroup: {
+      defaultProps: { size: 'small' },
+    },
+    MuiToggleButton: {
+      defaultProps: { size: 'small' },
+    },
+    MuiSwitch: {
+      defaultProps: { size: 'small' },
+    },
     MuiInputLabel: {
       defaultProps: {
         shrink: true,

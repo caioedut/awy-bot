@@ -391,7 +391,7 @@ export default function Home() {
             </Typography>
           </Grid>
           <Grid item xs>
-            <ToggleButtonGroup exclusive value={config} size="small" color="primary" onChange={handleChangeConfig} sx={{ display: 'flex' }}>
+            <ToggleButtonGroup exclusive value={config} color="primary" onChange={handleChangeConfig} sx={{ display: 'flex' }}>
               {settings.map((item) => (
                 <ToggleButton key={item} value={item} sx={{ flex: 1 }}>
                   <Box my={-0.2} fontSize={14}>
@@ -453,23 +453,23 @@ export default function Home() {
                   >
                     [{item.enabled ? 'ON' : 'OFF'}] {item.label}
                   </Button>
-                  <Button size="small" onClick={() => setActionModel(item)}>
+                  <Button onClick={() => setActionModel(item)}>
                     <EditIcon fontSize="small" />
                   </Button>
-                  <Button size="small">
+                  <Button>
                     <DeleteIcon fontSize="small" onClick={() => handleDeleteAction(item.label)} />
                   </Button>
                 </ButtonGroup>
               </Grid>
             ))}
             <Grid item>
-              <Button variant="contained" onClick={() => setActionModel({ label: '', script: '', new: true })}>
+              <Button variant="outlined" onClick={() => setActionModel({ label: '', script: '', new: true })}>
                 Create New
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="outlined" onClick={() => handleRepository()}>
-                Repository
+              <Button variant="contained" onClick={() => handleRepository()}>
+                Browse Repository
               </Button>
             </Grid>
           </Section>
@@ -490,7 +490,7 @@ export default function Home() {
                         </Typography>
                       ) : (
                         <Tooltip title="Delete">
-                          <IconButton sx={{ position: 'absolute', top: 18, left: -16 }} onClick={() => handleDelete(index)}>
+                          <IconButton sx={{ position: 'absolute', top: 12, left: -22 }} onClick={() => handleDelete(index)}>
                             <DeleteIcon color="primary" fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -601,11 +601,11 @@ export default function Home() {
                   </IconButton>
                 </Tooltip>
               </Grid>
-              <Grid item>Repository Scripts</Grid>
+              <Grid item>Browse Repository</Grid>
             </Grid>
           </DialogTitle>
           <DialogContent>
-            <Grid container spacing={2} alignItems="center">
+            <Grid container spacing={1} alignItems="center">
               {repositoryFiles?.map((file) => (
                 <Grid item key={file.url}>
                   <Button //
