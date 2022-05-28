@@ -1,5 +1,5 @@
 overlay.ini
-scripts/actions/
+scripts/actions/*
 
 # env
 *.env
