@@ -94,4 +94,6 @@ GetFile(File, Url := False) {
     FileCreateDir, %Directory%
 
     UrlDownloadToFile, %Url%, %Destination%
+
+    Return Destination
 }
