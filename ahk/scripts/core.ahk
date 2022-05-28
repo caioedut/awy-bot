@@ -34,13 +34,6 @@ Notify(Message, Width = 0) {
   SplashTextOff
 }
 
-GetText(FromX, FromY, ToX, ToY) {
-    dir = %A_WorkingDir%\resources\ahk\Capture2Text
-    command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
-    RunWait, %command%, %dir%, Hide
-    Return clipboard
-}
-
 HotkeyClear(Key) {
   Key := StrReplace(Key, "{", "")
   Key := StrReplace(Key, "}", "")
@@ -73,4 +66,32 @@ MouseBackup() {
 
 MouseRestore() {
   MouseMove, MouseBackupX, MouseBackupY
+}
+
+GetText(FromX, FromY, ToX, ToY) {
+    dir = %A_WorkingDir%\resources\ahk\Capture2Text
+
+    If (!FileExist(dir)) {
+      dir = %A_WorkingDir%\ahk\Capture2Text
+    }
+
+    command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
+    RunWait, %command%, %dir%, Hide
+
+    Return clipboard
+}
+
+GetFile(File, Url := False) {
+    File := StrReplace(File, "/", "\")
+    Destination := "C:\AwyBotFiles\" File
+
+    If (!Url) {
+        Url := "https://github.com/caioedut/awy-bot-scripts/raw/main/" StrReplace(File, "\", "/")
+    }
+
+    FoundPos := InStr(Destination, "\", , -1)
+    Directory := SubStr(Destination, 1 , FoundPos)
+    FileCreateDir, %Directory%
+
+    UrlDownloadToFile, %Url%, %Destination%
 }
