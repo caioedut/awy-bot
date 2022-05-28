@@ -34,6 +34,13 @@ Notify(Message, Width = 0) {
   SplashTextOff
 }
 
+GetText(FromX, FromY, ToX, ToY) {
+    dir = %A_WorkingDir%\resources\ahk\Capture2Text
+    command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
+    RunWait, %command%, %dir%, Hide
+    Return clipboard
+}
+
 HotkeyClear(Key) {
   Key := StrReplace(Key, "{", "")
   Key := StrReplace(Key, "}", "")
