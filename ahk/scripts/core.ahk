@@ -41,10 +41,12 @@ xSend(Key, ReleaseKey := False) {
       ReleaseKey := Key
   }
 
+  Key := HotkeyClear(Key)
   Key := StrReplace(Key, "*", "")
   Key := StrReplace(Key, "~", "")
   Key := StrReplace(Key, "$", "")
 
+  ReleaseKey := HotkeyClear(ReleaseKey)
   ReleaseKey := StrReplace(ReleaseKey, "*", "")
   ReleaseKey := StrReplace(ReleaseKey, "~", "")
   ReleaseKey := StrReplace(ReleaseKey, "$", "")

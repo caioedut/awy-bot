@@ -53,9 +53,8 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
 
   For index, value in Sequence
   {
-    Send, %value%
-
     delay := Delays[index]
+    xSend(value, Key)
 
     If (Delay) {
       Sleep, %delay%
