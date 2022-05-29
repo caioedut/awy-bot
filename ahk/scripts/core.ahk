@@ -11,10 +11,6 @@ FileEncoding, UTF-8
 
 ; Global Variables
 global Scripts := ["lock.ahk", "remap.ahk", "action.ahk"]
-global MiddlePosX := A_ScreenWidth // 2
-global MiddlePosY := A_ScreenHeight // 2
-
-; Mouse
 global MouseBackupX := 0
 global MouseBackupY := 0
 
@@ -38,6 +34,24 @@ HotkeyClear(Key) {
   Key := StrReplace(Key, "{", "")
   Key := StrReplace(Key, "}", "")
   Return Key
+}
+
+xSend(Key, ReleaseKey := False) {
+  If (!ReleaseKey) {
+      ReleaseKey := Key
+  }
+
+  Key := StrReplace(Key, "*", "")
+  Key := StrReplace(Key, "~", "")
+  Key := StrReplace(Key, "$", "")
+
+  ReleaseKey := StrReplace(ReleaseKey, "*", "")
+  ReleaseKey := StrReplace(ReleaseKey, "~", "")
+  ReleaseKey := StrReplace(ReleaseKey, "$", "")
+
+  Send, {%Key% down}
+  KeyWait, %ReleaseKey%
+  Send, {%Key% up}
 }
 
 SetOverlay(Key, Value := 1, Session := "Default") {
@@ -69,31 +83,31 @@ MouseRestore() {
 }
 
 GetText(FromX, FromY, ToX, ToY) {
-    dir = %A_WorkingDir%\resources\ahk\Capture2Text
+  dir = %A_WorkingDir%\resources\ahk\Capture2Text
 
-    If (!FileExist(dir)) {
-      dir = %A_WorkingDir%\ahk\Capture2Text
-    }
+  If (!FileExist(dir)) {
+    dir = %A_WorkingDir%\ahk\Capture2Text
+  }
 
-    command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
-    RunWait, %command%, %dir%, Hide
+  command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
+  RunWait, %command%, %dir%, Hide
 
-    Return clipboard
+  Return clipboard
 }
 
 GetFile(File, Url := False) {
-    File := StrReplace(File, "/", "\")
-    Destination := "C:\AwyBotFiles\" File
+  File := StrReplace(File, "/", "\")
+  Destination := "C:\AwyBotFiles\" File
 
-    If (!Url) {
-        Url := "https://github.com/caioedut/awy-bot-scripts/raw/main/" StrReplace(File, "\", "/")
-    }
+  If (!Url) {
+      Url := "https://github.com/caioedut/awy-bot-scripts/raw/main/" StrReplace(File, "\", "/")
+  }
 
-    FoundPos := InStr(Destination, "\", , -1)
-    Directory := SubStr(Destination, 1 , FoundPos)
-    FileCreateDir, %Directory%
+  FoundPos := InStr(Destination, "\", , -1)
+  Directory := SubStr(Destination, 1 , FoundPos)
+  FileCreateDir, %Directory%
 
-    UrlDownloadToFile, %Url%, %Destination%
+  UrlDownloadToFile, %Url%, %Destination%
 
-    Return Destination
+  Return Destination
 }
