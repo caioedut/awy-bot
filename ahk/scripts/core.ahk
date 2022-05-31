@@ -14,8 +14,8 @@ global Scripts := ["lock.ahk", "remap.ahk", "action.ahk"]
 global MouseBackupX := 0
 global MouseBackupY := 0
 
-; ATTENTION: First argument is WindowId (FOREVER AND EVER)
-global WindowId := A_Args[1]
+; ATTENTION: First argument is Window EXE (FOREVER AND EVER)
+global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
 Notify(Message, Width = 0) {

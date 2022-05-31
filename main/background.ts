@@ -34,10 +34,6 @@ const windows = {
     roundedCorners: true,
     darkTheme: true,
     backgroundColor: '#333333',
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
   });
 
   windows.overlay = await overlay();

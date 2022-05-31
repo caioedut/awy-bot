@@ -15,7 +15,7 @@ Loop %windows%
   WinGet, exe, ProcessName, ahk_id %id%
   StringLower, exeLower, exe
 
-  If (exeLower == "explorer.exe") {
+  If (exeLower == "explorer.exe" || exeLower == "awy bot.exe" || exeLower == "awybot.exe") {
     Continue
   }
 

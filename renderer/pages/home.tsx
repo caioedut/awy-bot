@@ -60,10 +60,10 @@ const defaultBindings: Binding[] = [
 ];
 
 type Window = {
-  ahk_id: string;
   ahk_exe: string;
   title: string;
   short: string;
+  error?: boolean;
 };
 
 type Lock = {
@@ -118,7 +118,14 @@ export default function Home() {
     bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
   }
 
-  useMount(getWindows);
+  if (window && !visibleWindows.find((item) => item.ahk_exe === window)) {
+    visibleWindows.unshift({ ahk_exe: window, title: '-', short: '-', error: true });
+  }
+
+  function getWindows() {
+    const response = ipcRenderer.sendSync('windows');
+    setVisibleWindows(JSON.parse(response));
+  }
 
   const withTimeout = (key: string, callback: Function) => {
     if (timeoutRef.current?.[key]) {
@@ -129,11 +136,13 @@ export default function Home() {
   };
 
   useEffect(() => {
+    const newWindow = store.get('window', '') as string;
     const newOverlay = store.get('overlay', false) as boolean;
     const newActions = store.get('actions', []) as Action[];
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
 
+    setWindow(newWindow);
     setOverlay(newOverlay);
     setActions(newActions);
     setLocks(ArrayHelper.uniqueBy(newLocks, 'key', false));
@@ -143,6 +152,8 @@ export default function Home() {
   }, [store]);
 
   useEffect(() => {
+    store.set('window', window);
+
     withTimeout('main', () => {
       const data = { window };
       ipcRenderer.sendSync('main', JSON.stringify(data));
@@ -182,11 +193,6 @@ export default function Home() {
       ipcRenderer.sendSync('actions', JSON.stringify(data));
     });
   }, [window, actions]);
-
-  function getWindows() {
-    const response = ipcRenderer.sendSync('windows');
-    setVisibleWindows(JSON.parse(response));
-  }
 
   const getNumber = (value) => {
     value = Number(value || 0);
@@ -228,6 +234,7 @@ export default function Home() {
 
   const handleResetConfig = () => {
     store.clear();
+    setWindow('');
     setActions([]);
     setOverlay(false);
     setLocks(defaultLocks);
@@ -355,8 +362,8 @@ export default function Home() {
               <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
                 <MenuItem value="">[Select a window]</MenuItem>
                 {visibleWindows.map((win, index) => (
-                  <MenuItem key={index} value={win.ahk_id}>
-                    <Box component="span" color="text.disabled">
+                  <MenuItem key={index} value={win.ahk_exe}>
+                    <Box component="b" color={win.error ? 'error.main' : 'info.main'}>
                       [{win.ahk_exe.toLowerCase()}]
                     </Box>
                     :&nbsp;&nbsp;{win.short}
