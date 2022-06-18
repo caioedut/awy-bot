@@ -36,7 +36,6 @@ import Loading from '../components/Loading';
 import Section from '../components/Section';
 import ArrayHelper from '../helpers/ArrayHelper';
 import TextHelper from '../helpers/TextHelper';
-import useMount from '../hooks/useMount';
 import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;

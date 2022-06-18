@@ -1,8 +1,9 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
-import createWindow from './helpers/create-window';
+import main from './windows/main';
 import overlay from './windows/overlay';
+import splash from './windows/splash';
 
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
@@ -15,6 +16,7 @@ if (isProd) {
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
 const windows = {
+  splash: null,
   main: null,
   overlay: null,
 };
@@ -22,28 +24,7 @@ const windows = {
 (async () => {
   await app.whenReady();
 
-  windows.main = createWindow('Main', {
-    show: false,
-    thickFrame: true,
-    title: 'Awy Bot',
-    width: 1280,
-    height: 768,
-    minWidth: 1280,
-    minHeight: 768,
-    center: true,
-    roundedCorners: true,
-    darkTheme: true,
-    backgroundColor: '#333333',
-  });
-
-  windows.overlay = await overlay();
-
-  windows.main.webContents.on('before-input-event', (e, input) => {
-    if (input.code == 'F4' && input.alt) e.preventDefault();
-  });
-
-  windows.main.on('close', app.quit);
-  windows.main.setMenuBarVisibility(false);
+  windows.splash = await splash();
 
   ipcMain.on('overlay', (e, arg) => {
     require('./events/overlay').default(e, arg, windows);
@@ -55,20 +36,10 @@ const windows = {
     e.returnValue = 'ok';
   });
 
-  if (isProd) {
-    await windows.main.loadURL('app://./home.html');
-  } else {
-    const port = process.argv[2];
-    await windows.main.loadURL(`http://localhost:${port}/home`);
+  windows.main = await main();
+  windows.overlay = await overlay();
 
-    windows.main.maximize();
-    windows.main.webContents.openDevTools();
-
-    // windows.overlay.setSize(1280, 768);
-    // windows.overlay.maximize();
-    // windows.overlay.webContents.openDevTools();
-  }
-
+  windows.splash.close();
   windows.main.show();
 })();
 
