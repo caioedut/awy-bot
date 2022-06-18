@@ -31,8 +31,11 @@ const windows = {
   });
 
   ipcMain.on('overlay-resize', (e, arg) => {
-    const [width, height] = `${arg ?? ''}`.split('|').map(Number);
-    windows.overlay.setContentSize(width, height);
+    if (windows.overlay) {
+      const [width, height] = `${arg ?? ''}`.split('|').map(Number);
+      windows.overlay.setContentSize(width, height);
+    }
+
     e.returnValue = 'ok';
   });
 

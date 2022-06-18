@@ -117,15 +117,13 @@ export default function Home() {
     bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
   }
 
+  if (!loading && window && !visibleWindows.find((item) => item.ahk_exe === window)) {
+    visibleWindows.unshift({ ahk_exe: window, title: '-', short: '-', error: true });
+  }
+
   function getWindows() {
     const response = ipcRenderer.sendSync('windows');
-    const newVisibleWindows = JSON.parse(response);
-
-    if (window && !newVisibleWindows.find((item) => item.ahk_exe === window)) {
-      newVisibleWindows.unshift({ ahk_exe: window, title: '-', short: '-', error: true });
-    }
-
-    setVisibleWindows(newVisibleWindows);
+    setVisibleWindows(JSON.parse(response));
   }
 
   const withTimeout = (key: string, callback: Function) => {
@@ -137,6 +135,8 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setLoading(true);
+
     const newWindow = store.get('window', '') as string;
     const newOverlay = store.get('overlay', false) as boolean;
     const newActions = store.get('actions', []) as Action[];
