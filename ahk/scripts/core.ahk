@@ -92,9 +92,14 @@ GetText(FromX, FromY, ToX, ToY) {
   }
 
   command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
+
+  prevClip := clipboard
   RunWait, %command%, %dir%, Hide
 
-  Return clipboard
+  response := clipboard
+  clipboard := prevClip
+
+  Return response
 }
 
 GetFile(File, Url := False) {
