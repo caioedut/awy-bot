@@ -84,7 +84,7 @@ MouseRestore() {
   MouseMove, MouseBackupX, MouseBackupY
 }
 
-GetText(FromX, FromY, ToX, ToY) {
+GetText(FromX, FromY, ToX, ToY, WhiteList = false) {
   dir = %A_WorkingDir%\resources\ahk\Capture2Text
 
   If (!FileExist(dir)) {
@@ -92,6 +92,10 @@ GetText(FromX, FromY, ToX, ToY) {
   }
 
   command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
+
+  If (WhiteList) {
+    command := command . " --whitelist " . WhiteList
+  }
 
   prevClip := clipboard
   RunWait, %command%, %dir%, Hide
