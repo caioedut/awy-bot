@@ -91,19 +91,16 @@ GetText(FromX, FromY, ToX, ToY, WhiteList = false) {
     dir = %A_WorkingDir%\ahk\Capture2Text
   }
 
-  command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --clipboard
+  command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --output-file "C:\AwyBotFiles\temp"
 
   If (WhiteList) {
     command := command . " --whitelist " . WhiteList
   }
 
-  prevClip := clipboard
   RunWait, %command%, %dir%, Hide
+  FileRead, Response, C:\AwyBotFiles\temp
 
-  response := clipboard
-  clipboard := prevClip
-
-  Return response
+  Return Response
 }
 
 GetFile(File, Url := False) {
