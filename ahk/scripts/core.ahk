@@ -19,15 +19,8 @@ global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
 Notify(Message, Width = 0) {
-  SplashTextOff
-
-  If (!Width) {
-    Width := StrLen(Message) * 8
-  }
-
-  SplashTextOn, %Width%, , %Message%
-  Sleep, 300
-  SplashTextOff
+  Title := StrReplace(A_ScriptName, ".ahk", "")
+  TrayTip, %Title%, %Message%, 5
 }
 
 HotkeyClear(Key) {

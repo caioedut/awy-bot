@@ -22,6 +22,7 @@ import Fade from '@mui/material/Fade';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
@@ -553,10 +554,39 @@ export default function Home() {
           <Dialog open={Boolean(actionModel)} maxWidth="lg" fullWidth>
             <DialogTitle>Edit Action</DialogTitle>
             <DialogContent>
+              <Box mb={2}>
+                <Box component="b" color="primary.main">
+                  Feel free to use anything from{' '}
+                  <Link href="https://www.autohotkey.com/docs" target="autohotkey">
+                    AutoHotkey.
+                  </Link>
+                  <br />
+                  Some extra functions may be used:
+                </Box>
+                <FnColor
+                  name="xSend"
+                  params="Key, ReleaseKey := Key"
+                  description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
+                />
+                <FnColor name="Notify" params="Message" description="Show a notification on screen." />
+                <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
+                <FnColor
+                  name="SetOverlay"
+                  params={'Key, Value := 1, Session := "Default"'}
+                  description="Add text to Session on Overlay Window."
+                />
+                <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
+                <FnColor name="MouseLock" description="User will be unable to move the mouse." />
+                <FnColor name="MouseRelease" description="User will be able to move the mouse again." />
+                <FnColor name="MouseBackup" description={'Backup cursor position to use with "MouseRestore"'} />
+                <FnColor name="MouseRestore" description={'Restore cursor position stored from "MouseBackup"'} />
+                <FnColor name="GetText" params="FromX, FromY, ToX, ToY" description="Get text from a specific screen position." />
+                <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
+              </Box>
               <TextField
                 disabled={!actionModel?.new}
                 name="label"
-                label="Label"
+                label="Label (must be unique, overrides if not)"
                 value={actionModel?.label ?? ''}
                 sx={{ mt: 1 }}
                 onChange={({ target }) => {
@@ -570,7 +600,7 @@ export default function Home() {
                 multiline
                 name="script"
                 label="Script"
-                rows={30}
+                rows={20}
                 value={actionModel?.script ?? ''}
                 sx={{ mt: 3 }}
                 InputProps={{
@@ -630,3 +660,19 @@ export default function Home() {
     </Fade>
   );
 }
+
+const FnColor = ({ name, params = null, description = null }) => (
+  <Box>
+    <Box component="span" color="info.main">
+      {name}
+    </Box>
+    <Box component="span" color="text.secondary">
+      ({params ?? ''})
+    </Box>
+    {Boolean(description) && (
+      <Box component="span" color="text.disabled" ml={1}>
+        {description}
+      </Box>
+    )}
+  </Box>
+);
