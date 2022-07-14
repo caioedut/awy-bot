@@ -22,11 +22,13 @@ Notify(Message, Width = 0) {
     SplashTextOff
 
     If (!Width) {
-      Width := StrLen(Message) * 10
+      Width := StrLen(Message) * 8
     }
 
-    SplashTextOn, %Width%, , %Message%
-    Sleep, 3000
+    Title := StrReplace(SubStr(A_ScriptName, 4), "_action.ahk", "")
+    SplashTextOn, %Width%, 22, %Title%, %Message%
+
+    Sleep, 2000
     SplashTextOff
 }
 

@@ -19,7 +19,9 @@ export default function actions(e, arg) {
 
   for (const action of actions) {
     const fileName = `lb_${action.label}_action.ahk`;
-    const script = `#Include %A_ScriptDir%\\..\\core.ahk\nSetOverlay("${action.label}", 1, "Actions")\n${action.script || ''}\nReturn`;
+    const script = `#Include %A_ScriptDir%\\..\\core.ahk\nSetOverlay("${action.label}", 1, "Actions")\nPause, On\n#Persistent\n${
+      action.script || ''
+    }\nReturn`;
 
     const file = path.join(dir, `${fileName}`);
     fs.writeFileSync(file, script, { encoding: 'utf-8' });
