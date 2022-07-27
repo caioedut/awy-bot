@@ -18,7 +18,7 @@ global MouseBackupY := 0
 global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
-Notify(Message, Width = 0) {
+Notify(Message, Duration = 500) {
     SplashTextOff
 
     If (!Width) {
@@ -28,7 +28,15 @@ Notify(Message, Width = 0) {
     Title := StrReplace(SubStr(A_ScriptName, 4), "_action.ahk", "")
     SplashTextOn, %Width%, 22, %Title%, %Message%
 
-    Sleep, 2000
+    If (Duration < 100) {
+      Duration := 100
+    }
+
+    If (Duration > 3000) {
+      Duration := 3000
+    }
+
+    Sleep, %Duration%
     SplashTextOff
 }
 
