@@ -18,7 +18,7 @@ Return
   If (pausedByUser) {
     Notify("Paused")
   } Else {
-    Notify("Resumed", 60)
+    Notify("Resumed")
   }
 
   SetOverlay("Paused", pausedByUser)
@@ -88,6 +88,8 @@ PauseSuspendAll(status := True)
 
 	DetectHiddenWindows, %prevDetectWindows%
 	SetTitleMatchMode, %prevMatchMode%
+
+	MouseRelease()
 
 	return script_id
 }
