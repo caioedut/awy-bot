@@ -118,7 +118,7 @@ GetFile(File, Url := False) {
   Destination := "C:\AwyBotFiles\" File
 
   If (!Url) {
-      Url := "https://github.com/caioedut/awy-bot-scripts/raw/main/" StrReplace(File, "\", "/")
+      Url := "https://github.com/maketgoy/awy-bot-scripts/raw/main/" StrReplace(File, "\", "/")
   }
 
   FoundPos := InStr(Destination, "\", , -1)

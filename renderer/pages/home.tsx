@@ -41,7 +41,7 @@ import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;
 
-const gitUrlMain = 'https://api.github.com/repos/caioedut/awy-bot-scripts/git/trees/main';
+const gitUrlMain = 'https://api.github.com/repos/maketgoy/awy-bot-scripts/git/trees/main';
 
 const defaultLocks = [
   { key: 'Win', name: 'Windows' },
