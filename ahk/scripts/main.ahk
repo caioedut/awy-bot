@@ -89,7 +89,7 @@ PauseSuspendAll(status := True)
 	DetectHiddenWindows, %prevDetectWindows%
 	SetTitleMatchMode, %prevMatchMode%
 
-	MouseRelease()
+	BlockInput, Off
 
 	return script_id
 }
