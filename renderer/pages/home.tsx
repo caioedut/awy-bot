@@ -94,7 +94,7 @@ export default function Home() {
 
   // Load/save configs
   const [loading, setLoading] = useState(true);
-  const [settings] = useState([1, 2, 3, 4, 5, 7, 8, 9, 10]);
+  const [settings] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   const [config, setConfig] = useState(settings[0]);
   const store = useMemo(() => Storage.with(config), [config]);
 
