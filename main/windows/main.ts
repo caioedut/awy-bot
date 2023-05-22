@@ -1,5 +1,4 @@
-import { Menu, Tray, app } from 'electron';
-import path from 'path';
+import { app } from 'electron';
 
 import createWindow from '../helpers/create-window';
 
@@ -20,15 +19,6 @@ export default async function main() {
     darkTheme: true,
     backgroundColor: '#333333',
   });
-
-  const tray = new Tray(path.join(__dirname, '..', 'resources', 'icon.ico'));
-
-  tray.setContextMenu(
-    Menu.buildFromTemplate([
-      { label: 'Show', click: () => window.show() },
-      { label: 'Quit', click: () => app.quit() },
-    ]),
-  );
 
   window.setMenuBarVisibility(false);
 

@@ -16,5 +16,7 @@ files:
 
 publish: null
 
+extraFiles: "./resources/icon.ico"
+
 win:
   icon: "resources/icon.ico"

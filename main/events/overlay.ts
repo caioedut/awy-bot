@@ -1,7 +1,7 @@
 import fs from 'fs';
 import ini from 'ini';
 
-export default function overlay(e, arg, windows) {
+export default function overlay(e, arg, views) {
   const body = JSON.parse(arg || '{}');
   const { type, overlay } = body;
 
@@ -16,12 +16,12 @@ export default function overlay(e, arg, windows) {
     return (e.returnValue = JSON.stringify(response));
   }
 
-  if (windows?.overlay) {
+  if (views?.overlay) {
     if (overlay) {
-      windows.overlay.show();
+      views.overlay.show();
     } else {
       // TODO: destroy window to free memory
-      windows.overlay.hide();
+      views.overlay.hide();
       // windows.overlay.destroy();
       // windows.overlay = null;
     }
