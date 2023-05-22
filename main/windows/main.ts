@@ -1,4 +1,5 @@
-import { app } from 'electron';
+import { Menu, Tray, app } from 'electron';
+import path from 'path';
 
 import createWindow from '../helpers/create-window';
 
@@ -20,12 +21,29 @@ export default async function main() {
     backgroundColor: '#333333',
   });
 
+  const tray = new Tray(path.join(__dirname, '..', 'resources', 'icon.ico'));
+
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      { label: 'Show', click: () => window.show() },
+      { label: 'Quit', click: () => app.quit() },
+    ]),
+  );
+
+  window.setMenuBarVisibility(false);
+
   window.webContents.on('before-input-event', (e, input) => {
     if (input.code == 'F4' && input.alt) e.preventDefault();
   });
 
-  window.on('close', app.quit);
-  window.setMenuBarVisibility(false);
+  window.on('close', () => {
+    app.quit();
+  });
+
+  window.on('minimize', function (event) {
+    event.preventDefault();
+    window.hide();
+  });
 
   if (isProd) {
     await window.loadURL('app://./home.html');
