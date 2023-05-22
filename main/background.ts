@@ -39,6 +39,14 @@ const windows = {
     e.returnValue = 'ok';
   });
 
+  // Launch with windows startup
+  if (isProd) {
+    app.setLoginItemSettings({
+      openAtLogin: true,
+      openAsHidden: true,
+    });
+  }
+
   windows.main = await main();
   windows.overlay = await overlay();
 
