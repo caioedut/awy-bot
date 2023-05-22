@@ -368,7 +368,7 @@ export default function Home() {
             </Grid>
             <Grid item xs>
               <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
-                <MenuItem value="">[Select a window]</MenuItem>
+                <MenuItem value="">[ALL WINDOWS]</MenuItem>
                 {visibleWindows.map((win, index) => (
                   <MenuItem key={index} value={win.ahk_exe}>
                     <Box component="b" color={win.error ? 'error.main' : 'info.main'}>

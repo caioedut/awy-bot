@@ -28,10 +28,12 @@ Return
 
 CheckFocus:
 {
-  If (WinActive("ahk_exe" WindowExe) && !pausedByUser) {
-    PauseSuspendAll(False)
-  } Else {
-    PauseSuspendAll(True)
+  If (WindowExe) {
+    If (WinActive("ahk_exe" WindowExe) && !pausedByUser) {
+      PauseSuspendAll(False)
+    } Else {
+      PauseSuspendAll(True)
+    }
   }
 
   Return
@@ -39,10 +41,12 @@ CheckFocus:
 
 CheckOverlay:
 {
-  isWinActive := WinActive("ahk_exe" WindowExe)
+  If (WindowExe) {
+    isWinActive := WinActive("ahk_exe" WindowExe)
 
-  SetOverlay("No Window", WindowExe ? 0 : 1)
-  SetOverlay("Suspended", !WindowExe || isWinActive ? 0 : 1)
+    SetOverlay("No Window", WindowExe ? 0 : 1)
+    SetOverlay("Suspended", !WindowExe || isWinActive ? 0 : 1)
+  }
 
   Return
 }
