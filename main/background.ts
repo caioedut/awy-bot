@@ -1,6 +1,8 @@
 import { app, ipcMain } from 'electron';
 import serve from 'electron-serve';
 
+import tray from './providers/tray';
+import { Views } from './types';
 import main from './windows/main';
 import overlay from './windows/overlay';
 import splash from './windows/splash';
@@ -15,7 +17,8 @@ if (isProd) {
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
-const windows = {
+const views: Views = {
+  tray: null,
   splash: null,
   main: null,
   overlay: null,
@@ -24,16 +27,16 @@ const windows = {
 (async () => {
   await app.whenReady();
 
-  windows.splash = await splash();
+  views.splash = await splash();
 
   ipcMain.on('overlay', (e, arg) => {
-    require('./events/overlay').default(e, arg, windows);
+    require('./events/overlay').default(e, arg, views);
   });
 
   ipcMain.on('overlay-resize', (e, arg) => {
-    if (windows.overlay) {
+    if (views.overlay) {
       const [width, height] = `${arg ?? ''}`.split('|').map(Number);
-      windows.overlay.setContentSize(width, height);
+      views.overlay.setContentSize(width, height);
     }
 
     e.returnValue = 'ok';
@@ -47,11 +50,12 @@ const windows = {
     });
   }
 
-  windows.main = await main();
-  windows.overlay = await overlay();
+  views.main = await main();
+  views.overlay = await overlay();
+  views.tray = await tray(views);
 
-  windows.splash.close();
-  windows.main.show();
+  views.splash.close();
+  views.main.show();
 })();
 
 app.on('window-all-closed', () => {
