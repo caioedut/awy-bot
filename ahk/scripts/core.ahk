@@ -25,7 +25,7 @@ Notify(Message, Duration = 500) {
       Width := StrLen(Message) * 8
     }
 
-    Title := StrReplace(SubStr(A_ScriptName, 4), "_action.ahk", "")
+    Title := StrReplace(SubStr(A_ScriptName, 9), "_action.ahk", "")
     SplashTextOn, %Width%, 22, %Title%, %Message%
 
     If (Duration < 100) {

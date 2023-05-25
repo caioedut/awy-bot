@@ -67,6 +67,7 @@ type Action = {
   script: string;
   enabled?: boolean;
   new?: boolean;
+  changed?: boolean;
 };
 
 export default function Home() {
@@ -129,7 +130,12 @@ export default function Home() {
 
     const newWindow = store.get('window', '') as string;
     const newOverlay = store.get('overlay', false) as boolean;
-    const newActions = store.get('actions', []) as Action[];
+
+    const newActions = (store.get('actions', []) as Action[]).map((item) => {
+      item.changed = true;
+      return item;
+    });
+
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = store.get('bindings', []) as Binding[];
 
@@ -187,7 +193,10 @@ export default function Home() {
     withTimeout('actions', () => {
       const enabled = actions?.filter(({ enabled }) => enabled);
       const data = { window, actions: enabled };
+      console.log(enabled);
       ipcRenderer.sendSync('actions', JSON.stringify(data));
+
+      actions.forEach((action) => delete action.changed);
     });
   }, [window, actions]);
 
@@ -265,7 +274,10 @@ export default function Home() {
   const handleToggleAction = (label) => {
     setActions((current) => {
       const index = current.findIndex((item) => item.label === label);
+
+      current[index].changed = true;
       current[index].enabled = !current[index].enabled;
+
       return [...current];
     });
   };
@@ -289,6 +301,8 @@ export default function Home() {
 
     setActions((current) => {
       const model = current.find(({ label }) => label === data.label);
+
+      data.changed = true;
 
       if (model) {
         Object.assign(model, data);
