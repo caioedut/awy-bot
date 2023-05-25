@@ -1,25 +1,23 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import EditIcon from '@mui/icons-material/Edit';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import TextField, { TextFieldProps } from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
+import { InputProps } from '@react-bulk/core';
+import { Button, Input, Tooltip } from '@react-bulk/web';
 
-type HotkeyProps = TextFieldProps & {
+type HotkeyProps = {
   value: string;
-  allowMouse?: boolean;
   defaultValue?: string;
-};
+  error?: string | boolean;
+} & Omit<InputProps, 'value' | 'defaultValue' | 'error'>;
 
 function Hotkey(props: HotkeyProps) {
-  const { onChange, value, allowMouse, defaultValue, ...rest } = props;
+  const { onChange, value, defaultValue, error, ...rest } = props;
 
   const keysRef = useRef([]);
   const inputRef = useRef(null);
+  const hotkeyBackupRef = useRef<string>('');
 
   const [hotkey, setHotkey] = useState<string>(value ?? defaultValue ?? '');
-  const [editing, toggleEditing] = useReducer((state) => !state, false);
+  const [editing, setEditing] = useState(false);
 
   const modifiers = {
     altKey: 'ALT',
@@ -33,12 +31,24 @@ function Hotkey(props: HotkeyProps) {
   }, [value]);
 
   useEffect(() => {
-    inputRef.current.focus();
+    if (editing) {
+      inputRef.current.focus();
+    } else {
+      inputRef.current.blur();
+    }
   }, [editing]);
 
-  const handleMouse = (e) => {
-    if (!editing || !allowMouse) return;
+  function getModifiersStatus(e) {
+    const result = {};
 
+    for (const modifier of Object.keys(modifiers)) {
+      result[modifier] = e[modifier] ?? false;
+    }
+
+    return result;
+  }
+
+  const handleMouse = (e) => {
     const buttons = {
       0: 'LButton',
       1: 'MButton',
@@ -47,13 +57,17 @@ function Hotkey(props: HotkeyProps) {
       4: 'XButton2',
     };
 
-    handleKeyDown({ key: buttons[e.button] });
+    handleKeyDown({
+      ...getModifiersStatus(e),
+      key: buttons[e.button],
+    });
   };
 
   const handleWheel = (e) => {
-    if (!editing || !allowMouse) return;
-
-    handleKeyDown({ key: e.deltaY < 0 ? 'WheelUp' : 'WheelDown' });
+    handleKeyDown({
+      ...getModifiersStatus(e),
+      key: e.deltaY < 0 ? 'WheelUp' : 'WheelDown',
+    });
   };
 
   const handleKeyDown = (e) => {
@@ -100,6 +114,12 @@ function Hotkey(props: HotkeyProps) {
     }
   };
 
+  const handleFocus = () => {
+    hotkeyBackupRef.current = hotkey ?? '';
+    setHotkey('');
+    setEditing(true);
+  };
+
   const handleChange = (e) => {
     if (!editing) return;
 
@@ -115,43 +135,50 @@ function Hotkey(props: HotkeyProps) {
       }
     }
 
+    // Reset value
     if (!split.length) {
-      setHotkey('');
+      setHotkey(hotkeyBackupRef.current);
     }
 
     if (typeof onChange === 'function') {
-      onChange(e);
+      onChange(e, null);
     }
 
-    toggleEditing();
+    setEditing(false);
   };
 
   return (
-    <TextField
+    <Input
+      ref={inputRef}
       {...rest}
-      inputRef={inputRef}
-      disabled={!editing}
+      readOnly
       autoFocus={editing}
       value={`${hotkey || ''}`.toUpperCase()}
+      error={error as any}
+      placeholder={editing ? `Press any key (current: ${hotkeyBackupRef.current.toUpperCase() || 'NONE'})` : 'Click to edit'}
+      onFocus={handleFocus}
+      onBlur={handleChange}
       onMouseDown={handleMouse}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
-      onBlur={handleChange}
       onWheel={handleWheel}
-      InputProps={{
-        readOnly: true,
-        endAdornment: (
-          <InputAdornment position="end">
-            {!editing && (
-              <Tooltip title="Edit">
-                <IconButton color="primary" edge="end" onClick={toggleEditing}>
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
-          </InputAdornment>
-        ),
-      }}
+      endAddon={
+        <>
+          {!editing && (
+            <Tooltip title="Edit">
+              <Button
+                variant="text"
+                circular
+                mr={-2}
+                onClick={handleFocus}
+                style={{ cursor: 'pointer !important', '& *': { cursor: 'pointer !important' } }}
+              >
+                ✎
+              </Button>
+            </Tooltip>
+          )}
+        </>
+      }
     />
   );
 }
