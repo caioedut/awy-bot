@@ -15,16 +15,10 @@
     "dot-object": "^2.1.4",
     "electron-serve": "^1.1.0",
     "electron-store": "^8.0.1",
-    "ini": "^3.0.0"
+    "ini": "^3.0.0",
+    "keycode": "^2.2.1"
   },
   "devDependencies": {
-    "@emotion/react": "^11.8.1",
-    "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.5.0",
-    "@mui/lab": "^5.0.0-alpha.72",
-    "@mui/material": "^5.5.0",
-    "@mui/styles": "^5.6.2",
-    "@mui/system": "^5.5.0",
     "@react-bulk/core": "0.3.1",
     "@react-bulk/web": "0.3.1",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",

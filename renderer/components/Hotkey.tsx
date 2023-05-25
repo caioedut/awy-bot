@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { InputProps } from '@react-bulk/core';
 import { Button, Input, Tooltip } from '@react-bulk/web';
+import getKeyName from 'keycode';
+
+import Icon from './Icon';
 
 type HotkeyProps = {
   value: string;
@@ -91,7 +94,7 @@ function Hotkey(props: HotkeyProps) {
       key = 'Space';
     }
 
-    let newHotkey = Object.values(modifiers).includes(key.toUpperCase()) ? '' : key;
+    let newHotkey = Object.values(modifiers).includes(key.toUpperCase()) ? '' : getKeyName(keyCode);
 
     for (const modifier in modifiers) {
       if (e[modifier]) {
@@ -173,7 +176,7 @@ function Hotkey(props: HotkeyProps) {
                 onClick={handleFocus}
                 style={{ cursor: 'pointer !important', '& *': { cursor: 'pointer !important' } }}
               >
-                ✎
+                <Icon name="Edit" />
               </Button>
             </Tooltip>
           )}

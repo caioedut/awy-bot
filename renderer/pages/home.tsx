@@ -18,13 +18,13 @@ import {
   Text,
   Tooltip,
 } from '@react-bulk/web';
-import axios from 'axios';
 import * as dot from 'dot-object';
 import electron from 'electron';
 import Head from 'next/head';
 
 import GitHubRepository, { GitHubFile } from '../components/GitHubRepository';
 import Hotkey from '../components/Hotkey';
+import Icon from '../components/Icon';
 import Panel from '../components/Panel';
 import Title from '../components/Title';
 import ArrayHelper from '../helpers/ArrayHelper';
@@ -32,10 +32,8 @@ import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;
 
-const gitUrlMain = 'https://api.github.com/repos/maketgoy/awy-bot-scripts/git/trees/main';
-
 const defaultLocks = [
-  { key: 'Win', name: 'Windows' },
+  { key: 'Win', name: 'Meta (Windows Key)' },
   { key: 'PrintScreen', name: 'Print Screen' },
   { key: 'NumLock', name: 'NumLock' },
   { key: 'CapsLock', name: 'CapsLock' },
@@ -85,9 +83,6 @@ export default function Home() {
   // Collections
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
 
-  // Script repository
-  const [repositoryFiles, setRepositoryFiles] = useState(null);
-
   // Models
   const [overlay, setOverlay] = useState(false);
   const [window, setWindow] = useState('');
@@ -103,10 +98,6 @@ export default function Home() {
   // Forms
   const [bindingError, setBindingError] = useState(false);
   const [actionError, setActionError] = useState(false);
-
-  // if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
-  //   bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
-  // }
 
   if (!loading && window && !visibleWindows.find((item) => item.ahk_exe === window)) {
     visibleWindows.unshift({ ahk_exe: window, title: '-', short: '-', error: true });
@@ -201,6 +192,10 @@ export default function Home() {
   }, [window, actions]);
 
   const handleResetConfig = () => {
+    if (!global.confirm('Are you sure you want to reset settings number 1?')) {
+      return;
+    }
+
     store.clear();
     setWindow('');
     setActions([]);
@@ -209,10 +204,12 @@ export default function Home() {
     setBindings([]);
   };
 
-  const handleLock = (index, lock = true) => {
-    const newLocks = [...locks];
-    newLocks[index].lock = lock;
-    setLocks(newLocks);
+  const handleToggleLock = (key) => {
+    setLocks((current) => {
+      const index = current.findIndex((item) => item.key === key);
+      current[index].lock = !current[index].lock;
+      return [...current];
+    });
   };
 
   function handleEditBinding(key?: string) {
@@ -247,24 +244,14 @@ export default function Home() {
   }
 
   function handleDeleteBinding(key) {
+    if (!global.confirm(`Are you sure you want to remove binding for key "${key}"?`)) {
+      return;
+    }
+
     setBindings((current) => {
       return current.filter((item) => item.key !== key);
     });
   }
-
-  // const handleBinding = (index) => {
-  //   const item = bindings[index];
-  //   const data = getData(index);
-  //
-  //   const newBindings = [...bindings];
-  //   newBindings[index] = { ...item, ...data } as Binding;
-  //
-  //   if (!data.key && !data.sequence.length) {
-  //     newBindings.splice(index, 1);
-  //   }
-  //
-  //   setBindings(newBindings);
-  // };
 
   const handleChangeGithub = (file: GitHubFile) => {
     const buffer = new Buffer(file.content, 'base64');
@@ -275,45 +262,22 @@ export default function Home() {
     setBrowseRep(false);
   };
 
-  const handleRepository = async (git: { type: string; path: string; url: string } = null) => {
-    git = git || {
-      type: 'tree',
-      path: 'Root',
-      url: gitUrlMain,
-    };
-
-    if (git.type === 'tree') {
-      const { data } = await axios.get(git.url);
-      const files = data.tree.map(({ type, path, url }) => ({ type, path, url }));
-      return setRepositoryFiles(files);
-    }
-
-    const { data } = await axios.get(git.url);
-    const buffer = new Buffer(data.content, 'base64');
-
-    const label = git.path.replace(/\.ahk$/, '');
-    const script = buffer.toString('ascii');
-
-    setRepositoryFiles(null);
-    setActionModel({ label, script });
-  };
-
   const handleToggleAction = (label) => {
-    const newActions = [...actions];
-
-    const index = newActions.findIndex((item) => item.label === label);
-    newActions[index].enabled = !newActions[index].enabled;
-
-    setActions(newActions);
+    setActions((current) => {
+      const index = current.findIndex((item) => item.label === label);
+      current[index].enabled = !current[index].enabled;
+      return [...current];
+    });
   };
 
   const handleDeleteAction = (label) => {
-    const newActions = [...actions];
+    if (!global.confirm(`Are you sure you want to remove action "${label}"?`)) {
+      return;
+    }
 
-    const index = newActions.findIndex((item) => item.label === label);
-    newActions.splice(index, 1);
-
-    setActions(newActions);
+    setActions((current) => {
+      return current.filter((item) => item.label !== label);
+    });
   };
 
   const handleSaveAction = (e: FormRef, data: any) => {
@@ -359,14 +323,14 @@ export default function Home() {
               ))}
             </ButtonGroup>
             <Box ml={3}>
-              <Tooltip title="Reset current settings" position="left">
-                <Button variant="outline" color="red" onPress={handleResetConfig}>
-                  🗑
-                </Button>
-              </Tooltip>
+              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
             </Box>
             <Box ml={3}>
-              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
+              <Tooltip title="Reset current settings" position="left">
+                <Button variant="outline" color="red" onPress={handleResetConfig}>
+                  <Icon name="Trash" color="error" />
+                </Button>
+              </Tooltip>
             </Box>
           </Box>
 
@@ -401,13 +365,41 @@ export default function Home() {
             </Box>
             <Box ml={3} align="end">
               <Tooltip title="Refresh">
-                <Button onPress={getWindows}>⟳</Button>
+                <Button onPress={getWindows}>
+                  <Icon name="Refresh" color="white" />
+                </Button>
               </Tooltip>
             </Box>
           </Box>
         </Panel>
 
-        <Panel title={`Key Bindings (${bindings.length})`} mt={3}>
+        <Panel title={`Key Locks (${locks.filter(({ lock }) => lock).length}/${locks.length})`} initialExpanded={false} mt={3}>
+          {locks.map((item, index) => (
+            <Box key={item.key}>
+              {index > 0 && <Divider mx={-3} my={3} />}
+
+              <Box row noWrap center>
+                <Box>
+                  <Tooltip title={item.lock ? 'Click to turn off' : 'Click to turn on'} position="right">
+                    <Button
+                      size="small"
+                      variant={item.lock ? 'solid' : 'outline'}
+                      color={item.lock ? 'success' : 'error'}
+                      onPress={() => handleToggleLock(item.key)}
+                    >
+                      {item.lock ? 'ON' : 'OFF'}
+                    </Button>
+                  </Tooltip>
+                </Box>
+                <Text bold flex mx={3}>
+                  {item.name}
+                </Text>
+              </Box>
+            </Box>
+          ))}
+        </Panel>
+
+        <Panel title={`Key Bindings (${bindings.length})`} initialExpanded={false} mt={3}>
           {bindings.map((item, index) => (
             <Box key={index}>
               <Box row noWrap>
@@ -443,7 +435,7 @@ export default function Home() {
                 <Box ml={1.5}>
                   <Tooltip title="Edit" position="left">
                     <Button variant="outline" size="small" onPress={() => handleEditBinding(item.key)}>
-                      ✎
+                      <Icon name="Edit" />
                     </Button>
                   </Tooltip>
                 </Box>
@@ -451,7 +443,7 @@ export default function Home() {
                 <Box ml={1.5}>
                   <Tooltip title="Remove" position="left">
                     <Button variant="outline" size="small" color="error" onPress={() => handleDeleteBinding(item.key)}>
-                      🗑
+                      <Icon name="Trash" color="error" />
                     </Button>
                   </Tooltip>
                 </Box>
@@ -464,7 +456,11 @@ export default function Home() {
           <Button onPress={handleEditBinding}>Add New Binding</Button>
         </Panel>
 
-        <Panel title={`Advanced Scripts (${actions.length})`} mt={3}>
+        <Panel
+          title={`Advanced Scripts (${actions.filter(({ enabled }) => enabled).length}/${actions.length})`}
+          initialExpanded={false}
+          mt={3}
+        >
           {actions.map((item) => (
             <Box key={item.label}>
               <Box row noWrap center>
@@ -489,14 +485,14 @@ export default function Home() {
                 <Box ml={1.5}>
                   <Tooltip title="Edit" position="left">
                     <Button variant="outline" size="small" onClick={() => setActionModel(item)}>
-                      ✎
+                      <Icon name="Edit" />
                     </Button>
                   </Tooltip>
                 </Box>
                 <Box ml={1.5}>
                   <Tooltip title="Remove" position="left">
                     <Button variant="outline" size="small" color="error" onClick={() => handleDeleteAction(item.label)}>
-                      🗑
+                      <Icon name="Trash" color="error" />
                     </Button>
                   </Tooltip>
                 </Box>
@@ -622,6 +618,7 @@ export default function Home() {
             name="label"
             label="Label (must be unique, overrides if not)"
             value={actionModel?.label}
+            error={actionError ? 'Required' : null}
             mask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
             unmask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
           />
