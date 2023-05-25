@@ -1,42 +1,36 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { FormRef } from '@react-bulk/core';
+import {
+  Badge,
+  Box,
+  Button,
+  ButtonGroup,
+  Checkbox,
+  Divider,
+  Form,
+  Grid,
+  Input,
+  Link,
+  Loading,
+  Modal,
+  Scrollable,
+  Select,
+  Text,
+  Tooltip,
+} from '@react-bulk/web';
 import axios from 'axios';
+import * as dot from 'dot-object';
 import electron from 'electron';
 import Head from 'next/head';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import IntegrationInstructionsOutlinedIcon from '@mui/icons-material/IntegrationInstructionsOutlined';
-import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import Fade from '@mui/material/Fade';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
-import Link from '@mui/material/Link';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Switch from '@mui/material/Switch';
-import TextField from '@mui/material/TextField';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
+import MuiBox from '@mui/material/Box';
 
+import GitHubRepository, { GitHubFile } from '../components/GitHubRepository';
 import Hotkey from '../components/Hotkey';
-import Loading from '../components/Loading';
-import Section from '../components/Section';
+import Panel from '../components/Panel';
+import Title from '../components/Title';
 import ArrayHelper from '../helpers/ArrayHelper';
-import TextHelper from '../helpers/TextHelper';
 import Storage from '../providers/storage';
 
 const ipcRenderer = electron.ipcRenderer;
@@ -49,14 +43,6 @@ const defaultLocks = [
   { key: 'NumLock', name: 'NumLock' },
   { key: 'CapsLock', name: 'CapsLock' },
   { key: 'ScrollLock', name: 'ScrollLock' },
-];
-
-const defaultBindings: Binding[] = [
-  { group: 'mouse', key: 'MButton', sequence: [], delay: [0, 0], name: 'Mouse Middle' },
-  { group: 'mouse', key: 'XButton1', sequence: [], delay: [0, 0], name: 'Mouse X1' },
-  { group: 'mouse', key: 'XButton2', sequence: [], delay: [0, 0], name: 'Mouse X2' },
-  { group: 'mouse', key: 'WheelUp', sequence: [], delay: [0, 0], name: 'Scroll Up' },
-  { group: 'mouse', key: 'WheelDown', sequence: [], delay: [0, 0], name: 'Scroll Down' },
 ];
 
 type Window = {
@@ -89,7 +75,8 @@ type Action = {
 };
 
 export default function Home() {
-  const formRef = useRef(null);
+  const formBindingRef = useRef<FormRef>();
+  const formActionRef = useRef<FormRef>();
   const timeoutRef = useRef({});
 
   // Load/save configs
@@ -112,20 +99,26 @@ export default function Home() {
   const [actions, setActions] = useState<Action[]>([]);
 
   // Components
-  const [actionModel, setActionModel] = useState<Action>(null);
+  const [browseRep, setBrowseRep] = useState(false);
+  const [actionModel, setActionModel] = useState<Action>();
+  const [bindingModel, setBindingModel] = useState<Binding>();
 
-  if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
-    bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
-  }
+  // Forms
+  const [bindingError, setBindingError] = useState(false);
+  const [actionError, setActionError] = useState(false);
+
+  // if (!bindings.find((item) => !item?.key && !item?.sequence?.length)) {
+  //   bindings.push({ group: 'keyboard', key: '', sequence: [], delay: [0, 0] });
+  // }
 
   if (!loading && window && !visibleWindows.find((item) => item.ahk_exe === window)) {
     visibleWindows.unshift({ ahk_exe: window, title: '-', short: '-', error: true });
   }
 
-  function getWindows() {
+  const getWindows = useCallback(() => {
     const response = ipcRenderer.sendSync('windows');
     setVisibleWindows(JSON.parse(response));
-  }
+  }, []);
 
   const withTimeout = (key: string, callback: Function) => {
     if (timeoutRef.current?.[key]) {
@@ -136,13 +129,21 @@ export default function Home() {
   };
 
   useEffect(() => {
+    global.addEventListener('focus', getWindows);
+
+    return () => {
+      global.removeEventListener('focus', getWindows);
+    };
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
 
     const newWindow = store.get('window', '') as string;
     const newOverlay = store.get('overlay', false) as boolean;
     const newActions = store.get('actions', []) as Action[];
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
-    const newBindings = [...(store.get('bindings', []) as Binding[]), ...defaultBindings];
+    const newBindings = store.get('bindings', []) as Binding[];
 
     setWindow(newWindow);
     setOverlay(newOverlay);
@@ -202,51 +203,13 @@ export default function Home() {
     });
   }, [window, actions]);
 
-  const getNumber = (value) => {
-    value = Number(value || 0);
-    return isNaN(value) ? 0 : value;
-  };
-
-  const getSequence = (index) => {
-    return [
-      formRef.current[`${index}.sequence.0`]?.value,
-      formRef.current[`${index}.sequence.1`]?.value,
-      formRef.current[`${index}.sequence.2`]?.value,
-    ].filter(Boolean);
-  };
-
-  const getDelay = (index) => {
-    return [
-      // Force numeric values
-      getNumber(formRef.current[`${index}.delay.0`]?.value),
-      getNumber(formRef.current[`${index}.delay.1`]?.value),
-    ].map(Number);
-  };
-
-  const getData = (index) => {
-    return {
-      key: formRef.current[`${index}.key`]?.value,
-      sequence: getSequence(index),
-      delay: getDelay(index),
-      loop: Boolean(formRef.current[`${index}.loop`]?.checked),
-    };
-  };
-
-  const handleChangeWindow = (e: SelectChangeEvent) => {
-    setWindow(e.target.value as string);
-  };
-
-  const handleChangeConfig = (e: React.MouseEvent<HTMLElement>, value: number) => {
-    setConfig(value || config);
-  };
-
   const handleResetConfig = () => {
     store.clear();
     setWindow('');
     setActions([]);
     setOverlay(false);
     setLocks(defaultLocks);
-    setBindings(defaultBindings);
+    setBindings([]);
   };
 
   const handleLock = (index, lock = true) => {
@@ -255,40 +218,64 @@ export default function Home() {
     setLocks(newLocks);
   };
 
-  const handleKeyDownDelay = (index, e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-    }
+  function handleEditBinding(key?: string) {
+    formBindingRef.current.clear();
+    const model = bindings.find((item) => item.key === key);
+    setBindingModel(model ?? ({} as Binding));
+  }
 
-    if (e.key === 'Escape') {
-      e.target.value = '0';
-      e.target.blur();
-      handleBinding(index);
-    }
-  };
+  function handleSaveBinding(e: FormRef, data: any) {
+    dot.object(data);
 
-  const handleBinding = (index) => {
-    const item = bindings[index];
-    const data = getData(index);
+    const hasError = !data.key || !data.sequence?.[0];
+    setBindingError(hasError);
+    if (hasError) return;
 
-    const newBindings = [...bindings];
-    newBindings[index] = { ...item, ...data } as Binding;
+    setBindings((current) => {
+      const model = current.find(({ key }) => key === data.key);
 
-    if (!data.key && !data.sequence.length) {
-      newBindings.splice(index, 1);
-    }
+      data.sequence = data.sequence.filter(Boolean);
+      data.delay = data.delay.filter(Boolean).map(Number);
 
-    setBindings(newBindings);
-  };
+      if (model) {
+        Object.assign(model, data);
+      } else {
+        current.push(data);
+      }
 
-  const handleDelete = (index) => {
-    const newBindings = [...bindings];
-    newBindings.splice(index, 1);
-    setBindings(newBindings);
-  };
+      return [...current];
+    });
 
-  const handleOverlay = () => {
-    setOverlay((current) => !current);
+    setBindingModel(null);
+  }
+
+  function handleDeleteBinding(key) {
+    setBindings((current) => {
+      return current.filter((item) => item.key !== key);
+    });
+  }
+
+  // const handleBinding = (index) => {
+  //   const item = bindings[index];
+  //   const data = getData(index);
+  //
+  //   const newBindings = [...bindings];
+  //   newBindings[index] = { ...item, ...data } as Binding;
+  //
+  //   if (!data.key && !data.sequence.length) {
+  //     newBindings.splice(index, 1);
+  //   }
+  //
+  //   setBindings(newBindings);
+  // };
+
+  const handleChangeGithub = (file: GitHubFile) => {
+    const buffer = new Buffer(file.content, 'base64');
+    const label = file.path.replace(/\.ahk$/, '');
+    const script = buffer.toString('ascii');
+
+    setActionModel({ label, script });
+    setBrowseRep(false);
   };
 
   const handleRepository = async (git: { type: string; path: string; url: string } = null) => {
@@ -332,347 +319,341 @@ export default function Home() {
     setActions(newActions);
   };
 
-  const handleSaveAction = () => {
-    const newActions = [...actions];
-    const model = actions.find(({ label }) => label === actionModel.label);
+  const handleSaveAction = (e: FormRef, data: any) => {
+    dot.object(data);
 
-    if (model) {
-      Object.assign(model, actionModel);
-    } else {
-      newActions.push(actionModel);
-    }
+    const hasError = !`${data.label || ''}`.trim();
+    setActionError(hasError);
+    if (hasError) return;
 
-    setActions([...newActions]);
-    setActionModel(null);
+    setActions((current) => {
+      const model = current.find(({ label }) => label === data.label);
+
+      if (model) {
+        Object.assign(model, data);
+      } else {
+        current.push(data);
+      }
+
+      return [...current];
+    });
+
+    setActionModel(undefined);
   };
 
-  const groups = ArrayHelper.groupBy(bindings, 'group');
-
   if (loading) {
-    return <Loading />;
+    return <Loading size={6} h="100vh" />;
   }
 
   return (
-    <Fade in={!loading}>
-      <Box p={2}>
+    <>
+      <Box p={3}>
         <Head>
           <title>Awy Bot</title>
         </Head>
 
-        <form ref={formRef}>
-          <Section title="Application">
-            <Grid item xs={2}>
-              <Typography variant="body2">
-                <b>Window</b>
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <Select value={window ?? ''} onChange={handleChangeWindow} autoFocus>
-                <MenuItem value="">[ALL WINDOWS]</MenuItem>
-                {visibleWindows.map((win, index) => (
-                  <MenuItem key={index} value={win.ahk_exe}>
-                    <Box component="b" color={win.error ? 'error.main' : 'info.main'}>
-                      [{win.ahk_exe.toLowerCase()}]
-                    </Box>
-                    :&nbsp;&nbsp;{win.short}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Grid>
-            <Box height={44} />
-            <Grid item width={52}>
+        <Panel title="Settings">
+          <Box row noWrap>
+            <ButtonGroup flex>
+              {settings.map((item) => (
+                <Button key={item} variant={config === item ? 'solid' : 'outline'} px={3} onPress={() => setConfig(item)}>
+                  {item}
+                </Button>
+              ))}
+            </ButtonGroup>
+            <Box ml={3}>
+              <Tooltip title="Reset current settings" position="left">
+                <Button variant="outline" color="red" onPress={handleResetConfig}>
+                  🗑
+                </Button>
+              </Tooltip>
+            </Box>
+            <Box ml={3}>
+              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
+            </Box>
+          </Box>
+
+          <Box row noWrap mt={3}>
+            <Box flex>
+              <Select
+                name="window"
+                label="Window"
+                value={window}
+                onChange={(e, value) => setWindow(value)}
+                options={
+                  [
+                    { value: '', label: '-- ALL --' },
+                    ...ArrayHelper.uniqueBy(visibleWindows, 'ahk_exe').map((win) => ({
+                      value: win.ahk_exe,
+                      label: (
+                        <Box row noWrap>
+                          <Text bold color={win.error ? 'error' : 'info'}>
+                            [{win.ahk_exe.toLowerCase()}]
+                          </Text>
+                          <Text flex ml={2}>
+                            {win.short.substring(0, 60)}
+                            {win.short.length > 60 ? ' ...' : ''}
+                          </Text>
+                          {win.error && <Badge color="error">not running</Badge>}
+                        </Box>
+                      ),
+                    })),
+                  ] as any[]
+                }
+              />
+            </Box>
+            <Box ml={3} align="end">
               <Tooltip title="Refresh">
-                <IconButton onClick={getWindows}>
-                  <RefreshIcon color="primary" />
-                </IconButton>
+                <Button onPress={getWindows}>⟳</Button>
               </Tooltip>
-            </Grid>
-            <Box width="100%" />
-            <Grid item xs={2}>
-              <Typography variant="body2">
-                <b>Settings</b>
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <ToggleButtonGroup exclusive value={config} color="primary" onChange={handleChangeConfig} sx={{ display: 'flex' }}>
-                {settings.map((item) => (
-                  <ToggleButton key={item} value={item} sx={{ flex: 1 }}>
-                    <Box component="b" my={-0.2}>
-                      {item}
+            </Box>
+          </Box>
+        </Panel>
+
+        <Panel title={`Key Bindings (${bindings.length})`} mt={3}>
+          {bindings.map((item, index) => (
+            <Box key={index}>
+              <Box row noWrap>
+                <Box row flex alignItems="center">
+                  <Text bold>WHEN</Text>
+
+                  <Badge color="primary" mx={3}>
+                    {item.name ?? item.key}
+                  </Badge>
+
+                  <Text bold>THEN</Text>
+
+                  {item.sequence.map((key, index) => (
+                    <Box key={index} row noWrap>
+                      {index > 0 && <Text ml={3}>⟶</Text>}
+
+                      <Badge color="info" ml={3}>
+                        {key}
+                      </Badge>
+
+                      {Boolean(item?.delay?.[index]) && (
+                        <>
+                          <Text ml={3}>⟶</Text>
+                          <Badge color="warning.dark" ml={3}>
+                            wait {item.delay[index]}ms
+                          </Badge>
+                        </>
+                      )}
                     </Box>
-                  </ToggleButton>
-                ))}
-              </ToggleButtonGroup>
-            </Grid>
-            <Box height={44} />
-            <Grid item width={52}>
-              <Tooltip title="Reset current">
-                <IconButton onClick={handleResetConfig}>
-                  <PlaylistRemoveIcon color="primary" />
-                </IconButton>
-              </Tooltip>
-            </Grid>
-            <Box width="100%" />
-            <Grid item xs={2}>
-              <Typography variant="body2">
-                <b>Overlay</b>
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <Switch checked={overlay} onChange={handleOverlay} />
-            </Grid>
-            <Box height={44} />
-          </Section>
+                  ))}
+                </Box>
 
-          <Box mt={2}>
-            <Section title="Actions" justifyContent="initial">
-              {actions.map((item) => (
-                <Grid item key={item.label}>
-                  <ButtonGroup variant="outlined">
-                    <Button
-                      variant={item.enabled ? 'contained' : 'outlined'}
-                      sx={{ textTransform: 'none' }}
-                      onClick={() => handleToggleAction(item.label)}
-                    >
-                      [{item.enabled ? 'ON' : 'OFF'}] {item.label}
+                <Box ml={1.5}>
+                  <Tooltip title="Edit" position="left">
+                    <Button variant="outline" size="small" onPress={() => handleEditBinding(item.key)}>
+                      ✎
                     </Button>
-                    <Button onClick={() => setActionModel(item)}>
-                      <EditIcon fontSize="small" />
+                  </Tooltip>
+                </Box>
+
+                <Box ml={1.5}>
+                  <Tooltip title="Remove" position="left">
+                    <Button variant="outline" size="small" color="error" onPress={() => handleDeleteBinding(item.key)}>
+                      🗑
                     </Button>
-                    <Button>
-                      <DeleteIcon fontSize="small" onClick={() => handleDeleteAction(item.label)} />
-                    </Button>
-                  </ButtonGroup>
-                </Grid>
-              ))}
-              <Grid item>
-                <Button variant="outlined" onClick={() => setActionModel({ label: '', script: '', new: true })}>
-                  Create New
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="contained" onClick={() => handleRepository()}>
-                  Browse Repository
-                </Button>
-              </Grid>
-            </Section>
-          </Box>
+                  </Tooltip>
+                </Box>
+              </Box>
 
-          <Box mt={2}>
-            <Section title="Lock">
-              {locks.map((item, index) => (
-                <Grid item key={item.key}>
-                  <FormControlLabel
-                    label={item.name}
-                    control={
-                      <input //
-                        type="checkbox"
-                        checked={item.lock ?? false}
-                        onChange={(e) => handleLock(index, e.target.checked)}
-                      />
-                    }
-                  />
-                </Grid>
-              ))}
-            </Section>
-          </Box>
-
-          {groups.map(({ key, title, data }) => (
-            <Box key={key} mt={2}>
-              <Section title={TextHelper.capitalize(title)}>
-                {data.map((item) => {
-                  const index = bindings.indexOf(item);
-
-                  return (
-                    <React.Fragment key={index}>
-                      <Grid item xs={2} sx={{ position: 'relative' }}>
-                        {item.name ? (
-                          <Typography variant="body2">
-                            <b>{item.name}</b>
-                          </Typography>
-                        ) : (
-                          <Tooltip title="Delete">
-                            <IconButton sx={{ position: 'absolute', top: 12, left: -22 }} onClick={() => handleDelete(index)}>
-                              <DeleteIcon color="primary" fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        <Hotkey
-                          name={`${index}.key`}
-                          value={item.key ?? ''}
-                          label="Trigger key"
-                          onChange={() => handleBinding(index)}
-                          sx={{ display: item.name ? 'none' : 'block' }}
-                        />
-                      </Grid>
-                      <Grid item xs={1}>
-                        <FormControlLabel
-                          label="Loop"
-                          control={
-                            <input
-                              type="checkbox"
-                              name={`${index}.loop`}
-                              checked={item.loop ?? false}
-                              disabled={!item.key}
-                              onChange={() => handleBinding(index)}
-                            />
-                          }
-                        />
-                      </Grid>
-                      {[0, 1, 2].map((keyNumber) => (
-                        <React.Fragment key={keyNumber}>
-                          <Grid item xs={2}>
-                            <Hotkey
-                              allowMouse
-                              name={`${index}.sequence.${keyNumber}`}
-                              value={item.sequence?.[keyNumber] ?? ''}
-                              label={`Key ${keyNumber + 1}`}
-                              onChange={() => handleBinding(index)}
-                            />
-                          </Grid>
-                          {keyNumber < 2 && (
-                            <Grid item xs={1}>
-                              <TextField //
-                                name={`${index}.delay.${keyNumber}`}
-                                value={item.delay?.[keyNumber] ?? ''}
-                                label="Delay"
-                                onChange={() => handleBinding(index)}
-                                onKeyDown={(e) => handleKeyDownDelay(index, e)}
-                              />
-                            </Grid>
-                          )}
-                        </React.Fragment>
-                      ))}
-                      <Grid item xs={12} />
-                    </React.Fragment>
-                  );
-                })}
-              </Section>
+              <Divider mx={-3} my={3} />
             </Box>
           ))}
 
-          <Dialog open={Boolean(actionModel)} maxWidth="lg" fullWidth>
-            <DialogTitle>Edit Action</DialogTitle>
-            <DialogContent>
-              <Box mb={2}>
-                <Box component="b" color="primary.main">
-                  Feel free to use anything from{' '}
-                  <Link href="https://www.autohotkey.com/docs" target="autohotkey">
-                    AutoHotkey.
-                  </Link>
-                  <br />
-                  Some extra functions may be used:
-                </Box>
-                <FnColor
-                  name="xSend"
-                  params="Key, ReleaseKey := Key"
-                  description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
-                />
-                <FnColor name="Notify" params="Message" description="Show a notification on screen." />
-                <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
-                <FnColor
-                  name="SetOverlay"
-                  params={'Key, Value := 1, Session := "Default"'}
-                  description="Add text to Session on Overlay Window."
-                />
-                <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
-                <FnColor name="MouseLock" description="User will be unable to move the mouse." />
-                <FnColor name="MouseRelease" description="User will be able to move the mouse again." />
-                <FnColor name="MouseBackup" description={'Backup cursor position to use with "MouseRestore"'} />
-                <FnColor name="MouseRestore" description={'Restore cursor position stored from "MouseBackup"'} />
-                <FnColor name="GetText" params="FromX, FromY, ToX, ToY" description="Get text from a specific screen position." />
-                <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
-              </Box>
-              <TextField
-                disabled={!actionModel?.new}
-                name="label"
-                label="Label (must be unique, overrides if not)"
-                value={actionModel?.label ?? ''}
-                sx={{ mt: 1 }}
-                onChange={({ target }) => {
-                  setActionModel((current) => ({
-                    ...current,
-                    [target.name]: target.value.replace(/\W/g, ''),
-                  }));
-                }}
-              />
-              <TextField
-                multiline
-                name="script"
-                label="Script"
-                rows={20}
-                value={actionModel?.script ?? ''}
-                sx={{ mt: 3 }}
-                InputProps={{
-                  sx: { fontFamily: 'monospace', fontSize: 12 },
-                }}
-                onChange={({ target }) => {
-                  setActionModel((current) => ({
-                    ...current,
-                    [target.name]: target.value,
-                  }));
-                }}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setActionModel(null)}>Cancel</Button>
-              <Button variant="contained" onClick={handleSaveAction} disabled={!actionModel?.label?.trim() || !actionModel?.script?.trim()}>
-                Save Action
-              </Button>
-            </DialogActions>
-          </Dialog>
+          <Button onPress={handleEditBinding}>Add New Binding</Button>
+        </Panel>
 
-          <Dialog open={Boolean(repositoryFiles)} maxWidth="xs" fullWidth>
-            <DialogTitle>
-              <Grid container spacing={1} alignItems="center">
-                <Grid item>
-                  <Tooltip title="Go to root directory">
-                    <IconButton edge="start" onClick={() => handleRepository()}>
-                      <HomeOutlinedIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-                <Grid item>Browse Repository</Grid>
-              </Grid>
-            </DialogTitle>
-            <DialogContent>
-              <Grid container spacing={1} alignItems="center">
-                {repositoryFiles?.map((file) => (
-                  <Grid item key={file.url}>
-                    <Button //
-                      variant={file.type === 'tree' ? 'contained' : 'outlined'}
-                      sx={{ textTransform: 'none' }}
-                      onClick={() => handleRepository(file)}
-                      startIcon={file.type === 'tree' ? <FolderOutlinedIcon /> : <IntegrationInstructionsOutlinedIcon />}
+        <Panel title={`Advanced Scripts (${actions.length})`} mt={3}>
+          {actions.map((item) => (
+            <Box key={item.label}>
+              <Box row noWrap center>
+                <Box>
+                  <Tooltip title={item.enabled ? 'Click to turn off' : 'Click to turn on'} position="right">
+                    <Button
+                      size="small"
+                      variant={item.enabled ? 'solid' : 'outline'}
+                      color={item.enabled ? 'success' : 'error'}
+                      onPress={() => handleToggleAction(item.label)}
                     >
-                      {file.path.replace(/\.ahk$/, '')}
+                      {item.enabled ? 'ON' : 'OFF'}
                     </Button>
-                  </Grid>
-                ))}
-              </Grid>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setRepositoryFiles(null)}>Cancel</Button>
-            </DialogActions>
-          </Dialog>
-        </form>
+                  </Tooltip>
+                </Box>
+                <Text bold flex mx={3}>
+                  {item.label}
+                </Text>
+                <Text color="text.secondary" numberOfLines={1}>
+                  {`${item.script || ''}`.split(`\n`).shift()}
+                </Text>
+                <Box ml={1.5}>
+                  <Tooltip title="Edit" position="left">
+                    <Button variant="outline" size="small" onClick={() => setActionModel(item)}>
+                      ✎
+                    </Button>
+                  </Tooltip>
+                </Box>
+                <Box ml={1.5}>
+                  <Tooltip title="Remove" position="left">
+                    <Button variant="outline" size="small" color="error" onClick={() => handleDeleteAction(item.label)}>
+                      🗑
+                    </Button>
+                  </Tooltip>
+                </Box>
+              </Box>
+
+              <Divider mx={-3} my={3} />
+            </Box>
+          ))}
+
+          <Grid gap={3}>
+            <Box xs>
+              <Button variant="outline" onPress={() => setActionModel({ label: '', script: '', new: true })}>
+                Create New Script
+              </Button>
+            </Box>
+            <Box xs>
+              <Button onPress={() => setBrowseRep(true)}>Browse Repository</Button>
+            </Box>
+          </Grid>
+        </Panel>
       </Box>
-    </Fade>
+
+      <Modal visible={browseRep} valign="top" onBackdropPress={() => setBrowseRep(false)}>
+        <Box m={-3} w={320} h={320}>
+          <GitHubRepository onChange={handleChangeGithub} />
+        </Box>
+      </Modal>
+
+      <Modal visible={Boolean(bindingModel)} valign="top">
+        <Form ref={formBindingRef} onSubmit={handleSaveBinding}>
+          <Title size={1.15} center>
+            WHEN
+          </Title>
+
+          <Box mt={3}>
+            <Hotkey name="key" label="Trigger Key" value={bindingModel?.key} error={bindingError} />
+          </Box>
+
+          <Divider my={3} mx={-3} />
+
+          <Title size={1.15} center>
+            THEN
+          </Title>
+
+          {[0, 1, 2].map((keyNumber) => (
+            <Box key={keyNumber} row noWrap mt={3}>
+              <Hotkey
+                name={`sequence.${keyNumber}`}
+                label={`Key ${keyNumber + 1}`}
+                value={bindingModel?.sequence?.[keyNumber]}
+                error={bindingError}
+                w={240}
+              />
+              <Input //
+                type="number"
+                name={`delay.${keyNumber}`}
+                label="Delay"
+                value={bindingModel?.delay?.[keyNumber]}
+                w={120}
+                ml={3}
+                endAddon={<Text>ms</Text>}
+              />
+            </Box>
+          ))}
+
+          <Divider my={3} mx={-3} />
+
+          <Box>
+            <Checkbox name="loop" label="Use as toggler (enable/disable)" />
+          </Box>
+
+          <Divider my={3} mx={-3} />
+
+          <Grid gap={3}>
+            <Box xs>
+              <Button variant="text" onPress={() => setBindingModel(undefined)}>
+                Cancel
+              </Button>
+            </Box>
+            <Box xs>
+              <Button type="submit">Save</Button>
+            </Box>
+          </Grid>
+        </Form>
+      </Modal>
+
+      <Modal visible={Boolean(actionModel)} valign="top">
+        <Text>
+          Feel free to use anything from{' '}
+          <Link href="https://www.autohotkey.com/docs/v1" target="autohotkey">
+            AutoHotkey.
+          </Link>
+        </Text>
+        <Text mt={1}>Some extra functions may be used:</Text>
+        <FnColor
+          name="xSend"
+          params="Key, ReleaseKey := Key"
+          description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
+        />
+        <FnColor name="Notify" params="Message" description="Show a notification on screen." />
+        <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
+        <FnColor name="SetOverlay" params={'Key, Value := 1, Session := "Default"'} description="Add text to Session on Overlay Window." />
+        <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
+        <FnColor name="MouseLock" description="User will be unable to move the mouse." />
+        <FnColor name="MouseRelease" description="User will be able to move the mouse again." />
+        <FnColor name="MouseBackup" description={'Backup cursor position to use with "MouseRestore"'} />
+        <FnColor name="MouseRestore" description={'Restore cursor position stored from "MouseBackup"'} />
+        <FnColor name="GetText" params="FromX, FromY, ToX, ToY" description="Get text from a specific screen position." />
+        <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
+
+        <Form ref={formActionRef} mt={3} onSubmit={handleSaveAction}>
+          <Input //
+            readOnly={!actionModel?.new}
+            name="label"
+            label="Label (must be unique, overrides if not)"
+            value={actionModel?.label}
+            mask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
+            unmask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
+          />
+          <Input //
+            name="script"
+            label="Script"
+            value={actionModel?.script}
+            multiline
+            rows={20}
+            mt={3}
+          />
+
+          <Divider my={3} mx={-3} />
+
+          <Grid gap={3}>
+            <Box xs>
+              <Button variant="text" onPress={() => setActionModel(undefined)}>
+                Cancel
+              </Button>
+            </Box>
+            <Box xs>
+              <Button type="submit">Save</Button>
+            </Box>
+          </Grid>
+        </Form>
+      </Modal>
+    </>
   );
 }
 
 const FnColor = ({ name, params = null, description = null }) => (
-  <Box>
-    <Box component="span" color="info.main">
-      {name}
-    </Box>
-    <Box component="span" color="text.secondary">
-      ({params ?? ''})
-    </Box>
+  <Text mt={1}>
+    <Text color="info">{name}</Text>
+    <Text color="text.secondary">({params ?? ''})</Text>
     {Boolean(description) && (
-      <Box component="span" color="text.disabled" ml={1}>
+      <Text color="text.disabled" ml={1}>
         {description}
-      </Box>
+      </Text>
     )}
-  </Box>
+  </Text>
 );

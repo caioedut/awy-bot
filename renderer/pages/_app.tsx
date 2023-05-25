@@ -1,12 +1,12 @@
 import React from 'react';
 
+import ReactBulk from '@react-bulk/core';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/material/styles';
+import '../styles/globals.css';
 
-import { theme } from '../config/theme';
+import theme from '../themes/default';
 
 export default function (props: AppProps & { Component: any }) {
   const { Component, pageProps } = props;
@@ -23,10 +23,9 @@ export default function (props: AppProps & { Component: any }) {
       <Head>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+      <ReactBulk theme={theme}>
         <Component {...pageProps} />
-      </ThemeProvider>
+      </ReactBulk>
     </React.Fragment>
   );
 }
