@@ -34,6 +34,10 @@ CheckFocus:
     } Else {
       PauseSuspendAll(True)
     }
+  } Else {
+     If (!pausedByUser) {
+         PauseSuspendAll(False)
+     }
   }
 
   Return
