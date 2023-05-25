@@ -64,12 +64,12 @@ export default function Overlay() {
           .filter(([, configs]) => Object.values(configs).length)
           .map(([title, configs = {}], index) => (
             <React.Fragment key={title}>
-              <Text color="primary" bold mt={index ? 2 : 0}>
+              <Text color="primary" bold mt={index ? 2 : 0} numberOfLines={1}>
                 {title === 'Default' ? 'Awy Bot' : title}
               </Text>
 
               {Object.entries(configs).map(([label]) => (
-                <Text key={label} mt={0.5}>
+                <Text key={label} mt={0.5} numberOfLines={1}>
                   {label}
                 </Text>
               ))}

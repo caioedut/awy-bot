@@ -10,7 +10,7 @@ export default function Splash() {
     global: true,
     style: `
       body {
-        background: linear-gradient(135deg, ${theme.color('secondary.main')} 0%, ${theme.color('secondary.dark')} 100%);
+        background: linear-gradient(135deg, ${theme.color('primary.main')} 0%, ${theme.color('primary.dark')} 100%);
       }
     `,
   });

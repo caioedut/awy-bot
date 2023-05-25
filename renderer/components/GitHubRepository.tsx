@@ -4,6 +4,7 @@ import { Box, Button, Divider, Scrollable, Text } from '@react-bulk/web';
 import axios from 'axios';
 
 import ArrayHelper from '../helpers/ArrayHelper';
+import Icon from './Icon';
 
 const gitUrlMain = 'https://api.github.com/repos/maketgoy/awy-bot-scripts/git/trees/main';
 
@@ -83,22 +84,22 @@ export default function GitHubRepository({ onChange }) {
       <Divider />
 
       <Scrollable contentInset={1}>
-        {ArrayHelper.orderBy(currentFiles, ['-type', 'path']).map((file) => {
-          return (
+        {ArrayHelper.orderBy(currentFiles, ['-type', 'path'])
+          .filter(({ type, path }) => type === 'tree' || path.toLowerCase().endsWith('.ahk'))
+          .map((file) => (
             <Box key={file.sha}>
               <Button
                 align="start"
                 variant="text"
                 size="small"
                 color="secondary"
-                startAddon={<Text mt={-1}>{file.type === 'tree' ? '📁' : '🗎'}</Text>}
+                startAddon={file.type === 'tree' ? <Icon name="Folder" color="warning" /> : <Icon name="Code" color="info" />}
                 onPress={() => handlePressFile(file)}
               >
                 {file.path}
               </Button>
             </Box>
-          );
-        })}
+          ))}
       </Scrollable>
     </>
   );

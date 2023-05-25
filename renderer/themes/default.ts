@@ -31,13 +31,6 @@ const theme = {
         },
       },
     },
-    Label: {
-      defaultStyles: {
-        root: {
-          margin: '0.25rem',
-        },
-      },
-    },
     Text: {
       defaultStyles: {
         root: {
