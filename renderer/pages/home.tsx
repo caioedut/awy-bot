@@ -14,7 +14,6 @@ import {
   Link,
   Loading,
   Modal,
-  Scrollable,
   Select,
   Text,
   Tooltip,
@@ -23,8 +22,6 @@ import axios from 'axios';
 import * as dot from 'dot-object';
 import electron from 'electron';
 import Head from 'next/head';
-
-import MuiBox from '@mui/material/Box';
 
 import GitHubRepository, { GitHubFile } from '../components/GitHubRepository';
 import Hotkey from '../components/Hotkey';
@@ -587,30 +584,39 @@ export default function Home() {
       </Modal>
 
       <Modal visible={Boolean(actionModel)} valign="top">
-        <Text>
-          Feel free to use anything from{' '}
-          <Link href="https://www.autohotkey.com/docs/v1" target="autohotkey">
-            AutoHotkey.
-          </Link>
-        </Text>
-        <Text mt={1}>Some extra functions may be used:</Text>
-        <FnColor
-          name="xSend"
-          params="Key, ReleaseKey := Key"
-          description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
-        />
-        <FnColor name="Notify" params="Message" description="Show a notification on screen." />
-        <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
-        <FnColor name="SetOverlay" params={'Key, Value := 1, Session := "Default"'} description="Add text to Session on Overlay Window." />
-        <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
-        <FnColor name="MouseLock" description="User will be unable to move the mouse." />
-        <FnColor name="MouseRelease" description="User will be able to move the mouse again." />
-        <FnColor name="MouseBackup" description={'Backup cursor position to use with "MouseRestore"'} />
-        <FnColor name="MouseRestore" description={'Restore cursor position stored from "MouseBackup"'} />
-        <FnColor name="GetText" params="FromX, FromY, ToX, ToY" description="Get text from a specific screen position." />
-        <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
+        <Panel title="Need help?" initialExpanded={false} m={-3}>
+          <Text>
+            Feel free to use anything from{' '}
+            <Link href="https://www.autohotkey.com/docs/v1" target="autohotkey">
+              AutoHotkey v1
+            </Link>
+            .
+          </Text>
+          <Text mt={3}>Some extra functions may be used:</Text>
+          <FnColor
+            name="xSend"
+            params="Key, ReleaseKey := Key"
+            description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
+          />
+          <FnColor name="Notify" params="Message" description="Show a notification on screen." />
+          <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
+          <FnColor
+            name="SetOverlay"
+            params={'Key, Value := 1, Session := "Default"'}
+            description="Add text to Session on Overlay Window."
+          />
+          <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
+          <FnColor name="MouseLock" description="User will be unable to move the mouse." />
+          <FnColor name="MouseRelease" description="User will be able to move the mouse again." />
+          <FnColor name="MouseBackup" description={'Backup cursor position to use with "MouseRestore"'} />
+          <FnColor name="MouseRestore" description={'Restore cursor position stored from "MouseBackup"'} />
+          <FnColor name="GetText" params="FromX, FromY, ToX, ToY" description="Get text from a specific screen position." />
+          <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
+        </Panel>
 
-        <Form ref={formActionRef} mt={3} onSubmit={handleSaveAction}>
+        <Divider my={3} mx={-3} />
+
+        <Form ref={formActionRef} onSubmit={handleSaveAction}>
           <Input //
             readOnly={!actionModel?.new}
             name="label"
@@ -626,6 +632,7 @@ export default function Home() {
             multiline
             rows={20}
             mt={3}
+            fontFamily="Consolas, Courier"
           />
 
           <Divider my={3} mx={-3} />
@@ -647,7 +654,7 @@ export default function Home() {
 }
 
 const FnColor = ({ name, params = null, description = null }) => (
-  <Text mt={1}>
+  <Text mt={2}>
     <Text color="info">{name}</Text>
     <Text color="text.secondary">({params ?? ''})</Text>
     {Boolean(description) && (

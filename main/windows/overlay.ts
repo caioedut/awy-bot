@@ -61,6 +61,16 @@ export default async function overlay() {
 
   adjustPosition(window);
 
+  window.on('system-context-menu', (e) => {
+    e.preventDefault();
+  });
+
+  // https://github.com/electron/electron/issues/26726
+  window.hookWindowMessage(0x0116, () => {
+    window.setEnabled(false);
+    window.setEnabled(true);
+  });
+
   window.on('moved', () => {
     const [x, y] = adjustPosition(window);
     store.set('position', [x, y]);
