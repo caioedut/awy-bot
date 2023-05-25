@@ -130,14 +130,13 @@ export default function Home() {
 
     const newWindow = store.get('window', '') as string;
     const newOverlay = store.get('overlay', false) as boolean;
+    const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
+    const newBindings = store.get('bindings', []) as Binding[];
 
     const newActions = (store.get('actions', []) as Action[]).map((item) => {
       item.changed = true;
       return item;
     });
-
-    const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
-    const newBindings = store.get('bindings', []) as Binding[];
 
     setWindow(newWindow);
     setOverlay(newOverlay);
@@ -193,9 +192,9 @@ export default function Home() {
     withTimeout('actions', () => {
       const enabled = actions?.filter(({ enabled }) => enabled);
       const data = { window, actions: enabled };
-      console.log(enabled);
       ipcRenderer.sendSync('actions', JSON.stringify(data));
 
+      // Reset changed
       actions.forEach((action) => delete action.changed);
     });
   }, [window, actions]);
