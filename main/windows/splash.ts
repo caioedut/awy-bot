@@ -10,6 +10,11 @@ export default async function splash() {
     height: 160,
     frame: false,
     alwaysOnTop: true,
+    roundedCorners: true,
+    darkTheme: true,
+    backgroundColor: '#009688',
+    vibrancy: 'dark',
+    paintWhenInitiallyHidden: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

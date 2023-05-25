@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { FormRef } from '@react-bulk/core';
 import {
+  Backdrop,
   Badge,
   Box,
   Button,
   ButtonGroup,
+  Card,
   Checkbox,
   Divider,
   Form,
@@ -14,6 +16,7 @@ import {
   Link,
   Loading,
   Modal,
+  Scrollable,
   Select,
   Text,
   Tooltip,
@@ -528,13 +531,13 @@ export default function Home() {
         </Panel>
       </Box>
 
-      <Modal visible={browseRep} valign="top" onBackdropPress={() => setBrowseRep(false)}>
+      <Modal visible={browseRep} onBackdropPress={() => setBrowseRep(false)}>
         <Box m={-3} w={320} h={320}>
           <GitHubRepository onChange={handleChangeGithub} />
         </Box>
       </Modal>
 
-      <Modal visible={Boolean(bindingModel)} valign="top">
+      <Modal visible={Boolean(bindingModel)}>
         <Form ref={formBindingRef} onSubmit={handleSaveBinding}>
           <Title size={1.15} center>
             WHEN
@@ -592,73 +595,77 @@ export default function Home() {
         </Form>
       </Modal>
 
-      <Modal visible={Boolean(actionModel)} valign="top">
-        <Panel title="Need help?" initialExpanded={false} m={-3}>
-          <Text>
-            Feel free to use anything from{' '}
-            <Link href="https://www.autohotkey.com/docs/v1" target="autohotkey">
-              AutoHotkey v1
-            </Link>
-            .
-          </Text>
-          <Text mt={3}>Some extra functions may be used:</Text>
-          <FnColor
-            name="xSend"
-            params="Key, ReleaseKey := Key"
-            description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
-          />
-          <FnColor name="Notify" params="Message" description="Show a notification on screen." />
-          <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
-          <FnColor
-            name="SetOverlay"
-            params={'Key, Value := 1, Session := "Default"'}
-            description="Add text to Session on Overlay Window."
-          />
-          <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
-          <FnColor name="MouseLock" description="User will be unable to move the mouse." />
-          <FnColor name="MouseRelease" description="User will be able to move the mouse again." />
-          <FnColor name="MouseBackup" description={'Backup cursor position to use with "MouseRestore"'} />
-          <FnColor name="MouseRestore" description={'Restore cursor position stored from "MouseBackup"'} />
-          <FnColor name="GetText" params="FromX, FromY, ToX, ToY" description="Get text from a specific screen position." />
-          <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
-        </Panel>
+      <Backdrop visible={Boolean(actionModel)} p={6}>
+        <Card p={0} overflow="hidden" maxh="100%">
+          <Scrollable contentInset={3}>
+            <Panel title="Need help?" initialExpanded={false} m={-3}>
+              <Text>
+                Feel free to use anything from{' '}
+                <Link href="https://www.autohotkey.com/docs/v1" target="autohotkey">
+                  AutoHotkey v1
+                </Link>
+                .
+              </Text>
+              <Text mt={3}>Some extra functions may be used:</Text>
+              <FnColor
+                name="xSend"
+                params="Key, ReleaseKey := Key"
+                description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
+              />
+              <FnColor name="Notify" params="Message" description="Show a notification on screen." />
+              <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
+              <FnColor
+                name="SetOverlay"
+                params={'Key, Value := 1, Session := "Default"'}
+                description="Add text to Session on Overlay Window."
+              />
+              <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
+              <FnColor name="MouseLock" description="User will be unable to move the mouse." />
+              <FnColor name="MouseRelease" description="User will be able to move the mouse again." />
+              <FnColor name="MouseBackup" description={'Backup cursor position to use with "MouseRestore"'} />
+              <FnColor name="MouseRestore" description={'Restore cursor position stored from "MouseBackup"'} />
+              <FnColor name="GetText" params="FromX, FromY, ToX, ToY" description="Get text from a specific screen position." />
+              <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
+            </Panel>
 
-        <Divider my={3} mx={-3} />
+            <Divider my={3} mx={-3} />
 
-        <Form ref={formActionRef} onSubmit={handleSaveAction}>
-          <Input //
-            readOnly={!actionModel?.new}
-            name="label"
-            label="Label (must be unique, overrides if not)"
-            value={actionModel?.label}
-            error={actionError ? 'Required' : null}
-            mask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
-            unmask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
-          />
-          <Input //
-            name="script"
-            label="Script"
-            value={actionModel?.script}
-            multiline
-            rows={20}
-            mt={3}
-            fontFamily="Consolas, Courier"
-          />
+            <Form ref={formActionRef} onSubmit={handleSaveAction}>
+              <Input //
+                readOnly={!actionModel?.new}
+                name="label"
+                label="Label (must be unique, overrides if not)"
+                value={actionModel?.label}
+                error={actionError ? 'Required' : null}
+                mask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
+                unmask={(value) => `${value ?? ''}`.replace(/\W/g, '')}
+              />
+              <Input //
+                name="script"
+                label="Script"
+                value={actionModel?.script}
+                multiline
+                rows={20}
+                mt={3}
+                fontFamily="Consolas, Courier"
+              />
 
-          <Divider my={3} mx={-3} />
+              <Divider my={3} mx={-3} />
 
-          <Grid gap={3}>
-            <Box xs>
-              <Button variant="text" onPress={() => setActionModel(undefined)}>
-                Cancel
-              </Button>
-            </Box>
-            <Box xs>
-              <Button type="submit">Save</Button>
-            </Box>
-          </Grid>
-        </Form>
-      </Modal>
+              <Grid gap={3}>
+                <Box xs>
+                  <Button variant="text" onPress={() => setActionModel(undefined)}>
+                    Cancel
+                  </Button>
+                </Box>
+                <Box xs>
+                  <Button type="submit">Save</Button>
+                </Box>
+              </Grid>
+            </Form>
+          </Scrollable>
+        </Card>
+      </Backdrop>
     </>
   );
 }

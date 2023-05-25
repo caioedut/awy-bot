@@ -17,7 +17,7 @@ const theme = {
     Backdrop: {
       defaultStyles: {
         root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.20)',
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
         },
       },
     },
