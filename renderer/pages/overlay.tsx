@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+import { Box, Text, useTheme } from '@react-bulk/web';
 import electron from 'electron';
-import { setInterval } from 'timers';
-
-import Box from '@mui/material/Box';
 
 const ipcRenderer = electron.ipcRenderer;
 
@@ -15,8 +13,12 @@ type OverlayType = {
 };
 
 export default function Overlay() {
+  const theme = useTheme();
+
   const contentRef = useRef(null);
   const [overlays, setOverlays] = useState<OverlayType>({} as OverlayType);
+
+  const spacing = 2;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,11 +27,13 @@ export default function Overlay() {
       setOverlays(JSON.parse(response || '{}'));
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
-    const pad = 8 * 2;
+    const pad = theme.spacing(spacing * 2);
     const width = contentRef.current.clientWidth + pad;
     const height = contentRef.current.clientHeight + pad;
 
@@ -48,46 +52,30 @@ export default function Overlay() {
 
   return (
     <Box
-      sx={{
-        p: 1,
+      style={{
+        p: spacing,
         WebkitUserSelect: 'none',
         WebkitAppRegion: 'drag',
         userSelect: 'none',
       }}
     >
-      <Box ref={contentRef} sx={{ display: 'inline-block' }}>
-        <Line color="primary.main">
-          <b>Awy Bot</b>
-        </Line>
+      <Box ref={contentRef} align="start">
+        {sections
+          .filter(([, configs]) => Object.values(configs).length)
+          .map(([title, configs = {}], index) => (
+            <React.Fragment key={title}>
+              <Text color="primary" bold mt={index ? 2 : 0}>
+                {title === 'Default' ? 'Awy Bot' : title}
+              </Text>
 
-        {sections.map(
-          ([title, configs = {}]) =>
-            Object.values(configs).length > 0 && (
-              <React.Fragment key={title}>
-                {title !== 'Default' && (
-                  <Line color="primary.main" mt={0.5}>
-                    <b>{title}</b>
-                  </Line>
-                )}
-                {Object.entries(configs).map(([label]) => (
-                  <Item key={label} label={['Default', 'Actions'].includes(title) ? label : <kbd>{label}</kbd>} />
-                ))}
-              </React.Fragment>
-            ),
-        )}
+              {Object.entries(configs).map(([label]) => (
+                <Text key={label} mt={0.5}>
+                  {label}
+                </Text>
+              ))}
+            </React.Fragment>
+          ))}
       </Box>
     </Box>
   );
 }
-
-const Line = (props) => (
-  <>
-    <Box {...props} sx={{ display: 'inline-block', whiteSpace: 'nowrap' }} />
-    <br />
-  </>
-);
-
-const Item = (props: { label: any; color?: string }) => {
-  const { label, color = 'success.main' } = props;
-  return <Line color={color}>{label}</Line>;
-};
