@@ -1,38 +1,23 @@
-<p align="center"><img src="https://i.imgur.com/flcMvDC.png"></p>
+## Awy Bot
 
-## Usage
+Remap key bindings and automate tasks.
 
-### Create an App
+### Context
 
-```
-# with npx
-$ npx create-nextron-app my-app --example with-typescript-material-ui
+You can select window or process to running on.
 
-# with yarn
-$ yarn create nextron-app my-app --example with-typescript-material-ui
+### Profile
 
-# with pnpx
-$ pnpx create-nextron-app my-app --example with-typescript-material-ui
-```
+You can save and load settings from different profiles.
 
-### Install Dependencies
+### Key Lock
 
-```
-$ cd my-app
+You can disable some keys like META (Windows key) to avoid wrong clicks..
 
-# using yarn or npm
-$ yarn (or `npm install`)
+### Key Remap
 
-# using pnpm
-$ pnpm install --shamefully-hoist
-```
+You can change the key you want to to pressing another key.
 
-### Use it
+### Advanced Script
 
-```
-# development mode
-$ yarn dev (or `npm run dev` or `pnpm run dev`)
-
-# production build
-$ yarn build (or `npm run build` or `pnpm run build`)
-```
+You can create advanced scripts with [AutHotkey v1](https://www.autohotkey.com/docs/v1/).
