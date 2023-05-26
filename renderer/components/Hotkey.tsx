@@ -94,7 +94,7 @@ function Hotkey(props: HotkeyProps) {
       key = 'Space';
     }
 
-    let newHotkey = Object.values(modifiers).includes(key.toUpperCase()) ? '' : getKeyName(keyCode);
+    let newHotkey = Object.values(modifiers).includes(key.toUpperCase()) ? '' : getKeyName(keyCode) ?? key;
 
     for (const modifier in modifiers) {
       if (e[modifier]) {
