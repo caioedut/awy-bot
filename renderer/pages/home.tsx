@@ -203,7 +203,7 @@ export default function Home() {
   }, [window, actions]);
 
   const handleResetConfig = () => {
-    if (!global.confirm('Are you sure you want to reset settings number 1?')) {
+    if (!global.confirm(`Are you sure you want to reset settings number ${config}?`)) {
       return;
     }
 
