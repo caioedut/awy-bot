@@ -11,26 +11,26 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "dot-object": "^2.1.4",
     "electron-serve": "^1.1.0",
-    "electron-store": "^8.0.1",
-    "ini": "^3.0.0",
-    "keycode": "^2.2.1"
+    "electron-store": "^8.1.0"
   },
   "devDependencies": {
     "@react-bulk/core": "0.3.1",
     "@react-bulk/web": "0.3.1",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
-    "@types/node": "^14.14.31",
-    "@types/react": "^16.9.49",
-    "electron": "^17.1.2",
-    "electron-builder": "23.0.2",
-    "next": "^12.1.0",
-    "nextron": "^8.0.0",
+    "@types/node": "^18.11.18",
+    "@types/react": "18.2.7",
+    "axios": "^0.27.2",
+    "dot-object": "^2.1.4",
+    "electron": "^21.3.3",
+    "electron-builder": "^23.6.0",
+    "ini": "^3.0.0",
+    "keycode": "^2.2.1",
+    "next": "^12.3.4",
+    "nextron": "^8.5.0",
     "prettier": "^2.6.2",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "typescript": "^5.0.4"
   }
 }
