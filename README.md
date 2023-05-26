@@ -16,7 +16,7 @@ You can disable some keys like META (Windows key) to avoid wrong clicks..
 
 ### Key Remap
 
-You can change the key you want to to pressing another key.
+You can change the key you want to pressing another key.
 
 ### Advanced Script
 
