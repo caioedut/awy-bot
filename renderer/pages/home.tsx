@@ -240,7 +240,7 @@ export default function Home() {
       const model = current.find(({ key }) => key === data.key);
 
       data.sequence = data.sequence.filter(Boolean);
-      data.delay = data.delay.filter(Boolean).map(Number);
+      data.delay = data.delay.map((value) => Number(value ?? 0));
 
       if (model) {
         Object.assign(model, data);
@@ -577,7 +577,7 @@ export default function Home() {
           <Divider my={3} mx={-3} />
 
           <Box>
-            <Checkbox name="loop" label="Use as toggler (enable/disable)" />
+            <Checkbox name="loop" label="Use as toggler (enable/disable)" checked={bindingModel?.loop} />
           </Box>
 
           <Divider my={3} mx={-3} />
