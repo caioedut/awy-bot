@@ -20,6 +20,10 @@ Loop, %matchWindows%
     {
       If (InStr(script_title, name)) {
         stopScript := false
+
+        actionLabel := StrReplace(name, "awy_bot_", "")
+        actionLabel := StrReplace(actionLabel, "_action.ahk", "")
+        SetOverlay(actionLabel, 1, "Actions")
       }
     }
   }
