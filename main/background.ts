@@ -63,8 +63,8 @@ app.on('window-all-closed', () => {
 });
 
 // Listen events
+ipcMain.on('service', require('./services/_service').default);
 ipcMain.on('main', require('./events/main').default);
 ipcMain.on('actions', require('./events/actions').default);
 ipcMain.on('lock', require('./events/lock').default);
 ipcMain.on('remap', require('./events/remap').default);
-ipcMain.on('windows', require('./events/windows').default);
