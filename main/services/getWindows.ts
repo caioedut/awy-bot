@@ -1,10 +1,8 @@
 import { runScriptSync } from '../utils';
 
-export default function windows(e) {
-  const buffer = runScriptSync('windows.ahk');
-
-  const windows = buffer.stdout
-    .toString()
+export default function getWindows() {
+  return runScriptSync('getWindows.ahk')
+    .stdout.toString()
     .split(/\r?\n/g)
     .filter(Boolean)
     .map((item) => {
@@ -22,6 +20,4 @@ export default function windows(e) {
     .sort((a, b) => {
       return a.ahk_exe.localeCompare(b.ahk_exe);
     });
-
-  e.returnValue = JSON.stringify(windows);
 }

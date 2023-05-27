@@ -31,17 +31,8 @@ import Icon from '../components/Icon';
 import Panel from '../components/Panel';
 import Title from '../components/Title';
 import ArrayHelper from '../helpers/ArrayHelper';
+import service from '../providers/service';
 import Storage from '../providers/storage';
-
-const ipcRenderer = electron.ipcRenderer;
-
-const defaultLocks = [
-  { key: 'Win', name: 'Meta (Windows Key)' },
-  { key: 'PrintScreen', name: 'Print Screen' },
-  { key: 'NumLock', name: 'NumLock' },
-  { key: 'CapsLock', name: 'CapsLock' },
-  { key: 'ScrollLock', name: 'ScrollLock' },
-];
 
 type Window = {
   ahk_exe: string;
@@ -73,6 +64,20 @@ type Action = {
   changed?: boolean;
 };
 
+const ipcRenderer = electron.ipcRenderer;
+
+const globalStore = Storage.with('global');
+
+const settings = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+const defaultLocks = [
+  { key: 'Win', name: 'Meta (Windows Key)' },
+  { key: 'PrintScreen', name: 'Print Screen' },
+  { key: 'NumLock', name: 'NumLock' },
+  { key: 'CapsLock', name: 'CapsLock' },
+  { key: 'ScrollLock', name: 'ScrollLock' },
+];
+
 export default function Home() {
   const formBindingRef = useRef<FormRef>();
   const formActionRef = useRef<FormRef>();
@@ -80,7 +85,7 @@ export default function Home() {
 
   // Load/save configs
   const [loading, setLoading] = useState(true);
-  const [settings] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
   const [config, setConfig] = useState(settings[0]);
   const store = useMemo(() => Storage.with(config), [config]);
 
@@ -88,6 +93,7 @@ export default function Home() {
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
 
   // Models
+  const [autoSwitch, setAutoSwitch] = useState(globalStore.get('autoSwitch', false) as boolean);
   const [overlay, setOverlay] = useState(false);
   const [window, setWindow] = useState('');
   const [locks, setLocks] = useState<Lock[]>([]);
@@ -108,8 +114,8 @@ export default function Home() {
   }
 
   const getWindows = useCallback(() => {
-    const response = ipcRenderer.sendSync('windows');
-    setVisibleWindows(JSON.parse(response));
+    const response = service('getWindows');
+    setVisibleWindows(response?.data ?? []);
   }, []);
 
   const withTimeout = (key: string, callback: Function) => {
@@ -131,8 +137,8 @@ export default function Home() {
   useEffect(() => {
     setLoading(true);
 
-    const newWindow = store.get('window', '') as string;
     const newOverlay = store.get('overlay', false) as boolean;
+    const newWindow = store.get('window', '') as string;
     const newLocks = [...(store.get('locks', []) as Lock[]), ...defaultLocks];
     const newBindings = store.get('bindings', []) as Binding[];
 
@@ -141,8 +147,8 @@ export default function Home() {
       return item;
     });
 
-    setWindow(newWindow);
     setOverlay(newOverlay);
+    setWindow(newWindow);
     setActions(newActions);
     setLocks(ArrayHelper.uniqueBy(newLocks, 'key', false));
     setBindings(ArrayHelper.uniqueBy(newBindings, 'key', false));
@@ -155,6 +161,32 @@ export default function Home() {
       getWindows();
     }
   }, [loading]);
+
+  useEffect(() => {
+    globalStore.set('autoSwitch', autoSwitch);
+
+    if (!autoSwitch) return;
+
+    const interval = setInterval(() => {
+      const response = service('getActiveWindow');
+      const activeWindow = `${response?.data || ''}`.trim().toLowerCase();
+
+      if (!activeWindow) return;
+
+      for (const setting of settings) {
+        const store = Storage.with(setting);
+        const configWindow = `${store.get('window') || ''}`.trim().toLowerCase();
+
+        if (configWindow === activeWindow && setting !== config) {
+          setConfig(setting);
+        }
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [config, autoSwitch]);
 
   useEffect(() => {
     store.set('window', window);
@@ -209,10 +241,10 @@ export default function Home() {
 
     store.clear();
     setWindow('');
-    setActions([]);
     setOverlay(false);
     setLocks(defaultLocks);
     setBindings([]);
+    setActions([]);
   };
 
   const handleToggleLock = (key) => {
@@ -329,24 +361,32 @@ export default function Home() {
           <title>Awy Bot</title>
         </Head>
 
-        <Panel title="Settings">
-          <Box row noWrap>
-            <ButtonGroup flex>
+        <Panel title={`Settings (#${config} : ${window || 'ALL'})`}>
+          <Box>
+            <Checkbox
+              name="autoSwitch"
+              label="Auto switch settings based on active window"
+              checked={autoSwitch}
+              onChange={() => setAutoSwitch((current) => !current)}
+            />
+          </Box>
+          <Box row noWrap mt={3}>
+            <ButtonGroup maxw={340}>
               {settings.map((item) => (
                 <Button key={item} variant={config === item ? 'solid' : 'outline'} px={3} onPress={() => setConfig(item)}>
                   {item}
                 </Button>
               ))}
             </ButtonGroup>
-            <Box ml={3}>
-              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
-            </Box>
-            <Box ml={3}>
+            <Box>
               <Tooltip title="Reset current settings" position="left">
                 <Button variant="outline" color="red" onPress={handleResetConfig}>
                   <Icon name="Trash" color="error" />
                 </Button>
               </Tooltip>
+            </Box>
+            <Box flex alignItems="end" ml={3}>
+              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
             </Box>
           </Box>
 
