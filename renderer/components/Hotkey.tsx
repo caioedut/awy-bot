@@ -87,6 +87,7 @@ function Hotkey(props: HotkeyProps) {
     }
 
     if (key === 'Escape') {
+      hotkeyBackupRef.current = '';
       return setHotkey('');
     }
 
