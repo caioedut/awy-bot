@@ -29,17 +29,16 @@ For index, value in A_Args
 
 OnToggle(Key, Sequence, Delays) {
   toggleStatus[Key] := !toggleStatus[Key]
-  status := "Off"
-
-  If (toggleStatus[Key]) {
-    status := "On"
-    fn := Func("OnPress").bind(Key, Sequence, Delays, 1)
-    SetTimer, %fn%, 100
-  }
+  status := toggleStatus[Key] ? "On" : "Off"
 
   StringUpper, keyLabel, % HotkeyClear(Key)
   Notify("(" keyLabel ") Loop: " status)
   SetOverlay(keyLabel, toggleStatus[Key] ? 1 : 0, "Loop")
+
+  If (status == "On") {
+    fn := Func("OnPress").bind(Key, Sequence, Delays, 1)
+    SetTimer, %fn%, 100
+  }
 }
 
 OnPress(Key, Sequence, Delays, Loop := 0) {
