@@ -256,7 +256,6 @@ export default function Home() {
   };
 
   function handleEditBinding(key?: string) {
-    formBindingRef.current.clear();
     const model = bindings.find((item) => item.key === key);
     setBindingModel(model ?? ({} as Binding));
   }
@@ -283,7 +282,7 @@ export default function Home() {
       return [...current];
     });
 
-    setBindingModel(null);
+    setBindingModel(undefined);
   }
 
   function handleDeleteBinding(key) {
