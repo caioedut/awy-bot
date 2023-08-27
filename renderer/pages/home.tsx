@@ -89,6 +89,12 @@ export default function Home() {
   const [config, setConfig] = useState(settings[0]);
   const store = useMemo(() => Storage.with(config), [config]);
 
+  // Config Name
+  const [configNames, setConfigNames] = useState<string[]>(
+    (globalStore.get('configNames') as string[]) ?? Array.from({ length: settings.length }),
+  );
+  const [editConfigNameIndex, setEditConfigNameIndex] = useState<number>();
+
   // Collections
   const [visibleWindows, setVisibleWindows] = useState<Window[]>([]);
 
@@ -247,6 +253,22 @@ export default function Home() {
     setActions([]);
   };
 
+  const handleChangeConfig = (key) => {
+    if (key === config) {
+      setEditConfigNameIndex(key);
+      return;
+    }
+
+    setConfig(key);
+  };
+
+  const handleSaveConfigName = (e: any, data: any) => {
+    configNames[editConfigNameIndex] = data.name;
+    globalStore.set('configNames', configNames);
+    setConfigNames([...configNames]);
+    setEditConfigNameIndex(undefined);
+  };
+
   const handleToggleLock = (key) => {
     setLocks((current) => {
       const index = current.findIndex((item) => item.key === key);
@@ -372,7 +394,13 @@ export default function Home() {
           <Box row noWrap mt={3}>
             <ButtonGroup maxw={340}>
               {settings.map((item) => (
-                <Button key={item} variant={config === item ? 'solid' : 'outline'} px={3} onPress={() => setConfig(item)}>
+                <Button
+                  key={item}
+                  variant={config === item ? 'solid' : 'outline'}
+                  title={configNames[item]}
+                  px={3}
+                  onPress={() => handleChangeConfig(item)}
+                >
                   {item}
                 </Button>
               ))}
@@ -574,6 +602,31 @@ export default function Home() {
         <Box m={-3} w={320} h={320}>
           <GitHubRepository onChange={handleChangeGithub} />
         </Box>
+      </Modal>
+
+      <Modal visible={typeof editConfigNameIndex === 'number'}>
+        <Form w={320} onSubmit={handleSaveConfigName}>
+          <Title size={1.15} center>
+            Config Name
+          </Title>
+
+          <Box mt={3}>
+            <Input autoFocus name="name" value={configNames[editConfigNameIndex] ?? ''} />
+          </Box>
+
+          <Divider my={4} mx={-4} />
+
+          <Grid gap={2} m={-2}>
+            <Box xs>
+              <Button variant="text" onPress={() => setEditConfigNameIndex(undefined)}>
+                Cancel
+              </Button>
+            </Box>
+            <Box xs>
+              <Button type="submit">Save</Button>
+            </Box>
+          </Grid>
+        </Form>
       </Modal>
 
       <Modal visible={Boolean(bindingModel)}>
