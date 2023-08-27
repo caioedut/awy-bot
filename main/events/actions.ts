@@ -24,11 +24,19 @@ export default function actions(e, arg) {
   }
 
   for (const action of newActions) {
-    const fileName = `awy_bot_${action.label}_action.ahk`;
-    const script = `#Include %A_ScriptDir%\\..\\core.ahk\nSetOverlay("${action.label}", 1, "Actions")\nPause, On\n#Persistent\n${
-      action.script || ''
-    }\nReturn`;
+    const script = [
+      '#Include %A_ScriptDir%\\..\\core.ahk',
+      `SetOverlay("${action.label}", 1, "Actions")`,
+      'Pause, On',
+      '#Persistent',
+      '#InstallKeybdHook',
+      '#InstallMouseHook',
+      '#UseHook',
+      action.script || '',
+      'Return',
+    ].join(`\n`);
 
+    const fileName = `awy_bot_${action.label}_action.ahk`;
     const file = path.join(dir, `${fileName}`);
     fs.writeFileSync(file, script, { encoding: 'utf-8' });
 

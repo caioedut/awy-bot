@@ -1,8 +1,5 @@
 #NoEnv
 #NoTrayIcon
-#InstallKeybdHook
-#InstallMouseHook
-#UseHook
 #SingleInstance Force
 #KeyHistory 0
 #MaxHotkeysPerInterval 1000
