@@ -23,6 +23,8 @@ export const getHotkey = (str) => {
     .replace(/CTRL/gi, '^')
     .replace(/SHIFT/gi, '+')
     .replace(/META/gi, '#')
+    .replace(/PAGEDOWN/gi, 'PgDn')
+    .replace(/PAGEUP/gi, 'PgUp')
     .toLowerCase();
 
   let hotkey = '';
