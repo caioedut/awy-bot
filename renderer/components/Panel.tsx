@@ -16,14 +16,14 @@ export default function Panel({ title, initialExpanded = true, children, ...rest
 
   return (
     <Card pb={0} {...rest}>
-      <Box row noWrap p={3} m={-3} mb={0} onPress={() => setExpanded((current) => !current)}>
+      <Box row noWrap p={4} m={-4} mb={0} onPress={() => setExpanded((current) => !current)}>
         <Title flex>{title}</Title>
         <Text>{expanded ? '▲' : '▼'}</Text>
       </Box>
 
-      <Box mx={-3}>
-        <Collapse in={expanded} px={3} pb={3}>
-          <Divider mx={-3} mb={3} />
+      <Box mx={-4}>
+        <Collapse in={expanded} px={4} pb={4}>
+          <Divider mx={-4} mb={4} />
           {children}
         </Collapse>
       </Box>
