@@ -53,7 +53,6 @@ export default function GitHubRepository({ onChange }) {
     const data = await getDir(file.url, file);
 
     if (file.type !== 'tree') {
-      console.log(file.url);
       return onChange?.(data);
     }
 
