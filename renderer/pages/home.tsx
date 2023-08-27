@@ -699,6 +699,7 @@ export default function Home() {
                 .
               </Text>
               <Text mt={3}>Some extra functions may be used:</Text>
+              <FnColor name="AdminRequired" description="Request to run Awy Bot as Administrator." />
               <FnColor
                 name="xSend"
                 params="Key, ReleaseKey := Key"

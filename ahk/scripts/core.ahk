@@ -18,6 +18,14 @@ global MouseBackupY := 0
 global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
+AdminRequired() {
+  If (!A_IsAdmin) {
+      Title := StrReplace(SubStr(A_ScriptName, 9), "_action.ahk", "")
+      MsgBox, %Title%: Run Awy Bot as Administrator
+      ExitApp
+  }
+}
+
 Notify(Message, Duration = 500) {
     SplashTextOff
 
