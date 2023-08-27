@@ -611,7 +611,7 @@ export default function Home() {
           </Title>
 
           <Box mt={3}>
-            <Input autoFocus name="name" value={configNames[editConfigNameIndex] ?? ''} />
+            <Input key={editConfigNameIndex} autoFocus name="name" value={configNames[editConfigNameIndex] ?? ''} />
           </Box>
 
           <Divider my={4} mx={-4} />
