@@ -728,8 +728,10 @@ export default function Home() {
               <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
               <FnColor
                 name="SetOverlay"
-                params={'Key, Value := 1, Session := "Default"'}
-                description="Add text to Session on Overlay Window."
+                params={'Value := 1, Key := false, Session := false'}
+                description={
+                  'Add text to Session on Overlay Window. When empty "Key" and "Section", "Key" will be script name and "Section" will be "Actions".'
+                }
               />
               <FnColor name="ClearOverlay" params="Session" description="Reset Overlay Window content for a Session." />
               <FnColor name="MouseLock" description="User will be unable to move the mouse." />
