@@ -20,6 +20,7 @@ import {
   Select,
   Text,
   Tooltip,
+  useTheme,
 } from '@react-bulk/web';
 import * as dot from 'dot-object';
 import electron from 'electron';
@@ -80,6 +81,9 @@ const defaultLocks = [
 ];
 
 export default function Home() {
+  const theme = useTheme();
+  const { gap } = theme.shape;
+
   const formBindingRef = useRef<FormRef>();
   const formActionRef = useRef<FormRef>();
   const timeoutRef = useRef({});
@@ -378,7 +382,7 @@ export default function Home() {
 
   return (
     <>
-      <Box p={3}>
+      <Box p={gap}>
         <Head>
           <title>Awy Bot</title>
         </Head>
@@ -392,7 +396,8 @@ export default function Home() {
               onChange={() => setAutoSwitch((current) => !current)}
             />
           </Box>
-          <Box row noWrap mt={3}>
+
+          <Box row noWrap mt={gap}>
             <ButtonGroup maxw={340}>
               {settings.map((item) => (
                 <Button
@@ -413,12 +418,12 @@ export default function Home() {
                 </Button>
               </Tooltip>
             </Box>
-            <Box flex alignItems="end" ml={3}>
+            <Box flex alignItems="end" ml={gap}>
               <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
             </Box>
           </Box>
 
-          <Box row noWrap mt={3}>
+          <Box row noWrap mt={gap}>
             <Box flex>
               <Select
                 name="window"
@@ -447,7 +452,7 @@ export default function Home() {
                 }
               />
             </Box>
-            <Box ml={3} align="end">
+            <Box ml={gap / 2} align="end">
               <Tooltip title="Refresh">
                 <Button onPress={getWindows}>
                   <Icon name="Refresh" color="white" />
@@ -457,10 +462,10 @@ export default function Home() {
           </Box>
         </Panel>
 
-        <Panel title={`Key Locks (${locks.filter(({ lock }) => lock).length}/${locks.length})`} initialExpanded={false} mt={3}>
+        <Panel title={`Key Locks (${locks.filter(({ lock }) => lock).length}/${locks.length})`} initialExpanded={false} mt={gap}>
           {locks.map((item, index) => (
             <Box key={item.key}>
-              {index > 0 && <Divider mx={-3} my={3} />}
+              {index > 0 && <Divider mx={-gap} my={gap} />}
 
               <Box row noWrap center>
                 <Box>
@@ -475,7 +480,7 @@ export default function Home() {
                     </Button>
                   </Tooltip>
                 </Box>
-                <Text bold flex mx={3}>
+                <Text bold flex mx={gap}>
                   {item.name}
                 </Text>
               </Box>
@@ -483,7 +488,7 @@ export default function Home() {
           ))}
         </Panel>
 
-        <Panel title={`Key Bindings (${bindings.length})`} initialExpanded={false} mt={3}>
+        <Panel title={`Key Bindings (${bindings.length})`} initialExpanded={false} mt={gap}>
           {bindings.map((item, bindingIndex) => (
             <Box key={bindingIndex}>
               <Box row noWrap>
@@ -523,7 +528,7 @@ export default function Home() {
                   ))}
                 </Box>
 
-                <Box ml={1}>
+                <Box ml={gap / 2}>
                   <Tooltip title="Edit" position="left">
                     <Button variant="outline" size="small" onPress={() => handleEditBinding(bindingIndex)}>
                       <Icon name="Edit" />
@@ -531,7 +536,7 @@ export default function Home() {
                   </Tooltip>
                 </Box>
 
-                <Box ml={1}>
+                <Box ml={gap / 2}>
                   <Tooltip title="Remove" position="left">
                     <Button variant="outline" size="small" color="error" onPress={() => handleDeleteBinding(bindingIndex)}>
                       <Icon name="Trash" color="error" />
@@ -540,7 +545,7 @@ export default function Home() {
                 </Box>
               </Box>
 
-              <Divider mx={-4} my={4} />
+              <Divider mx={-gap} my={gap} />
             </Box>
           ))}
 
@@ -550,7 +555,7 @@ export default function Home() {
         <Panel
           title={`Advanced Scripts (${actions.filter(({ enabled }) => enabled).length}/${actions.length})`}
           initialExpanded={false}
-          mt={3}
+          mt={gap}
         >
           {actions.map((item) => (
             <Box key={item.label}>
@@ -567,20 +572,20 @@ export default function Home() {
                     </Button>
                   </Tooltip>
                 </Box>
-                <Text bold flex mx={3}>
+                <Text bold flex mx={gap}>
                   {item.label}
                 </Text>
                 <Text color="text.secondary" numberOfLines={1}>
                   {`${item.script || ''}`.split(`\n`).shift()}
                 </Text>
-                <Box ml={1.5}>
+                <Box ml={gap / 2}>
                   <Tooltip title="Edit" position="left">
                     <Button variant="outline" size="small" onClick={() => setActionModel(item)}>
                       <Icon name="Edit" />
                     </Button>
                   </Tooltip>
                 </Box>
-                <Box ml={1.5}>
+                <Box ml={gap / 2}>
                   <Tooltip title="Remove" position="left">
                     <Button variant="outline" size="small" color="error" onClick={() => handleDeleteAction(item.label)}>
                       <Icon name="Trash" color="error" />
@@ -589,11 +594,11 @@ export default function Home() {
                 </Box>
               </Box>
 
-              <Divider mx={-3} my={3} />
+              <Divider mx={-gap} my={gap} />
             </Box>
           ))}
 
-          <Grid gap={3}>
+          <Grid gap>
             <Box xs>
               <Button variant="outline" onPress={() => setActionModel({ label: '', script: '', new: true })}>
                 Create New Script
@@ -607,7 +612,7 @@ export default function Home() {
       </Box>
 
       <Modal visible={browseRep} onBackdropPress={() => setBrowseRep(false)}>
-        <Box m={-3} w={320} h={320}>
+        <Box m={-gap} w={320} h={320}>
           <GitHubRepository onChange={handleChangeGithub} />
         </Box>
       </Modal>
@@ -618,13 +623,13 @@ export default function Home() {
             Config Name
           </Title>
 
-          <Box mt={3}>
+          <Box mt={gap}>
             <Input key={editConfigNameIndex} autoFocus name="name" value={configNames[editConfigNameIndex] ?? ''} />
           </Box>
 
-          <Divider my={4} mx={-4} />
+          <Divider my={gap} mx={-gap} />
 
-          <Grid gap={2} m={-2}>
+          <Grid gap m={-gap}>
             <Box xs>
               <Button variant="text" onPress={() => setEditConfigNameIndex(undefined)}>
                 Cancel
@@ -645,18 +650,18 @@ export default function Home() {
             WHEN
           </Title>
 
-          <Box mt={3}>
+          <Box mt={gap}>
             <Hotkey name="key" label="Trigger Key" value={bindingModel?.key} error={bindingError} />
           </Box>
 
-          <Divider my={3} mx={-3} />
+          <Divider my={gap} mx={-gap} />
 
           <Title size={1.15} center>
             THEN
           </Title>
 
           {[0, 1, 2].map((keyNumber) => (
-            <Box key={keyNumber} row noWrap mt={3}>
+            <Box key={keyNumber} row noWrap mt={gap}>
               <Hotkey
                 name={`sequence.${keyNumber}`}
                 label={`Key ${keyNumber + 1}`}
@@ -670,21 +675,21 @@ export default function Home() {
                 label="Delay"
                 value={bindingModel?.delay?.[keyNumber]}
                 w={120}
-                ml={3}
+                ml={gap}
                 endAddon={<Text>ms</Text>}
               />
             </Box>
           ))}
 
-          <Divider my={3} mx={-3} />
+          <Divider my={gap} mx={-gap} />
 
           <Box>
             <Checkbox name="loop" label="Use as toggler (enable/disable)" checked={bindingModel?.loop} />
           </Box>
 
-          <Divider my={3} mx={-3} />
+          <Divider my={gap} mx={-gap} />
 
-          <Grid gap={3}>
+          <Grid gap>
             <Box xs>
               <Button variant="text" onPress={() => setBindingModel(undefined)}>
                 Cancel
@@ -699,8 +704,8 @@ export default function Home() {
 
       <Backdrop visible={Boolean(actionModel)} p={6}>
         <Card p={0} overflow="hidden" maxh="100%">
-          <Scrollable contentInset={3}>
-            <Panel title="Need help?" initialExpanded={false} m={-3}>
+          <Scrollable contentInset={gap}>
+            <Panel title="Need help?" initialExpanded={false} m={-gap}>
               <Text>
                 Feel free to use anything from{' '}
                 <Link href="https://www.autohotkey.com/docs/v1" target="autohotkey">
@@ -708,7 +713,7 @@ export default function Home() {
                 </Link>
                 .
               </Text>
-              <Text mt={3}>Some extra functions may be used:</Text>
+              <Text mt={gap}>Some extra functions may be used:</Text>
               <FnColor name="AdminRequired" description="Request to run Awy Bot as Administrator." />
               <FnColor
                 name="xSend"
@@ -735,7 +740,7 @@ export default function Home() {
               <FnColor name="GetFile" params="DestinationPath, URL" description="Download a file to use on custom actions." />
             </Panel>
 
-            <Divider my={3} mx={-3} />
+            <Divider my={gap} mx={-gap} />
 
             <Form ref={formActionRef} onSubmit={handleSaveAction}>
               <Input //
@@ -753,13 +758,13 @@ export default function Home() {
                 value={actionModel?.script}
                 multiline
                 rows={20}
-                mt={3}
+                mt={gap}
                 fontFamily="Consolas, Courier"
               />
 
-              <Divider my={3} mx={-3} />
+              <Divider my={gap} mx={-gap} />
 
-              <Grid gap={3}>
+              <Grid gap>
                 <Box xs>
                   <Button variant="text" onPress={() => setActionModel(undefined)}>
                     Cancel
