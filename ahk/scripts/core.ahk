@@ -18,9 +18,9 @@ global MouseBackupY := 0
 global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
-global ResourcesDir = %A_WorkingDir%\resources
+global ResourcesDir := A_WorkingDir "\resources"
 If (!FileExist(ResourcesDir)) {
-  ResourcesDir = %A_WorkingDir%
+  ResourcesDir := A_WorkingDir
 }
 
 GetScriptName() {
