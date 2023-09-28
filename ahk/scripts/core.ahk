@@ -18,34 +18,33 @@ global MouseBackupY := 0
 global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
+GetScriptName() {
+  Return % StrReplace(SubStr(A_ScriptName, 9), "_action.ahk", "")
+}
+
 AdminRequired() {
   If (!A_IsAdmin) {
-      Title := StrReplace(SubStr(A_ScriptName, 9), "_action.ahk", "")
+      Title := GetScriptName()
       MsgBox, %Title%: Run Awy Bot as Administrator
       ExitApp
   }
 }
 
-Notify(Message, Duration = 500) {
-    SplashTextOff
-
-    If (!Width) {
-      Width := StrLen(Message) * 8
-    }
-
-    Title := StrReplace(SubStr(A_ScriptName, 9), "_action.ahk", "")
-    SplashTextOn, %Width%, 22, %Title%, %Message%
-
-    If (Duration < 100) {
-      Duration := 100
+Notify(Message, Duration := 500, Color := "0xFFFFFF") {
+    If (Duration < 200) {
+      Duration := 200
     }
 
     If (Duration > 3000) {
       Duration := 3000
     }
 
-    Sleep, %Duration%
-    SplashTextOff
+    Title := GetScriptName()
+    Title := Title ? Title : "Awy Bot"
+    ToasterScriptPath = %A_WorkingDir%\ahk\scripts\toaster.ahk
+    Run %ToasterScriptPath% "[%Title%] %Message%" "%Duration%" "%Color%"
+
+    Return
 }
 
 HotkeyClear(Key) {
@@ -74,9 +73,21 @@ xSend(Key, ReleaseKey := False) {
   Send, {%Key% up}
 }
 
-SetOverlay(Key, Value := 1, Session := "Default") {
+SetOverlay(Value := 1, Key := false, Session := false) {
+  If (!Key) {
+    Key := GetScriptName()
+
+    If (!Session) {
+      Session := "Actions"
+    }
+  }
+
+  If (!Session) {
+    Session := "Default"
+  }
+
   If (Value) {
-    IniWrite, 1, overlay.ini, %Session%, %Key%
+    IniWrite, %Value%, overlay.ini, %Session%, %Key%
   } Else {
     IniDelete, overlay.ini, %Session%, %Key%
   }

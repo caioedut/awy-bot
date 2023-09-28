@@ -12,6 +12,10 @@ type OverlayType = {
   Actions: object;
 };
 
+function debug(value) {
+  alert(JSON.stringify(value, null, 2));
+}
+
 export default function Overlay() {
   const theme = useTheme();
 
@@ -68,9 +72,9 @@ export default function Overlay() {
                 {title === 'Default' ? 'Awy Bot' : title}
               </Text>
 
-              {Object.entries(configs).map(([label]) => (
+              {Object.entries(configs).map(([label, value]: [label: string, value: any]) => (
                 <Text key={label} mt={0.5} numberOfLines={1}>
-                  {label}
+                  {label} {[0, 1, '0', '1', true, false, 'true', 'false'].includes(value) ? '' : value || ''}
                 </Text>
               ))}
             </React.Fragment>
