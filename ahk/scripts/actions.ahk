@@ -23,7 +23,7 @@ Loop, %matchWindows%
 
         actionLabel := StrReplace(name, "awy_bot_", "")
         actionLabel := StrReplace(actionLabel, "_action.ahk", "")
-        SetOverlay(actionLabel, 1, "Actions")
+        SetOverlay(1, actionLabel, "Actions")
       }
     }
   }

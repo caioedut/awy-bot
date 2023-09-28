@@ -16,12 +16,12 @@ Return
   pausedByUser := !pausedByUser
 
   If (pausedByUser) {
-    Notify("Paused")
+    Notify("Paused", , "0xEF4444")
   } Else {
-    Notify("Resumed")
+    Notify("Resumed", , "0x22C55E")
   }
 
-  SetOverlay("Paused", pausedByUser)
+  SetOverlay(pausedByUser, "Paused")
 
   Return
 }
@@ -48,8 +48,8 @@ CheckOverlay:
   If (WindowExe) {
     isWinActive := WinActive("ahk_exe" WindowExe)
 
-    SetOverlay("No Window", WindowExe ? 0 : 1)
-    SetOverlay("Suspended", !WindowExe || isWinActive ? 0 : 1)
+    SetOverlay(WindowExe ? 0 : 1, "No Window")
+    SetOverlay(!WindowExe || isWinActive ? 0 : 1, "Suspended")
   }
 
   Return

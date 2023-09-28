@@ -32,8 +32,8 @@ OnToggle(Key, Sequence, Delays) {
   status := toggleStatus[Key] ? "On" : "Off"
 
   StringUpper, keyLabel, % HotkeyClear(Key)
-  Notify("(" keyLabel ") Loop: " status)
-  SetOverlay(keyLabel, toggleStatus[Key] ? 1 : 0, "Loop")
+  Notify("(" keyLabel ") Loop: " status, , "0x3B82F6")
+  SetOverlay(toggleStatus[Key] ? 1 : 0, keyLabel, "Loop")
 
   If (status == "On") {
     fn := Func("OnPress").bind(Key, Sequence, Delays, 1)

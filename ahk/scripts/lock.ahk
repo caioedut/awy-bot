@@ -11,7 +11,7 @@ For index, Key in A_Args
   Hotkey, %Trigger%, %fn%, On
 
   StringUpper, keyLabel, % Key
-  SetOverlay(HotkeyClear(keyLabel), 1, "Lock")
+  SetOverlay(1, HotkeyClear(keyLabel), "Lock")
 }
 
 OnPress(Key) {

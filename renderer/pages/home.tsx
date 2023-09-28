@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { FormRef } from '@react-bulk/core';
 import {
@@ -48,6 +48,7 @@ type Lock = {
 };
 
 type Binding = {
+  index?: number;
   key: string;
   sequence: string[];
   delay: number[];
@@ -277,9 +278,9 @@ export default function Home() {
     });
   };
 
-  function handleEditBinding(key?: string) {
-    const model = bindings.find((item) => item.key === key);
-    setBindingModel(model ?? ({} as Binding));
+  function handleEditBinding(index?: number) {
+    const model = bindings?.[index] || ({} as Binding);
+    setBindingModel({ ...model, index });
   }
 
   function handleSaveBinding(e: FormRef, data: any) {
@@ -290,7 +291,7 @@ export default function Home() {
     if (hasError) return;
 
     setBindings((current) => {
-      const model = current.find(({ key }) => key === data.key);
+      const model = current?.[data.index];
 
       data.sequence = data.sequence.filter(Boolean);
       data.delay = data.delay.map((value) => Number(value ?? 0));
@@ -307,13 +308,13 @@ export default function Home() {
     setBindingModel(undefined);
   }
 
-  function handleDeleteBinding(key) {
-    if (!global.confirm(`Are you sure you want to remove binding for key "${key}"?`)) {
+  function handleDeleteBinding(index?: number) {
+    if (!global.confirm(`Are you sure you want to remove this binding?`)) {
       return;
     }
 
     setBindings((current) => {
-      return current.filter((item) => item.key !== key);
+      return current.filter((_, itemIndex) => itemIndex !== index);
     });
   }
 
@@ -483,60 +484,67 @@ export default function Home() {
         </Panel>
 
         <Panel title={`Key Bindings (${bindings.length})`} initialExpanded={false} mt={3}>
-          {bindings.map((item, index) => (
-            <Box key={index}>
+          {bindings.map((item, bindingIndex) => (
+            <Box key={bindingIndex}>
               <Box row noWrap>
                 <Box row flex alignItems="center">
-                  <Text bold>WHEN</Text>
-
-                  <Badge color="primary" mx={3}>
+                  <Text bold mr={2} my={1}>
+                    WHEN
+                  </Text>
+                  <Badge color="primary" mr={2} my={1}>
                     {item.name ?? item.key}
                   </Badge>
+                  <Text bold mr={2} my={1}>
+                    THEN
+                  </Text>
 
-                  <Text bold>THEN</Text>
-
-                  {item.sequence.map((key, index) => (
-                    <Box key={index} row noWrap>
-                      {index > 0 && <Text ml={3}>⟶</Text>}
-
-                      <Badge color="info" ml={3}>
+                  {item.sequence.map((key, sequenceIndex) => (
+                    <Fragment key={sequenceIndex}>
+                      {sequenceIndex > 0 && (
+                        <Text mr={2} my={1}>
+                          ⟶
+                        </Text>
+                      )}
+                      <Badge color="info" mr={2} my={1}>
                         {key}
                       </Badge>
 
-                      {Boolean(item?.delay?.[index]) && (
+                      {Boolean(item?.delay?.[sequenceIndex]) && (
                         <>
-                          <Text ml={3}>⟶</Text>
-                          <Badge color="warning.dark" ml={3}>
-                            wait {item.delay[index]}ms
+                          <Text mr={2} my={1}>
+                            ⟶
+                          </Text>
+                          <Badge color="warning.dark" mr={2} my={1}>
+                            wait {item.delay[sequenceIndex]}ms
                           </Badge>
                         </>
                       )}
-                    </Box>
+                    </Fragment>
                   ))}
                 </Box>
 
-                <Box ml={1.5}>
+                <Box ml={1}>
                   <Tooltip title="Edit" position="left">
-                    <Button variant="outline" size="small" onPress={() => handleEditBinding(item.key)}>
+                    <Button variant="outline" size="small" onPress={() => handleEditBinding(bindingIndex)}>
                       <Icon name="Edit" />
                     </Button>
                   </Tooltip>
                 </Box>
 
-                <Box ml={1.5}>
+                <Box ml={1}>
                   <Tooltip title="Remove" position="left">
-                    <Button variant="outline" size="small" color="error" onPress={() => handleDeleteBinding(item.key)}>
+                    <Button variant="outline" size="small" color="error" onPress={() => handleDeleteBinding(bindingIndex)}>
                       <Icon name="Trash" color="error" />
                     </Button>
                   </Tooltip>
                 </Box>
               </Box>
 
-              <Divider mx={-3} my={3} />
+              <Divider mx={-4} my={4} />
             </Box>
           ))}
 
-          <Button onPress={handleEditBinding}>Add New Binding</Button>
+          <Button onPress={() => handleEditBinding()}>Add New Binding</Button>
         </Panel>
 
         <Panel
@@ -630,7 +638,9 @@ export default function Home() {
       </Modal>
 
       <Modal visible={Boolean(bindingModel)}>
-        <Form ref={formBindingRef} onSubmit={handleSaveBinding}>
+        <Form key={bindingModel?.index} ref={formBindingRef} onSubmit={handleSaveBinding}>
+          <Input name="index" value={bindingModel?.index} />
+
           <Title size={1.15} center>
             WHEN
           </Title>
@@ -705,7 +715,11 @@ export default function Home() {
                 params="Key, ReleaseKey := Key"
                 description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}
               />
-              <FnColor name="Notify" params="Message" description="Show a notification on screen." />
+              <FnColor
+                name="Notify"
+                params={`Message, Duration := 500, Color := "0xFFFFFF"`}
+                description="Show a notification on screen."
+              />
               <FnColor name="HotkeyClear" params="Key" description="Remove brackets {} from a hotkey string." />
               <FnColor
                 name="SetOverlay"

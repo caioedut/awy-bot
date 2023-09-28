@@ -26,7 +26,7 @@ export default function actions(e, arg) {
   for (const action of newActions) {
     const script = [
       '#Include %A_ScriptDir%\\..\\core.ahk',
-      `SetOverlay("${action.label}", 1, "Actions")`,
+      `SetOverlay(1, "${action.label}", "Actions")`,
       'Pause, On',
       '#Persistent',
       '#InstallKeybdHook',
