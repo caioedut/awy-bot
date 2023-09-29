@@ -26,6 +26,7 @@ import * as dot from 'dot-object';
 import electron from 'electron';
 import Head from 'next/head';
 
+import CheckUpdate from '../components/CheckUpdate';
 import GitHubRepository, { GitHubFile } from '../components/GitHubRepository';
 import Hotkey from '../components/Hotkey';
 import Icon from '../components/Icon';
@@ -391,7 +392,7 @@ export default function Home() {
           <Box>
             <Checkbox
               name="autoSwitch"
-              label="Auto switch settings based on active window"
+              label="[BETA] Auto switch settings based on active window"
               checked={autoSwitch}
               onChange={() => setAutoSwitch((current) => !current)}
             />
@@ -609,6 +610,8 @@ export default function Home() {
             </Box>
           </Grid>
         </Panel>
+
+        <CheckUpdate />
       </Box>
 
       <Modal visible={browseRep} onBackdropPress={() => setBrowseRep(false)}>

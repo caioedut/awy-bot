@@ -1,4 +1,6 @@
+import { spawn } from 'child_process';
 import { app } from 'electron';
+import { existsSync, rmSync } from 'fs';
 
 import createWindow from '../helpers/create-window';
 
@@ -26,6 +28,37 @@ export default async function main() {
     if (input.code == 'F4' && input.alt) e.preventDefault();
   });
 
+  window.webContents.session.on('will-download', (e, item, webContents) => {
+    // Set the save path, making Electron not to prompt a save dialog.
+    const filePath = `${app.getPath('temp')}\\${item.getFilename()}`;
+    if (existsSync(filePath)) rmSync(filePath);
+
+    item.setSavePath(filePath);
+
+    item.on('updated', (e, state) => {
+      if (state === 'interrupted') {
+        console.log('Download is interrupted but can be resumed');
+      } else if (state === 'progressing') {
+        if (item.isPaused()) {
+          console.log('Download is paused');
+        } else {
+          console.log(`Received bytes: ${item.getReceivedBytes()}`);
+        }
+      }
+    });
+
+    item.once('done', (e, state) => {
+      if (state === 'completed') {
+        console.log('Download successfully');
+
+        // Open Setup
+        spawn('cmd.exe', ['/c', filePath]);
+      } else {
+        console.log(`Download failed: ${state}`);
+      }
+    });
+  });
+
   window.on('close', () => {
     app.quit();
   });
@@ -36,7 +69,7 @@ export default async function main() {
   });
 
   if (isProd) {
-    await window.loadURL('app://./home.html');
+    await window.loadURL('app://./home.html').then(() => {});
   } else {
     await window.loadURL(`http://localhost:${port}/home`);
 
