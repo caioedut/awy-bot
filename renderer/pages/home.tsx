@@ -647,7 +647,7 @@ export default function Home() {
 
       <Modal visible={Boolean(bindingModel)}>
         <Form key={bindingModel?.index} ref={formBindingRef} onSubmit={handleSaveBinding}>
-          <Input name="index" value={bindingModel?.index} />
+          <Input type="hidden" name="index" value={bindingModel?.index} />
 
           <Title size={1.15} center>
             WHEN

@@ -18,13 +18,20 @@ global MouseBackupY := 0
 global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
-global ResourcesDir := A_WorkingDir "\resources"
-If (!FileExist(ResourcesDir)) {
-  ResourcesDir := A_WorkingDir
+global AHK_PATH := A_WorkingDir "\resources\ahk"
+If (!FileExist(AHK_PATH)) {
+  AHK_PATH := A_WorkingDir "\ahk"
 }
 
 GetScriptName() {
-  Return % StrReplace(SubStr(A_ScriptName, 9), "_action.ahk", "")
+  scriptName := StrReplace(A_ScriptName, "_action.ahk", "")
+
+  For index, item in Scripts
+  {
+    scriptName := StrReplace(scriptName, item, "")
+  }
+
+  Return % StrReplace(scriptName, "awy_bot_", "")
 }
 
 AdminRequired() {
@@ -35,7 +42,7 @@ AdminRequired() {
   }
 }
 
-Notify(Message, Duration := 500, Color := "0xFFFFFF") {
+Notify(Message, Duration := 1000, Color := "0xFFFFFF") {
     If (Duration < 200) {
       Duration := 200
     }
@@ -46,7 +53,7 @@ Notify(Message, Duration := 500, Color := "0xFFFFFF") {
 
     Title := GetScriptName()
     Title := Title ? Title : "Awy Bot"
-    ToasterScriptPath = %ResourcesDir%\ahk\scripts\toaster.ahk
+    ToasterScriptPath = %AHK_PATH%\scripts\toaster.ahk
     Run %ToasterScriptPath% "[%Title%] %Message%" "%Duration%" "%Color%"
 
     Return
@@ -119,7 +126,7 @@ MouseRestore() {
 }
 
 GetText(FromX, FromY, ToX, ToY, WhiteList = false) {
-  dir = %ResourcesDir%\ahk\Capture2Text
+  dir = %AHK_PATH%\Capture2Text
 
   command = Capture2Text_CLI.exe --screen-rect "%FromX% %FromY% %ToX% %ToY%" --output-file "C:\AwyBotFiles\temp"
 
