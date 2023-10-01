@@ -25,12 +25,10 @@ If (!FileExist(AHK_PATH)) {
 
 GetScriptName() {
   scriptName := StrReplace(A_ScriptName, "_action.ahk", "")
-
-  For index, item in Scripts
-  {
-    scriptName := StrReplace(scriptName, item, "")
-  }
-
+  scriptName := StrReplace(scriptName, "lock.ahk", "")
+  scriptName := StrReplace(scriptName, "remap.ahk", "")
+  scriptName := StrReplace(scriptName, "action.ahk", "")
+  scriptName := StrReplace(scriptName, "main.ahk", "")
   Return % StrReplace(scriptName, "awy_bot_", "")
 }
 
