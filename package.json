@@ -2,7 +2,7 @@
   "private": true,
   "name": "awy-bot",
   "description": "Remap key bindings and automate tasks",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "author": "CaioEduT <caioedut@gmail.com>",
   "main": "app/background.js",
   "scripts": {
