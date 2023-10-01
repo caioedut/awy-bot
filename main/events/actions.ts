@@ -27,7 +27,18 @@ export default function actions(e, arg) {
     const script = [
       '#Include %A_ScriptDir%\\..\\core.ahk',
       `SetOverlay(1, "${action.label}", "Actions")`,
+      `
+      OnMessage(0x0111, "LisenToPauseMessage")
+      LisenToPauseMessage(wParam, lParam)
+      {
+        If ((wParam == 65306 || wParam == 65305) && lParam == 1) {
+          BlockInput, Off
+          BlockInput, MouseMoveOff
+        }
+      }
+      `,
       'Pause, On',
+      'Suspend, On',
       '#Persistent',
       '#InstallKeybdHook',
       '#InstallMouseHook',

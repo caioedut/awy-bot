@@ -6,7 +6,7 @@ global pausedByUser := False
 ; Reset Overlay
 IniDelete, overlay.ini, Default
 
-SetTimer, CheckFocus, 100
+SetTimer, CheckFocus, 50
 SetTimer, CheckOverlay, 1000
 Gosub, CheckOverlay
 Return
@@ -55,7 +55,7 @@ CheckOverlay:
   Return
 }
 
-PauseSuspendAll(status := True)
+PauseSuspendAll(pauseNow := True)
 {
 	prevDetectWindows := A_DetectHiddenWindows
 	prevMatchMode := A_TitleMatchMode
@@ -84,20 +84,24 @@ PauseSuspendAll(status := True)
       DllCall("CloseHandle", "uint", fileMenu)
       DllCall("CloseHandle", "uint", mainMenu)
 
-      if (status && !isSuspended) || (!status && isSuspended) {
-        PostMessage, 0x111, 65305, 1,,  ahk_id %script_id%
-      }
+      If (pauseNow) {
+        If (!isPaused)
+        PostMessage, 0x0111, 65306, 1, , ahk_id %script_id%
 
-      if (status && !isPaused) || (!status && isPaused) {
-        PostMessage, 0x111, 65403,,,  ahk_id %script_id%
+        If (!isSuspended)
+        PostMessage, 0x0111, 65305, 1, , ahk_id %script_id%
+      } Else {
+        If (isPaused)
+        PostMessage, 0x0111, 65306, 0, , ahk_id %script_id%
+
+        If (isSuspended)
+        PostMessage, 0x0111, 65305, 0, , ahk_id %script_id%
       }
     }
   }
 
 	DetectHiddenWindows, %prevDetectWindows%
 	SetTitleMatchMode, %prevMatchMode%
-
-	BlockInput, Off
 
 	return script_id
 }
