@@ -616,7 +616,7 @@ export default function Home() {
 
       <Modal visible={browseRep} onBackdropPress={() => setBrowseRep(false)}>
         <Box m={-gap} w={320} h={320}>
-          <GitHubRepository onChange={handleChangeGithub} />
+          {browseRep && <GitHubRepository onChange={handleChangeGithub} />}
         </Box>
       </Modal>
 
