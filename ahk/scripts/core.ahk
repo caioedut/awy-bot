@@ -119,8 +119,8 @@ MouseBackup() {
   MouseGetPos, MouseBackupX, MouseBackupY
 }
 
-MouseRestore() {
-  MouseMove, MouseBackupX, MouseBackupY
+MouseRestore(speed := 0) {
+  MouseMove, MouseBackupX, MouseBackupY, speed
 }
 
 GetText(FromX, FromY, ToX, ToY, WhiteList = false) {
