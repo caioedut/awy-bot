@@ -719,6 +719,16 @@ export default function Home() {
               <Text mt={gap}>Some extra functions may be used:</Text>
               <FnColor name="AdminRequired" description="Request to run Awy Bot as Administrator." />
               <FnColor
+                name="VarSet"
+                params="Name, Value"
+                description={'Creates a variable that will be available even when the application is closed.'}
+              />
+              <FnColor
+                name="VarGet"
+                params="Name, DefaultValue"
+                description={'Get value from a variable created by VarSet. DefaultValue will be returned if the variable is empty.'}
+              />
+              <FnColor
                 name="xSend"
                 params="Key, ReleaseKey := Key"
                 description={'Send down a "Key" and wait the "ReleaseKey" go up to release the "Key".'}

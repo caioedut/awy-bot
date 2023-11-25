@@ -1,10 +1,21 @@
 #Include %A_ScriptDir%\core.ahk
 #Persistent
 
-global pausedByUser := False
+If (!FileExist(AHK_PATH)) {
+  AHK_PATH := A_WorkingDir "\ahk"
+}
+
+If (!FileExist(APP_TEMP)) {
+  FileCreateDir, %APP_TEMP%
+}
+
+If (!FileExist(APP_VARIABLES_FILE)) {
+  FileAppend, , %APP_VARIABLES_FILE%
+}
 
 ; Reset Overlay
-IniDelete, overlay.ini, Default
+FileDelete, %APP_OVERLAY_FILE%
+FileAppend, , %APP_OVERLAY_FILE%
 
 SetTimer, CheckFocus, 50
 SetTimer, CheckOverlay, 1000
