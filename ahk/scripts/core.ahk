@@ -19,9 +19,9 @@ global WindowExe := A_Args[1]
 A_Args.RemoveAt(1)
 
 global AHK_PATH := A_WorkingDir "\resources\ahk"
-If (!FileExist(AHK_PATH)) {
-  AHK_PATH := A_WorkingDir "\ahk"
-}
+global APP_TEMP := A_WorkingDir "\temp"
+global APP_OVERLAY_FILE := APP_TEMP "\overlay.ini"
+global APP_VARIABLES_FILE := APP_TEMP "\variables.ini"
 
 GetScriptName() {
   scriptName := StrReplace(A_ScriptName, "_action.ahk", "")
@@ -97,14 +97,14 @@ SetOverlay(Value := 1, Key := false, Session := false) {
   }
 
   If (Value) {
-    IniWrite, %Value%, overlay.ini, %Session%, %Key%
+    IniWrite, %Value%, %APP_OVERLAY_FILE%, %Session%, %Key%
   } Else {
-    IniDelete, overlay.ini, %Session%, %Key%
+    IniDelete, %APP_OVERLAY_FILE%, %Session%, %Key%
   }
 }
 
 ClearOverlay(Session) {
-  IniDelete, overlay.ini, %Session%
+  IniDelete, %APP_OVERLAY_FILE%, %Session%
 }
 
 MouseLock() {
@@ -153,4 +153,13 @@ GetFile(File, Url := False) {
   UrlDownloadToFile, %Url%, %Destination%
 
   Return Destination
+}
+
+VarSet(key, value) {
+  IniWrite, %value%, %APP_VARIABLES_FILE%, Global, %key%
+}
+
+VarGet(key, defaultValue := "") {
+  IniRead, value, %APP_VARIABLES_FILE%, Global, %key%, %defaultValue%
+  Return value
 }

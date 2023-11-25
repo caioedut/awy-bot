@@ -1,6 +1,8 @@
 import fs from 'fs';
 import ini from 'ini';
 
+import { APP_OVERLAY_FILE } from '../constants';
+
 export default function overlay(e, arg, views) {
   const body = JSON.parse(arg || '{}');
   const { type, overlay } = body;
@@ -9,7 +11,7 @@ export default function overlay(e, arg, views) {
     let response = {};
 
     try {
-      const content = fs.readFileSync('overlay.ini', 'utf-8');
+      const content = fs.readFileSync(APP_OVERLAY_FILE, 'utf-8');
       response = ini.parse(content);
     } catch (err) {}
 
