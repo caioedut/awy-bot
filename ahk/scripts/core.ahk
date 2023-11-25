@@ -52,7 +52,7 @@ Notify(Message, Duration := 1000, Color := "0xFFFFFF") {
     Title := GetScriptName()
     Title := Title ? Title : "Awy Bot"
     ToasterScriptPath = %AHK_PATH%\scripts\toaster.ahk
-    Run %ToasterScriptPath% "[%Title%] %Message%" "%Duration%" "%Color%"
+    Run, %A_AhkPath% "%ToasterScriptPath%" "[%Title%] %Message%" "%Duration%" "%Color%"
 
     Return
 }
