@@ -1,5 +1,8 @@
 #Include %A_ScriptDir%\core.ahk
 #Persistent
+#InstallKeybdHook
+#InstallMouseHook
+#UseHook
 
 ClearOverlay("Loop")
 
@@ -39,6 +42,8 @@ OnToggle(Key, Sequence, Delays) {
     fn := Func("OnPress").bind(Key, Sequence, Delays, 1)
     SetTimer, %fn%, 100
   }
+
+  Return
 }
 
 OnPress(Key, Sequence, Delays, Loop := 0) {
@@ -53,10 +58,18 @@ OnPress(Key, Sequence, Delays, Loop := 0) {
   For index, value in Sequence
   {
     delay := Delays[index]
-    xSend(value, Key)
 
-    If (Delay) {
-      Sleep, %delay%
+    If (value) {
+      ;xSend(value, Key)
+      Send, %value%
+
+      If (Delay) {
+        Sleep, %delay%
+      }
+
+      Sleep, 10
     }
   }
+
+  Return
 }

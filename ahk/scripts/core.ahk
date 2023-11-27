@@ -9,6 +9,9 @@ ListLines Off
 SendMode, Input
 FileEncoding, UTF-8
 
+SetMouseDelay, 0
+SetKeyDelay, 0, 0
+
 ; Global Variables
 global Scripts := ["lock.ahk", "remap.ahk", "action.ahk"]
 global MouseBackupX := 0
