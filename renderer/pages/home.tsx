@@ -6,7 +6,6 @@ import {
   Badge,
   Box,
   Button,
-  ButtonGroup,
   Card,
   Checkbox,
   Divider,
@@ -71,7 +70,7 @@ const ipcRenderer = electron.ipcRenderer;
 
 const globalStore = Storage.with('global');
 
-const settings = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const settings = Array.from({ length: 20 }).map((_, index) => index + 1);
 
 const defaultLocks = [
   { key: 'Win', name: 'Meta (Windows Key)' },
@@ -85,6 +84,7 @@ export default function Home() {
   const theme = useTheme();
   const { gap } = theme.shape;
 
+  const settingsScrollRef = useRef<HTMLElement>();
   const formBindingRef = useRef<FormRef>();
   const formActionRef = useRef<FormRef>();
   const timeoutRef = useRef({});
@@ -246,6 +246,23 @@ export default function Home() {
     });
   }, [window, actions]);
 
+  useEffect(() => {
+    const $el = settingsScrollRef.current;
+
+    if (!$el) return;
+
+    function listener(e) {
+      e.preventDefault();
+      $el.scrollLeft += e.deltaY;
+    }
+
+    $el.addEventListener('wheel', listener);
+
+    return () => {
+      $el.removeEventListener('wheel', listener);
+    };
+  }, [settingsScrollRef]);
+
   const handleResetConfig = () => {
     if (!global.confirm(`Are you sure you want to reset settings number ${config}?`)) {
       return;
@@ -398,28 +415,50 @@ export default function Home() {
             />
           </Box>
 
-          <Box row noWrap mt={gap}>
-            <ButtonGroup maxw={340}>
-              {settings.map((item) => (
-                <Button
-                  key={item}
-                  variant={config === item ? 'solid' : 'outline'}
-                  title={configNames[item]}
-                  px={3}
-                  onPress={() => handleChangeConfig(item)}
-                >
-                  {item}
-                </Button>
-              ))}
-            </ButtonGroup>
-            <Box>
-              <Tooltip title="Reset current settings" position="left">
-                <Button variant="outline" color="red" onPress={handleResetConfig}>
-                  <Icon name="Trash" color="error" />
-                </Button>
-              </Tooltip>
-            </Box>
-            <Box flex alignItems="end" ml={gap}>
+          <Box row noWrap mt={gap} center>
+            <Scrollable ref={settingsScrollRef} direction="horizontal" contentInset={1} m={-1}>
+              <Grid gap={2}>
+                {settings.map((item) => {
+                  const isSelected = config === item;
+                  const label = `${configNames[item] || item || ''}`;
+
+                  return (
+                    <Box key={item}>
+                      <Box row flex noWrap corners={1} overflow="hidden" bg={isSelected ? 'primary' : 'trans'}>
+                        <Button
+                          flex
+                          variant={isSelected ? 'solid' : 'outline'}
+                          onPress={() => handleChangeConfig(item)}
+                          onContextMenu={() => setEditConfigNameIndex(item)}
+                        >
+                          <Text
+                            flex
+                            center
+                            lh={1}
+                            maxw={48}
+                            numberOfLines={2}
+                            fontSize={label.length > 2 ? 10 : 12}
+                            style={{ wordBreak: 'break-all' }}
+                          >
+                            {label}
+                          </Text>
+                        </Button>
+
+                        {isSelected && (
+                          <>
+                            <Divider vertical my={1} opacity={0.35} />
+                            <Button onPress={handleResetConfig} circular>
+                              <Icon name="Trash" color="primary.contrast" />
+                            </Button>
+                          </>
+                        )}
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Grid>
+            </Scrollable>
+            <Box alignItems="end" ml={gap}>
               <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
             </Box>
           </Box>
@@ -427,30 +466,28 @@ export default function Home() {
           <Box row noWrap mt={gap}>
             <Box flex>
               <Select
+                colorful
                 name="window"
                 label="Window"
                 value={window}
                 onChange={(e, value) => setWindow(value)}
-                options={
-                  [
-                    { value: '', label: '-- ALL --' },
-                    ...ArrayHelper.uniqueBy(visibleWindows, 'ahk_exe').map((win) => ({
-                      value: win.ahk_exe,
-                      label: (
-                        <Box row noWrap>
-                          <Text bold color={win.error ? 'error' : 'info'}>
-                            [{win.ahk_exe.toLowerCase()}]
-                          </Text>
-                          <Text flex ml={2}>
-                            {win.short.substring(0, 60)}
-                            {win.short.length > 60 ? ' ...' : ''}
-                          </Text>
-                          {win.error && <Badge color="error">not running</Badge>}
-                        </Box>
-                      ),
-                    })),
-                  ] as any[]
-                }
+                options={[{ value: '', label: '-- ALL --' }].concat(
+                  ArrayHelper.uniqueBy(visibleWindows, 'ahk_exe').map((win) => ({
+                    value: win.ahk_exe,
+                    label: (
+                      <Box row noWrap>
+                        <Text bold color={win.error ? 'error' : 'info'}>
+                          [{win.ahk_exe.toLowerCase()}]
+                        </Text>
+                        <Text flex ml={2}>
+                          {win.short.substring(0, 60)}
+                          {win.short.length > 60 ? ' ...' : ''}
+                        </Text>
+                        {win.error && <Badge color="error">not running</Badge>}
+                      </Box>
+                    ),
+                  })),
+                )}
               />
             </Box>
             <Box ml={gap / 2} align="end">
