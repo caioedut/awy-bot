@@ -56,6 +56,7 @@ type Binding = {
   group: string;
   name?: string;
   loop?: boolean;
+  modifiers?: boolean;
 };
 
 type Action = {
@@ -302,7 +303,7 @@ export default function Home() {
 
   function handleEditBinding(index?: number) {
     const model = bindings?.[index] || ({} as Binding);
-    setBindingModel({ ...model, index });
+    setBindingModel({ ...model, index: index ?? null });
   }
 
   function handleSaveBinding(e: FormRef, data: any) {
@@ -531,10 +532,16 @@ export default function Home() {
             <Box key={bindingIndex}>
               <Box row noWrap>
                 <Box row flex alignItems="center">
+                  {Boolean(item.modifiers) && (
+                    <Badge color="error" mr={2} my={1}>
+                      WITH MODIFIERS
+                    </Badge>
+                  )}
+
                   <Text bold mr={2} my={1}>
                     WHEN
                   </Text>
-                  <Badge color="primary" mr={2} my={1}>
+                  <Badge color="info" mr={2} my={1}>
                     {item.name ?? item.key}
                   </Badge>
                   <Text bold mr={2} my={1}>
@@ -548,7 +555,7 @@ export default function Home() {
                           ⟶
                         </Text>
                       )}
-                      <Badge color="info" mr={2} my={1}>
+                      <Badge color="success" mr={2} my={1}>
                         {key}
                       </Badge>
 
@@ -722,6 +729,13 @@ export default function Home() {
           ))}
 
           <Divider my={gap} mx={-gap} />
+
+          <Box row noWrap alignItems="center">
+            <Checkbox name="modifiers" label="Forward modifier keys" checked={bindingModel?.modifiers} mr={2} />
+            <Tooltip title="Capture and forward CTRL/SHIFT/ALT/META keys">
+              <Icon name="Info" size={18} />
+            </Tooltip>
+          </Box>
 
           <Box>
             <Checkbox name="loop" label="Use as toggler (enable/disable)" checked={bindingModel?.loop} />

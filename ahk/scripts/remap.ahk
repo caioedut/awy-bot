@@ -16,6 +16,12 @@ For index, value in A_Args
   Loop := Array[2]
   Sequence := Array[3]
   Delays := Array[4]
+  Modifiers := Array[5]
+
+  If (Key && Modifiers) {
+    Key := "*" Key
+    Sequence := StrReplace(Sequence, "{", "{Blind}{", , 1)
+  }
 
   If (Key && Sequence) {
     Trigger := HotkeyClear("$" Key)

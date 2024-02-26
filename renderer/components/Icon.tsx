@@ -5,6 +5,7 @@ import Edit from '../icons/Edit';
 import File from '../icons/File';
 import Folder from '../icons/Folder';
 import HelpCircle from '../icons/HelpCircle';
+import Info from '../icons/Info';
 import Refresh from '../icons/Refresh';
 import Trash from '../icons/Trash';
 
@@ -14,6 +15,7 @@ const Icons = {
   File,
   Folder,
   HelpCircle,
+  Info,
   Refresh,
   Trash,
 };
@@ -21,7 +23,7 @@ const Icons = {
 export type IconProps = {
   size?: number | string;
   color?: string;
-  name: 'Code' | 'Edit' | 'File' | 'Folder' | 'HelpCircle' | 'Refresh' | 'Trash';
+  name: keyof typeof Icons;
 };
 
 export default function Icon({ name, size = '1rem', color = 'primary' }: IconProps) {
