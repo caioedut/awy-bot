@@ -12,6 +12,7 @@ import {
   Form,
   Grid,
   Input,
+  Label,
   Link,
   Loading,
   Modal,
@@ -416,29 +417,36 @@ export default function Home() {
             />
           </Box>
 
-          <Box row noWrap mt={gap} center>
+          <Box mt={gap}>
+            <Label m={1} mt={0}>
+              Slot
+            </Label>
             <Scrollable ref={settingsScrollRef} direction="horizontal" contentInset={1} m={-1}>
-              <Grid gap={2}>
+              <Grid gap={gap / 2}>
                 {settings.map((item) => {
                   const isSelected = config === item;
                   const label = `${configNames[item] || item || ''}`;
 
                   return (
                     <Box key={item}>
-                      <Box row flex noWrap corners={1} overflow="hidden" bg={isSelected ? 'primary' : 'trans'}>
+                      <Box row flex noWrap corners={1} bg={isSelected ? 'primary' : 'trans'}>
                         <Button
                           flex
+                          px={0}
+                          minw={32}
                           variant={isSelected ? 'solid' : 'outline'}
                           onPress={() => handleChangeConfig(item)}
                           onContextMenu={() => setEditConfigNameIndex(item)}
                         >
                           <Text
+                            bold
                             flex
                             center
                             lh={1}
                             maxw={48}
                             numberOfLines={2}
-                            fontSize={label.length > 2 ? 10 : 12}
+                            color={isSelected ? 'primary.contrast' : 'primary.main'}
+                            fontSize={label.length > 2 ? 9 : 11}
                             style={{ wordBreak: 'break-all' }}
                           >
                             {label}
@@ -459,12 +467,9 @@ export default function Home() {
                 })}
               </Grid>
             </Scrollable>
-            <Box alignItems="end" ml={gap}>
-              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
-            </Box>
           </Box>
 
-          <Box row noWrap mt={gap}>
+          <Grid row noWrap gap={gap / 2} mt={gap} alignItems="end">
             <Box flex>
               <Select
                 colorful
@@ -491,14 +496,20 @@ export default function Home() {
                 )}
               />
             </Box>
-            <Box ml={gap / 2} align="end">
+            <Box>
               <Tooltip title="Refresh">
                 <Button onPress={getWindows}>
                   <Icon name="Refresh" color="white" />
                 </Button>
               </Tooltip>
             </Box>
-          </Box>
+            <Box>
+              <Divider vertical h={27} mx={gap} />
+            </Box>
+            <Box>
+              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
+            </Box>
+          </Grid>
         </Panel>
 
         <Panel title={`Key Locks (${locks.filter(({ lock }) => lock).length}/${locks.length})`} initialExpanded={false} mt={gap}>

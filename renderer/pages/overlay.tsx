@@ -63,11 +63,11 @@ export default function Overlay() {
         userSelect: 'none',
       }}
     >
-      <Box ref={contentRef} align="start">
+      <Box ref={contentRef} align="start" minw={56}>
         {sections
           .filter(([, configs]) => Object.values(configs).length)
           .map(([title, configs = {}], index) => (
-            <React.Fragment key={title}>
+            <Box key={title}>
               <Text color="primary" bold mt={index ? 2 : 0} numberOfLines={1}>
                 {title === 'Default' ? 'Awy Bot' : title}
               </Text>
@@ -77,7 +77,7 @@ export default function Overlay() {
                   {label} {[0, 1, '0', '1', true, false, 'true', 'false'].includes(value) ? '' : value || ''}
                 </Text>
               ))}
-            </React.Fragment>
+            </Box>
           ))}
       </Box>
     </Box>
