@@ -1,6 +1,8 @@
 #Include %A_ScriptDir%\core.ahk
 #Include %A_ScriptDir%\systemCursor.ahk
 
+CoordMode, Mouse, Screen
+
 SetSystemCursor("IDC_HAND")
 SetTimer, Tooltiper, 100
 Return
