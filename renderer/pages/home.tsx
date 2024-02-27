@@ -407,7 +407,7 @@ export default function Home() {
           <title>Awy Bot</title>
         </Head>
 
-        <Panel title={`Settings (#${config} : ${window || 'ALL'})`}>
+        <Panel initialExpanded title={`Settings (#${config} : ${window || 'ALL'})`}>
           <Box>
             <Checkbox
               name="autoSwitch"
@@ -512,7 +512,7 @@ export default function Home() {
           </Grid>
         </Panel>
 
-        <Panel title={`Key Locks (${locks.filter(({ lock }) => lock).length}/${locks.length})`} initialExpanded={false} mt={gap}>
+        <Panel title={`Key Locks (${locks.filter(({ lock }) => lock).length}/${locks.length})`} mt={gap}>
           {locks.map((item, index) => (
             <Box key={item.key}>
               {index > 0 && <Divider mx={-gap} my={gap} />}
@@ -538,7 +538,7 @@ export default function Home() {
           ))}
         </Panel>
 
-        <Panel title={`Key Bindings (${bindings.length})`} initialExpanded={false} mt={gap}>
+        <Panel title={`Key Bindings (${bindings.length})`} mt={gap}>
           {bindings.map((item, bindingIndex) => (
             <Box key={bindingIndex}>
               <Box row noWrap>
@@ -605,14 +605,14 @@ export default function Home() {
             </Box>
           ))}
 
-          <Button onPress={() => handleEditBinding()}>Add New Binding</Button>
+          <Grid gap>
+            <Box>
+              <Button onPress={() => handleEditBinding()}>Add New Binding</Button>
+            </Box>
+          </Grid>
         </Panel>
 
-        <Panel
-          title={`Advanced Scripts (${actions.filter(({ enabled }) => enabled).length}/${actions.length})`}
-          initialExpanded={false}
-          mt={gap}
-        >
+        <Panel title={`Advanced Scripts (${actions.filter(({ enabled }) => enabled).length}/${actions.length})`} mt={gap}>
           {actions.map((item) => (
             <Box key={item.label}>
               <Box row noWrap center>
@@ -655,12 +655,12 @@ export default function Home() {
           ))}
 
           <Grid gap>
-            <Box xs>
+            <Box>
               <Button variant="outline" onPress={() => setActionModel({ label: '', script: '', new: true })}>
                 Create New Script
               </Button>
             </Box>
-            <Box xs>
+            <Box>
               <Button onPress={() => setBrowseRep(true)}>Browse Repository</Button>
             </Box>
           </Grid>
@@ -670,13 +670,13 @@ export default function Home() {
       </Box>
 
       <Modal visible={browseRep} onBackdropPress={() => setBrowseRep(false)}>
-        <Box m={-gap} w={320} h={320}>
+        <Box m={-gap} w={320} h={320} zIndex={1}>
           {browseRep && <GitHubRepository onChange={handleChangeGithub} />}
         </Box>
       </Modal>
 
       <Modal visible={typeof editConfigNameIndex === 'number'}>
-        <Form w={320} onSubmit={handleSaveConfigName}>
+        <Form w={320} zIndex={1} onSubmit={handleSaveConfigName}>
           <Title size={1.15} center>
             Config Name
           </Title>
@@ -701,7 +701,7 @@ export default function Home() {
       </Modal>
 
       <Modal visible={Boolean(bindingModel)}>
-        <Form key={bindingModel?.index} ref={formBindingRef} onSubmit={handleSaveBinding}>
+        <Form key={bindingModel?.index} ref={formBindingRef} zIndex={1} onSubmit={handleSaveBinding}>
           <Input type="hidden" name="index" value={bindingModel?.index} />
 
           <Title size={1.15} center>
@@ -768,9 +768,9 @@ export default function Home() {
       </Modal>
 
       <Backdrop visible={Boolean(actionModel)} p={6}>
-        <Card p={0} overflow="hidden" maxh="100%">
+        <Card p={0} overflow="hidden" maxh="100%" zIndex={1}>
           <Scrollable contentInset={gap}>
-            <Panel title="Need help?" initialExpanded={false} m={-gap}>
+            <Panel title="Need help?" m={-gap}>
               <Text>
                 Feel free to use anything from{' '}
                 <Link href="https://www.autohotkey.com/docs/v1" target="autohotkey">
