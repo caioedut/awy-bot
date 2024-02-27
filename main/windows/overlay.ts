@@ -4,26 +4,23 @@ import Store from 'electron-store';
 const port = process.argv[2];
 const isProd: boolean = process.env.NODE_ENV === 'production';
 
-const adjustPosition = (window): number[] => {
+function adjustPosition(window: BrowserWindow) {
   let [x, y] = window.getPosition();
 
-  const size = window.getSize();
   const bounds = window.getBounds();
   const display = screen.getDisplayNearestPoint(bounds);
 
-  const minX = 4;
-  const minY = 4;
-  const maxX = display.bounds.width - (size?.[0] || 0);
-  const maxY = display.bounds.height - (size?.[1] || 0);
+  const maxPosX = display.bounds.x + display.bounds.width - bounds.width;
+  const maxPosY = display.bounds.y + display.bounds.height - bounds.height;
 
   // Min/max positions
-  x = Math.min(maxX, Math.max(minX, x));
-  y = Math.min(maxY, Math.max(minY, y));
+  x = Math.min(maxPosX, Math.max(0, x));
+  y = Math.min(maxPosY, Math.max(0, y));
 
   window.setPosition(x, y);
 
-  return [x, y];
-};
+  return [x, y] as const;
+}
 
 export default async function overlay() {
   const store = new Store({ name: 'window-state-overlay' });
