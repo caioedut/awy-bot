@@ -8,10 +8,11 @@ import Title from './Title';
 export type PanelProps = {
   title: ReactNode;
   initialExpanded?: boolean;
+  noCollapse?: boolean;
   children: ReactNode;
 } & BoxProps;
 
-export default function Panel({ title, initialExpanded, children, ...rest }: PanelProps) {
+export default function Panel({ title, initialExpanded, noCollapse, children, ...rest }: PanelProps) {
   const theme = useTheme();
   const { gap } = theme.shape;
 
@@ -21,10 +22,10 @@ export default function Panel({ title, initialExpanded, children, ...rest }: Pan
     <Card p={0} overflow="hidden" {...rest}>
       <Box row noWrap p={gap} onPress={() => setExpanded((current) => !current)}>
         <Title flex>{title}</Title>
-        <Text>{expanded ? '▲' : '▼'}</Text>
+        {!noCollapse && <Text>{expanded ? '▲' : '▼'}</Text>}
       </Box>
 
-      <Collapse visible={expanded}>
+      <Collapse visible={noCollapse ? true : expanded}>
         <Divider />
         <Box p={gap}>{children}</Box>
       </Collapse>
