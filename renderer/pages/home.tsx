@@ -265,6 +265,10 @@ export default function Home() {
     };
   }, [settingsScrollRef]);
 
+  const handleServiceAsync = useCallback((serviceName) => {
+    service(serviceName);
+  }, []);
+
   const handleResetConfig = () => {
     if (!global.confirm(`Are you sure you want to reset settings number ${config}?`)) {
       return;
@@ -407,110 +411,126 @@ export default function Home() {
           <title>Awy Bot</title>
         </Head>
 
-        <Panel initialExpanded title={`Settings (#${config} : ${window || 'ALL'})`}>
-          <Box>
-            <Checkbox
-              name="autoSwitch"
-              label="[BETA] Auto switch settings based on active window"
-              checked={autoSwitch}
-              onChange={() => setAutoSwitch((current) => !current)}
-            />
-          </Box>
+        <Box row noWrap>
+          <Box flex>
+            <Panel noCollapse flex title={`Settings (#${config} : ${window || 'ALL'})`}>
+              <Box>
+                <Checkbox
+                  name="autoSwitch"
+                  label="[BETA] Auto switch settings based on active window"
+                  checked={autoSwitch}
+                  onChange={() => setAutoSwitch((current) => !current)}
+                />
+              </Box>
 
-          <Box mt={gap}>
-            <Label m={1} mt={0}>
-              Slot
-            </Label>
-            <Scrollable ref={settingsScrollRef} direction="horizontal" contentInset={1} m={-1}>
-              <Grid gap={gap / 2}>
-                {settings.map((item) => {
-                  const isSelected = config === item;
-                  const label = `${configNames[item] || item || ''}`;
+              <Box mt={gap}>
+                <Label m={1} mt={0}>
+                  Slot
+                </Label>
+                <Scrollable ref={settingsScrollRef} direction="horizontal" contentInset={1} m={-1}>
+                  <Grid gap={gap / 2}>
+                    {settings.map((item) => {
+                      const isSelected = config === item;
+                      const label = `${configNames[item] || item || ''}`;
 
-                  return (
-                    <Box key={item}>
-                      <Box row flex noWrap corners={1} bg={isSelected ? 'primary' : 'trans'}>
-                        <Button
-                          flex
-                          px={0}
-                          minw={32}
-                          variant={isSelected ? 'solid' : 'outline'}
-                          onPress={() => handleChangeConfig(item)}
-                          onContextMenu={() => setEditConfigNameIndex(item)}
-                        >
-                          <Text
-                            bold
-                            flex
-                            center
-                            lh={1}
-                            maxw={48}
-                            numberOfLines={2}
-                            color={isSelected ? 'primary.contrast' : 'primary.main'}
-                            fontSize={label.length > 2 ? 9 : 11}
-                            style={{ wordBreak: 'break-all' }}
-                          >
-                            {label}
-                          </Text>
-                        </Button>
-
-                        {isSelected && (
-                          <>
-                            <Divider vertical my={1} opacity={0.35} />
-                            <Button onPress={handleResetConfig} circular>
-                              <Icon name="Trash" color="primary.contrast" />
+                      return (
+                        <Box key={item}>
+                          <Box row flex noWrap corners={1} bg={isSelected ? 'primary' : 'trans'}>
+                            <Button
+                              flex
+                              px={0}
+                              minw={32}
+                              variant={isSelected ? 'solid' : 'outline'}
+                              onPress={() => handleChangeConfig(item)}
+                              onContextMenu={() => setEditConfigNameIndex(item)}
+                            >
+                              <Text
+                                bold
+                                flex
+                                center
+                                lh={1}
+                                maxw={48}
+                                numberOfLines={2}
+                                color={isSelected ? 'primary.contrast' : 'primary.main'}
+                                fontSize={label.length > 2 ? 9 : 11}
+                                style={{ wordBreak: 'break-all' }}
+                              >
+                                {label}
+                              </Text>
                             </Button>
-                          </>
-                        )}
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Grid>
-            </Scrollable>
-          </Box>
 
-          <Grid row noWrap gap={gap / 2} mt={gap} alignItems="end">
-            <Box flex>
-              <Select
-                colorful
-                name="window"
-                label="Window"
-                value={window}
-                onChange={(e, value) => setWindow(value)}
-                options={[{ value: '', label: '-- ALL --' }].concat(
-                  ArrayHelper.uniqueBy(visibleWindows, 'ahk_exe').map((win) => ({
-                    value: win.ahk_exe,
-                    label: (
-                      <Box row noWrap>
-                        <Text bold color={win.error ? 'error' : 'info'}>
-                          [{win.ahk_exe.toLowerCase()}]
-                        </Text>
-                        <Text flex ml={2}>
-                          {win.short.substring(0, 60)}
-                          {win.short.length > 60 ? ' ...' : ''}
-                        </Text>
-                        {win.error && <Badge color="error">not running</Badge>}
-                      </Box>
-                    ),
-                  })),
-                )}
-              />
-            </Box>
-            <Box>
-              <Tooltip title="Refresh">
-                <Button onPress={getWindows}>
-                  <Icon name="Refresh" color="white" />
-                </Button>
-              </Tooltip>
-            </Box>
-            <Box>
-              <Divider vertical h={27} mx={gap} />
-            </Box>
-            <Box>
-              <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
-            </Box>
-          </Grid>
-        </Panel>
+                            {isSelected && (
+                              <>
+                                <Divider vertical my={1} opacity={0.35} />
+                                <Button onPress={handleResetConfig} circular>
+                                  <Icon name="Trash" color="primary.contrast" />
+                                </Button>
+                              </>
+                            )}
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Grid>
+                </Scrollable>
+              </Box>
+
+              <Grid row noWrap gap={gap / 2} mt={gap} alignItems="end">
+                <Box flex>
+                  <Select
+                    colorful
+                    name="window"
+                    label="Window"
+                    value={window}
+                    onChange={(e, value) => setWindow(value)}
+                    options={[{ value: '', label: '-- ALL --' }].concat(
+                      ArrayHelper.uniqueBy(visibleWindows, 'ahk_exe').map((win) => ({
+                        value: win.ahk_exe,
+                        label: (
+                          <Box row noWrap>
+                            <Text bold color={win.error ? 'error' : 'info'}>
+                              [{win.ahk_exe.toLowerCase()}]
+                            </Text>
+                            <Text flex ml={2}>
+                              {win.short.substring(0, 60)}
+                              {win.short.length > 60 ? ' ...' : ''}
+                            </Text>
+                            {win.error && <Badge color="error">not running</Badge>}
+                          </Box>
+                        ),
+                      })),
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <Tooltip title="Refresh">
+                    <Button onPress={getWindows}>
+                      <Icon name="Refresh" color="white" />
+                    </Button>
+                  </Tooltip>
+                </Box>
+                <Box>
+                  <Divider vertical h={27} mx={gap} />
+                </Box>
+                <Box>
+                  <Checkbox name="overlay" label="Overlay" checked={overlay} onChange={() => setOverlay((current) => !current)} />
+                </Box>
+              </Grid>
+            </Panel>
+          </Box>
+          <Box ml={gap}>
+            <Panel noCollapse flex title="Tools">
+              <Grid gap>
+                <Box xs={12}>
+                  <Button onPress={() => handleServiceAsync('positionPicker')}>Position Picker</Button>
+                </Box>
+                <Box xs={12}>
+                  <Button onPress={() => handleServiceAsync('colorPicker')}>Color Picker</Button>
+                </Box>
+              </Grid>
+            </Panel>
+          </Box>
+        </Box>
 
         <Panel title={`Key Locks (${locks.filter(({ lock }) => lock).length}/${locks.length})`} mt={gap}>
           {locks.map((item, index) => (
