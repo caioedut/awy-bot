@@ -11,11 +11,11 @@ export type PanelProps = {
   children: ReactNode;
 } & BoxProps;
 
-export default function Panel({ title, initialExpanded = true, children, ...rest }: PanelProps) {
+export default function Panel({ title, initialExpanded, children, ...rest }: PanelProps) {
   const theme = useTheme();
   const { gap } = theme.shape;
 
-  const [expanded, setExpanded] = useState(initialExpanded);
+  const [expanded, setExpanded] = useState(initialExpanded ?? false);
 
   return (
     <Card p={0} overflow="hidden" {...rest}>
