@@ -1,7 +1,7 @@
 {
   "name": "awy-bot",
   "description": "Remap key bindings and automate tasks",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/caioedut/awy-bot"
