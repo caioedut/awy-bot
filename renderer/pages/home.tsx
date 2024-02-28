@@ -518,7 +518,7 @@ export default function Home() {
               </Grid>
             </Panel>
           </Box>
-          <Box ml={gap}>
+          <Box ml={gap} w={160}>
             <Panel noCollapse flex title="Tools">
               <Grid gap>
                 <Box xs={12}>
@@ -526,6 +526,9 @@ export default function Home() {
                 </Box>
                 <Box xs={12}>
                   <Button onPress={() => handleServiceAsync('colorPicker')}>Color Picker</Button>
+                </Box>
+                <Box xs={12}>
+                  <Button onPress={() => handleServiceAsync('windowSpy')}>Window Spy</Button>
                 </Box>
               </Grid>
             </Panel>
