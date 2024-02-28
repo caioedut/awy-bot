@@ -37,7 +37,8 @@ import service from '../providers/service';
 import Storage from '../providers/storage';
 
 type Window = {
-  ahk_exe: string;
+  ahk_id?: string;
+  ahk_class: string;
   title: string;
   short: string;
   error?: boolean;
@@ -123,8 +124,8 @@ export default function Home() {
   const [bindingError, setBindingError] = useState(false);
   const [actionError, setActionError] = useState(false);
 
-  if (!loading && window && !visibleWindows.find((item) => item.ahk_exe === window)) {
-    visibleWindows.unshift({ ahk_exe: window, title: '-', short: '-', error: true });
+  if (!loading && window && !visibleWindows.find((item) => item.ahk_class === window)) {
+    visibleWindows.unshift({ ahk_class: window, title: '-', short: '-', error: true });
   }
 
   const getWindows = useCallback(() => {
@@ -484,18 +485,22 @@ export default function Home() {
                     value={window}
                     onChange={(e, value) => setWindow(value)}
                     options={[{ value: '', label: '-- ALL --' }].concat(
-                      ArrayHelper.uniqueBy(visibleWindows, 'ahk_exe').map((win) => ({
-                        value: win.ahk_exe,
+                      ArrayHelper.uniqueBy(visibleWindows, 'ahk_class').map((win) => ({
+                        value: win.ahk_class,
                         label: (
                           <Box row noWrap>
-                            <Text bold color={win.error ? 'error' : 'info'}>
-                              [{win.ahk_exe.toLowerCase()}]
-                            </Text>
-                            <Text flex ml={2}>
+                            <Text flex>
                               {win.short.substring(0, 60)}
                               {win.short.length > 60 ? ' ...' : ''}
                             </Text>
-                            {win.error && <Badge color="error">not running</Badge>}
+                            <Text bold ml={2} color={win.error ? 'error' : 'info'}>
+                              [{win.ahk_class.toLowerCase()}]
+                            </Text>
+                            {win.error && (
+                              <Badge ml={2} color="error">
+                                not running
+                              </Badge>
+                            )}
                           </Box>
                         ),
                       })),

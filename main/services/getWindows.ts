@@ -6,18 +6,15 @@ export default function getWindows() {
     .split(/\r?\n/g)
     .filter(Boolean)
     .map((item) => {
-      const split = item.split('|');
+      const [ahk_id, ahk_class, ...rest] = item.split('|');
 
-      const ahk_id = split.shift();
-      const ahk_exe = split.shift();
-      const title = split.join('|');
+      const title = rest.join('|');
+      const more = `${title} ${[ahk_class]}`.length > 120;
+      const short = title.substring(0, 120 - ahk_class.length) + (more ? ' [...]' : '');
 
-      const more = `${[ahk_exe]} : ${title}`.length > 120;
-      const short = title.substring(0, 120 - ahk_exe.length) + (more ? ' [...]' : '');
-
-      return { ahk_id, ahk_exe, title, short };
+      return { ahk_id, ahk_class, title, short };
     })
     .sort((a, b) => {
-      return a.ahk_exe.localeCompare(b.ahk_exe);
+      return a.ahk_class.localeCompare(b.ahk_class);
     });
 }
