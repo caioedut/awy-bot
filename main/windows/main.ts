@@ -24,10 +24,6 @@ export default async function main() {
 
   window.setMenuBarVisibility(false);
 
-  window.webContents.on('before-input-event', (e, input) => {
-    if (input.code == 'F4' && input.alt) e.preventDefault();
-  });
-
   window.webContents.session.on('will-download', (e, item, webContents) => {
     // Set the save path, making Electron not to prompt a save dialog.
     const filePath = `${app.getPath('temp')}\\${item.getFilename()}`;
